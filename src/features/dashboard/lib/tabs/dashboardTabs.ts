@@ -12,7 +12,8 @@ import {
     BarChart3,
     Clock,
     CircleHelp,
-    FileBarChart
+    FileBarChart,
+    Gift
 } from 'lucide-react';
 import { MAGIC8_ICON, RUSSIAN_ICON, SLOTS_ICON, DUEL_ICON } from '@/features/minigames/icons';
 
@@ -36,6 +37,7 @@ export const NAV_ITEMS: NavItem[] = [
     { id: 'roulette', label: 'Ruleta', icon: Dices, category: 'tools' },
     // CircleHelp: mismo “peso” óptico que el resto; MessageCircleQuestion se ve más bajo/corto.
     { id: 'questions', label: 'Preguntas', icon: CircleHelp, category: 'tools' },
+    { id: 'bitsRoulette', label: 'Ruleta Bits', icon: Gift, category: 'alerts' },
     { id: 'magic8', label: 'Bola 8', icon: MAGIC8_ICON, category: 'minigames' },
     { id: 'russian', label: 'Ruleta Rusa', icon: RUSSIAN_ICON, category: 'minigames' },
     { id: 'duel', label: 'Duelo', icon: DUEL_ICON, category: 'minigames' },
@@ -50,7 +52,9 @@ TAB_META.settings = { title: 'Configuración', icon: Settings };
 TAB_META.magic8 = { title: 'Bola 8 Mágica', icon: MAGIC8_ICON };
 
 const TOOL_TAB_IDS = new Set(
-    NAV_ITEMS.filter((item) => item.category === 'tools').map((item) => item.id)
+    NAV_ITEMS.filter((item) => item.category === 'tools' || item.category === 'alerts').map(
+        (item) => item.id
+    )
 );
 
 export function isToolTab(tab: DashboardTab): boolean {

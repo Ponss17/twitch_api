@@ -36,6 +36,9 @@ export const API_ENDPOINTS = {
     AUTH_DISCORD_LINK: `${API_BASE}/auth/discord/`,
     AUTH_DISCORD_UNLINK: `${API_BASE}/auth/discord/unlink/`,
     OVERLAY_EXCHANGE: `${API_BASE}/auth/overlay-exchange/`,
+    ALERTS_BITS_ROULETTE: `${API_BASE}/alerts/bits-roulette/`,
+    ALERTS_BITS_ROULETTE_TEST: `${API_BASE}/alerts/bits-roulette/test-spin/`,
+    ALERTS_BITS_ROULETTE_ANNOUNCE: `${API_BASE}/alerts/bits-roulette/announce/`,
     EXPORT_CHECK: `${API_BASE}/dashboard/export-check/`,
     EXPORT_COMPLETE: `${API_BASE}/dashboard/export-complete/`,
     REVEAL_API_KEY: `${API_BASE}/dashboard/reveal-api-key/`,
@@ -93,6 +96,7 @@ export type DashboardTab =
     | 'duel'
     | 'slots'
     | 'questions'
+    | 'bitsRoulette'
     | 'settings';
 
 export interface Session {

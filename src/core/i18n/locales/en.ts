@@ -398,12 +398,17 @@ export const en: Translations = {
             clips: 'Create and manage clips (MP4 download and !clip)',
             followers: 'View channel follows (!followage)',
             chatters: 'List chat viewers (roulette / chatters)',
-            chat: 'Read and write chat (panel tools)'
+            chat: 'Read and write chat (panel tools)',
+            bits: 'Read channel bits / cheers (roulette alerts)'
         },
         items: {
             'clips-download-2026-08': {
                 title: 'Download clips as MP4',
                 body: 'Update Twitch permissions to unlock clip downloads.'
+            },
+            'bits-roulette-2026-09': {
+                title: 'Bits roulette',
+                body: 'New alert: when someone cheers bits, the prize wheel spins on OBS. Set it up under Alerts.'
             }
         }
     },
@@ -756,6 +761,7 @@ export const en: Translations = {
             general: 'General',
             commands: 'Commands',
             tools: 'Tools',
+            alerts: 'Alerts',
             minigames: 'Minigames',
             support: 'Support'
         },
@@ -770,6 +776,7 @@ export const en: Translations = {
             trends: 'Trends',
             stalker: 'Stalker',
             roulette: 'Roulette',
+            bitsRoulette: 'Bits Roulette',
             magic8: 'Magic 8 Ball',
             russian: 'Russian Roulette',
             duel: 'Duel',
@@ -806,8 +813,8 @@ export const en: Translations = {
             'Could not connect to the API. Check your connection or that the backend is running.',
         fetchGenericError: 'Error loading data',
         apiHealth: {
-            down: 'The API is not responding. It may be waking up or there is a temporary outage.',
-            checking: 'Checking the API…'
+            down: 'No contact with the server. If the panel still works, you can ignore this.',
+            checking: 'Checking connection…'
         },
         errorBoundary: {
             title: 'Could not load this section',
@@ -968,6 +975,7 @@ export const en: Translations = {
             commands: 'Loading commands',
             trends: 'Loading trends',
             stalker: 'Loading stalker',
+            bitsRoulette: 'Loading bits roulette',
             settings: 'Loading settings',
             starting: 'Starting...'
         },
@@ -1269,6 +1277,40 @@ export const en: Translations = {
             loadingResult: 'Waiting for result...',
         },
     },
+    alerts: {
+        bitsRoulette: {
+            title: 'Bits roulette',
+            desc: 'When someone cheers the amount you set, the wheel spins on OBS with your prizes.',
+            triggerTitle: 'Trigger',
+            enabled: 'Enable alert',
+            threshold: 'Bits',
+            matchMode: 'Mode',
+            matchExact: 'Exactly that amount',
+            matchMin: 'That amount or more',
+            cooldown: 'Cooldown (s)',
+            triggerHint:
+                'Bits and prizes go in the overlay URL (like color). Save, generate Overlay, paste in OBS. Enable only turns on Twitch listening.',
+            optionsTitle: 'Wheel prizes',
+            addOption: 'Add',
+            removeOption: 'Remove',
+            optionsMin: 'Add at least 2 prizes.',
+            optionsMaxHint: 'Maximum {max} prizes ({plan} plan).',
+            save: 'Save to URL',
+            saving: 'Saving…',
+            saved: 'Alert saved',
+            savedLocal: 'Config ready: generate Overlay and update the URL in OBS',
+            enabledOn: 'Bits listening enabled',
+            enabledOff: 'Bits listening disabled',
+            saveError: 'Could not save the alert',
+            loadError: 'Could not load the alert',
+            testSpin: 'Test on OBS',
+            testing: 'Sending…',
+            testOk: 'Test cheer sent (overlay uses its URL)',
+            testError: 'Could not test the spin',
+            announceChat: 'Send the winning prize in chat',
+            announceChatHint: 'When the spin ends, the channel posts the prize and who won it.'
+        }
+    },
     tools: {
         stalker: {
             toasts: {
@@ -1470,14 +1512,16 @@ export const en: Translations = {
             tools: {
                 trends: 'Trends',
                 roulette: 'Roulette',
-                questions: 'Questions'
+                questions: 'Questions',
+                'bits-roulette': 'Bits Roulette'
             },
             sizes: {
                 trends: (w: number, h: number): string =>
                     `${w} × ${h} px (top 10; full width if preferred)`,
                 roulette: (w: number, h: number): string => `${w} × ${h} px`,
                 questions: (w: number, h: number): string =>
-                    `${w} × ${h} px (current question; full width if preferred)`
+                    `${w} × ${h} px (current question; full width if preferred)`,
+                'bits-roulette': (w: number, h: number): string => `${w} × ${h} px`
             }
         },
         appearance: {
@@ -1508,6 +1552,7 @@ export const en: Translations = {
         },
         apps: {
             rouletteErrorTitle: 'Roulette Overlay',
+            bitsRouletteErrorTitle: 'Bits Roulette Overlay',
             trendsErrorTitle: 'Trends Overlay',
             questionsErrorTitle: 'Questions Overlay'
         }

@@ -13,7 +13,8 @@ export const OVERLAY_SETUP_VERSION = '1.5';
 export const OVERLAY_OBS_BASE_SIZE: Record<OverlayTool, { width: number; height: number }> = {
     trends: { width: 900, height: 580 },
     roulette: { width: 720, height: 720 },
-    questions: { width: 800, height: 280 }
+    questions: { width: 800, height: 280 },
+    'bits-roulette': { width: 720, height: 720 }
 };
 
 export function resolveOverlayBrowserSize(

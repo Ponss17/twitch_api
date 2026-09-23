@@ -16,7 +16,7 @@ declare global {
             apiUser?: StoredUser;
             isApiKeyRequest?: boolean;
             isOverlayReadRequest?: boolean;
-            overlayTool?: 'roulette' | 'trends' | 'questions';
+            overlayTool?: 'roulette' | 'trends' | 'questions' | 'bits-roulette';
             customRateLimit?: number;
             cspNonce?: string;
             requestId?: string;

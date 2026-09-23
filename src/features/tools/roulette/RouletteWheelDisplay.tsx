@@ -7,6 +7,7 @@ import { useTranslation } from '@/core/i18n/I18nContext';
 import { useTheme } from '@/core/theme/useTheme';
 
 export type RouletteWheelVariant = 'full' | 'overlay';
+export type RoulettePointerSide = 'top' | 'bottom';
 
 export interface RouletteWheelDisplayProps {
     chatters: RouletteUser[];
@@ -17,6 +18,14 @@ export interface RouletteWheelDisplayProps {
     lastSpinCount: number;
     wheelColor?: string;
     variant?: RouletteWheelVariant;
+    /** Aguja arriba (chatters) o abajo (premios bits). */
+    pointerSide?: RoulettePointerSide;
+    /** Oculta “N Participantes · En el chat” (p. ej. ruleta de premios). */
+    showResultMeta?: boolean;
+    /** Si false, los nombres de segmento siguen visibles al girar (p. ej. premios bits). */
+    hideLabelsWhileSpinning?: boolean;
+    /** Avatar del canal en el hub (p. ej. Ruleta Bits). */
+    centerAvatarUrl?: string | null;
     announceWinnerInChat?: boolean;
     onWheelTransitionEnd?: (e: TransitionEvent<HTMLDivElement>) => void;
     onDismissWinner?: () => void;
@@ -32,6 +41,10 @@ export function RouletteWheelDisplay({
     lastSpinCount,
     wheelColor,
     variant = 'full',
+    pointerSide = 'top',
+    showResultMeta = true,
+    hideLabelsWhileSpinning = true,
+    centerAvatarUrl = null,
     announceWinnerInChat = true,
     onWheelTransitionEnd,
     onDismissWinner,
@@ -41,17 +54,12 @@ export function RouletteWheelDisplay({
     const rlT = t.tools.roulette;
     const { theme } = useTheme();
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const isSpinningRef = useRef(isSpinning);
 
     // `auto` lee data-theme en resolveWheelPalette — hay que invalidar al cambiar tema.
     const palette = useMemo(() => {
         void theme;
         return resolveWheelPalette(wheelColor);
     }, [wheelColor, theme]);
-
-    useEffect(() => {
-        isSpinningRef.current = isSpinning;
-    }, [isSpinning]);
 
     const drawWheel = useCallback(
         (users: RouletteUser[], options: { labels?: boolean; wheelColor?: string } = {}) => {
@@ -64,9 +72,11 @@ export function RouletteWheelDisplay({
         []
     );
 
+    const showLabels = !hideLabelsWhileSpinning || !isSpinning;
+
     useEffect(() => {
-        drawWheel(chatters, { labels: !isSpinningRef.current, wheelColor });
-    }, [chatters, wheelColor, drawWheel, theme]);
+        drawWheel(chatters, { labels: showLabels, wheelColor });
+    }, [chatters, wheelColor, drawWheel, theme, showLabels]);
 
     const isOverlay = variant === 'overlay';
     const containerClass = isOverlay
@@ -74,7 +84,7 @@ export function RouletteWheelDisplay({
         : 'relative mx-auto aspect-square max-w-[380px] p-5 max-[480px]:max-w-full max-[480px]:p-2.5';
 
     return (
-        <div className="text-center text-text-main">
+        <div className="relative mx-auto w-full max-w-[480px] text-center text-text-main">
             <div className={containerClass}>
                 <div
                     className={`absolute inset-5 rounded-full transition-shadow duration-300 max-[480px]:inset-2.5 ${
@@ -105,24 +115,43 @@ export function RouletteWheelDisplay({
                 </div>
 
                 <div
-                    className="pointer-events-none absolute top-1 left-1/2 z-20 -translate-x-1/2"
+                    className={
+                        pointerSide === 'bottom'
+                            ? 'pointer-events-none absolute bottom-1 left-1/2 z-20 -translate-x-1/2 rotate-180'
+                            : 'pointer-events-none absolute top-1 left-1/2 z-20 -translate-x-1/2'
+                    }
                     aria-hidden
                 >
                     <WheelPointer color={palette.primaryHex} stroke={palette.borderRgba} />
                 </div>
 
                 <div
-                    className="pointer-events-none absolute top-1/2 left-1/2 z-10 flex h-[14%] w-[14%] min-h-[44px] min-w-[44px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[3px] bg-bg-tertiary shadow-xl"
+                    className="pointer-events-none absolute top-1/2 left-1/2 z-10 flex h-[14%] w-[14%] min-h-[44px] min-w-[44px] -translate-x-1/2 -translate-y-1/2 items-center justify-center overflow-hidden rounded-full border-[3px] bg-bg-tertiary shadow-xl"
                     style={{ borderColor: palette.borderRgba }}
                     aria-hidden
                 >
-                    {chatters.length === 0 ? (
-                        <Users className="h-5 w-5 text-text-muted" aria-hidden="true" />
+                    {centerAvatarUrl ? (
+                        <img
+                            src={centerAvatarUrl}
+                            alt=""
+                            className="size-full object-cover"
+                            draggable={false}
+                        />
+                    ) : showResultMeta ? (
+                        chatters.length === 0 ? (
+                            <Users className="h-5 w-5 text-text-muted" aria-hidden="true" />
+                        ) : (
+                            <Dices
+                                className={`h-5 w-5 ${isSpinning ? 'animate-pulse' : ''}`}
+                                style={{ color: palette.primaryHex }}
+                                aria-hidden="true"
+                            />
+                        )
                     ) : (
-                        <Dices
-                            className={`h-5 w-5 ${isSpinning ? 'animate-pulse' : ''}`}
-                            style={{ color: palette.primaryHex }}
-                            aria-hidden="true"
+                        <span
+                            className="block size-2.5 rounded-full"
+                            style={{ backgroundColor: palette.primaryHex }}
+                            aria-hidden
                         />
                     )}
                 </div>
@@ -142,32 +171,39 @@ export function RouletteWheelDisplay({
                 )}
             </div>
 
-            {winner && (
+            {/* En overlay: absolute para no desplazar la ruleta. En panel: flujo normal. */}
+            {winner ? (
                 <div
                     role="status"
                     aria-live="polite"
-                    className="animate-in fade-in zoom-in-95 mx-auto mt-2 flex max-w-sm flex-col items-center gap-1.5 rounded-xl border border-primary/40 bg-primary/10 px-4 py-3 duration-200"
+                    className={
+                        isOverlay
+                            ? 'animate-in fade-in zoom-in-95 absolute top-[calc(100%-0.25rem)] left-1/2 z-30 w-[min(100%,24rem)] -translate-x-1/2 rounded-xl border border-primary/40 bg-primary/10 px-4 py-3 duration-200'
+                            : 'animate-in fade-in zoom-in-95 mx-auto mt-2 flex max-w-sm flex-col items-center gap-1.5 rounded-xl border border-primary/40 bg-primary/10 px-4 py-3 duration-200'
+                    }
                     style={{
                         borderColor: palette.borderRgba,
                         backgroundColor: palette.glowRgba.replace('0.45', '0.12')
                     }}
                 >
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-center gap-2">
                         <Crown className="size-4" style={{ color: palette.primaryHex }} aria-hidden="true" />
                         <span className="text-[0.75rem] font-medium uppercase tracking-wider text-text-muted">
                             {rlT.winner}
                         </span>
                         <Sparkles className="size-4" style={{ color: palette.primaryHex }} aria-hidden="true" />
                     </div>
-                    <span className="text-[1.125rem] font-bold text-text-main">
+                    <span className="mt-1 block text-[1.125rem] font-bold text-text-main">
                         {winner.user_name}
                     </span>
-                    <span className="text-[0.75rem] text-text-muted">
-                        {lastSpinCount || chatters.length} {rlT.participants}
-                        {announceWinnerInChat ? ` · ${rlT.inChat}` : ''}
-                    </span>
+                    {showResultMeta && (lastSpinCount || chatters.length) > 1 ? (
+                        <span className="mt-0.5 block text-[0.75rem] text-text-muted">
+                            {lastSpinCount || chatters.length} {rlT.participants}
+                            {announceWinnerInChat ? ` · ${rlT.inChat}` : ''}
+                        </span>
+                    ) : null}
                     {onDismissWinner && (
-                        <div className="mt-1 flex items-center gap-2">
+                        <div className="mt-1 flex items-center justify-center gap-2">
                             {onRespinWithoutWinner && (
                                 <button
                                     type="button"
@@ -188,7 +224,7 @@ export function RouletteWheelDisplay({
                         </div>
                     )}
                 </div>
-            )}
+            ) : null}
         </div>
     );
 }

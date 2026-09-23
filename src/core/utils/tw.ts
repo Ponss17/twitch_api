@@ -204,8 +204,10 @@ export const sidebarShell = (mobileOpen: boolean, collapsed = false) =>
     } ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`;
 
 export const sidebarBrandHeader = (collapsed = false) =>
-    `relative flex h-16 shrink-0 items-center overflow-hidden transition-[padding] ${SIDEBAR_MOTION} ${
-        collapsed ? 'justify-center px-2' : 'justify-between gap-2 px-3'
+    `relative flex shrink-0 overflow-hidden transition-[padding,height,flex-direction] ${SIDEBAR_MOTION} ${
+        collapsed
+            ? 'h-auto flex-col items-center justify-start gap-1 px-2 py-3'
+            : 'h-16 flex-row items-center justify-between gap-2 px-3'
     }`;
 
 /** Label de nav: se recorta con el ancho en vez de desmontarse. */

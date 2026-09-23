@@ -1,12 +1,17 @@
 import type { RouletteUser } from '@/core/types/twitch';
 
-export type OverlayTool = 'roulette' | 'trends' | 'questions';
+export type OverlayTool = 'roulette' | 'trends' | 'questions' | 'bits-roulette';
 
 export const OVERLAY_PAGE_PATHS: Record<OverlayTool, string> = {
-    roulette: '/overlay/roulette',
-    trends: '/overlay/trends',
-    questions: '/overlay/questions'
+    roulette: '/overlay/roulette/',
+    trends: '/overlay/trends/',
+    questions: '/overlay/questions/',
+    'bits-roulette': '/overlay/bits-roulette/'
 };
+
+export function isRouletteLikeOverlay(tool: OverlayTool): boolean {
+    return tool === 'roulette' || tool === 'bits-roulette';
+}
 
 export interface RouletteOverlayState {
     chatters: RouletteUser[];
@@ -21,6 +26,16 @@ export interface RouletteOverlayState {
     spinDuration?: number;
     wheelColor?: string;
     updatedAt: number;
+}
+
+/** Estado mirror bits-roulette: cheer del servidor + spin local en OBS. */
+export interface BitsRouletteOverlayState extends RouletteOverlayState {
+    lastCheer?: {
+        id: string;
+        bits: number;
+        userName?: string;
+        at: number;
+    } | null;
 }
 
 export interface TrendsOverlayState {
@@ -53,6 +68,7 @@ export type OverlayStateMap = {
     roulette: RouletteOverlayState;
     trends: TrendsOverlayState;
     questions: QuestionsOverlayState;
+    'bits-roulette': BitsRouletteOverlayState;
 };
 
 export type OverlayStateForTool<T extends OverlayTool> = OverlayStateMap[T];
@@ -69,6 +85,13 @@ export function emptyRouletteOverlayState(): RouletteOverlayState {
         lastSpinCount: 0,
         spinSeq: 0,
         updatedAt: Date.now()
+    };
+}
+
+export function emptyBitsRouletteOverlayState(): BitsRouletteOverlayState {
+    return {
+        ...emptyRouletteOverlayState(),
+        lastCheer: null
     };
 }
 
@@ -99,6 +122,7 @@ export function emptyOverlayState(
     tool: OverlayTool,
     displayName = 'Channel'
 ): AnyOverlayState {
+    if (tool === 'bits-roulette') return emptyBitsRouletteOverlayState();
     if (tool === 'roulette') return emptyRouletteOverlayState();
     if (tool === 'questions') return emptyQuestionsOverlayState();
     return emptyTrendsOverlayState(displayName);

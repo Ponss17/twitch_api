@@ -23,6 +23,13 @@ describe('userRoles', () => {
         expect(resolveUserHeavyLimit({ role: 'partner' })).toBe(40);
     });
 
+    it('maxBitsRouletteOptions escala por rol', () => {
+        expect(resolveUserLimits({ role: 'default' }).maxBitsRouletteOptions).toBe(4);
+        expect(resolveUserLimits({ role: 'pro' }).maxBitsRouletteOptions).toBe(5);
+        expect(resolveUserLimits({ role: 'vip' }).maxBitsRouletteOptions).toBe(8);
+        expect(resolveUserLimits({ role: 'partner' }).maxBitsRouletteOptions).toBe(10);
+    });
+
     it('resolveCache premia retención (COMMAND) y frescura (CLIPS/CHATTERS)', () => {
         expect(resolveCache('COMMAND', 'pro')).toBe(80);
         expect(resolveCache('COMMAND', 'partner')).toBe(240);
@@ -45,6 +52,7 @@ describe('userRoles', () => {
         expect(limits.roleLabel).toBe('VIP');
         expect(limits.rateLimit).toBe(90);
         expect(limits.heavyLimit).toBe(20);
+        expect(limits.maxBitsRouletteOptions).toBe(8);
         expect(limits.cacheTtl).toBe(90);
         expect(limits.hasCustomCacheTtl).toBe(true);
         expect(limits.hasCustomRateLimit).toBe(false);

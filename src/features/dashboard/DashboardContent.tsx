@@ -10,7 +10,8 @@ import {
     TrendsSkeleton,
     StalkerViewSkeleton,
     ClipsViewSkeleton,
-    CommandViewSkeleton 
+    CommandViewSkeleton,
+    BitsRouletteSkeleton
 } from '@/shared/ui/Skeleton';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { useToolFocus } from '@/features/dashboard/lib/ui/ToolFocusContext';
@@ -61,6 +62,9 @@ const RouletteView = lazy(() =>
 const QuestionsView = lazy(() =>
     import('@/features/tools/questions/QuestionsView').then((m) => ({ default: m.QuestionsView }))
 );
+const BitsRouletteView = lazy(() =>
+    import('@/features/alerts/BitsRouletteView').then((m) => ({ default: m.BitsRouletteView }))
+);
 
 interface DashboardContentProps {
     tab: DashboardTab;
@@ -80,6 +84,7 @@ function TabFallback({ tab }: { tab: DashboardTab }) {
     if (tab === 'stalker') return <StalkerViewSkeleton />;
     if (tab === 'clips') return <ClipsViewSkeleton />;
     if (tab === 'home') return <HomeViewSkeleton />;
+    if (tab === 'bitsRoulette') return <BitsRouletteSkeleton />;
     
     // Fallback genérico para vistas de comandos y minijuegos (Overlay, Magic8, Followage, etc.)
     return <CommandViewSkeleton />;
@@ -119,6 +124,8 @@ function renderTabPanel(tab: DashboardTab, { active, onNavigate }: TabPanelProps
             return <StalkerView active={active} />;
         case 'roulette':
             return <RouletteView active={active} />;
+        case 'bitsRoulette':
+            return <BitsRouletteView active={active} />;
         default:
             return null;
     }

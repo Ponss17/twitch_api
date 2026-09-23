@@ -280,7 +280,11 @@ function DashboardAppShell() {
         initGlobalErrorLogging();
         void (async () => {
             try {
-                await fetch('/health?probe=live', { method: 'GET', cache: 'no-store' });
+                await fetch('/api/health/', {
+                    method: 'GET',
+                    cache: 'no-store',
+                    headers: { Accept: 'application/json' }
+                });
             } catch {
                 /* silencioso — ApiHealthBanner hace el seguimiento en UI */
             }

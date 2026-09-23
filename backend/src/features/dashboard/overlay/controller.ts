@@ -8,6 +8,7 @@ import { AuthenticatedRequest } from '../../../types/twitch';
 import { jsonError } from '../../../core/utils/jsonResponse';
 import { frontendPagePath } from '../../../core/utils/frontendPaths';
 import { signOverlayReadToken } from '../../auth/auth.service';
+import { resolveMaxBitsRouletteOptions } from '../../../core/config/userRoles';
 import { overlayPagePath, overlayStateKey } from '../../../core/overlay/keys';
 
 function overlayToolMismatch(res: Response, requestedTool: string): boolean {
@@ -81,7 +82,7 @@ export const putOverlayState = async (req: AuthenticatedRequest, res: Response) 
 
 export const createOverlayLink = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId;
-    const { tool } = req.body as { tool: 'roulette' | 'trends' | 'questions' };
+    const { tool } = req.body as { tool: 'roulette' | 'trends' | 'questions' | 'bits-roulette' };
 
     if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
 
@@ -99,7 +100,14 @@ export const createOverlayLink = async (req: AuthenticatedRequest, res: Response
             tool,
             login: apiUser.login || req.login || '',
             displayName: apiUser.displayName || req.login || '',
-            profile_image_url: apiUser.profileImageUrl
+            profile_image_url: apiUser.profileImageUrl,
+            ...(tool === 'bits-roulette'
+                ? {
+                      maxPrizes: resolveMaxBitsRouletteOptions(
+                          apiUser as { role?: string | null }
+                      )
+                  }
+                : {})
         });
 
         const url = frontendPagePath(

@@ -398,12 +398,17 @@ export const es = {
             clips: 'Crear y gestionar clips (descarga MP4 y !clip)',
             followers: 'Ver follows del canal (!followage)',
             chatters: 'Listar viewers del chat (ruleta / chatters)',
-            chat: 'Leer y escribir en el chat (herramientas del panel)'
+            chat: 'Leer y escribir en el chat (herramientas del panel)',
+            bits: 'Leer bits / cheers del canal (alertas de ruleta)'
         },
         items: {
             'clips-download-2026-08': {
                 title: 'Descarga de clips en MP4',
                 body: 'Actualiza los permisos de Twitch para desbloquear la descarga de clips.'
+            },
+            'bits-roulette-2026-09': {
+                title: 'Ruleta por bits',
+                body: 'Nueva alerta: cuando alguien dona bits, la ruleta de premios gira en OBS. Configúrala en Alertas.'
             }
         }
     },
@@ -752,6 +757,7 @@ export const es = {
             general: 'General',
             commands: 'Comandos',
             tools: 'Herramientas',
+            alerts: 'Alertas',
             minigames: 'Minijuegos',
             support: 'Soporte'
         },
@@ -766,6 +772,7 @@ export const es = {
             trends: 'Tendencias',
             stalker: 'Stalker',
             roulette: 'Ruleta',
+            bitsRoulette: 'Ruleta Bits',
             magic8: 'Bola 8',
             russian: 'Ruleta Rusa',
             duel: 'Duelo',
@@ -800,8 +807,8 @@ export const es = {
             'No se pudo conectar con la API. Comprueba tu conexión o que el backend esté en marcha.',
         fetchGenericError: 'Error cargando datos',
         apiHealth: {
-            down: 'La API no responde. Puede estar despertando o haber un corte temporal.',
-            checking: 'Comprobando la API…'
+            down: 'Sin contacto con el servidor. Si el panel te responde, puedes ignorar esto.',
+            checking: 'Comprobando conexión…'
         },
         errorBoundary: {
             title: 'No se pudo cargar esta sección',
@@ -845,6 +852,7 @@ export const es = {
             commands: 'Cargando comandos',
             trends: 'Cargando tendencias',
             stalker: 'Cargando stalker',
+            bitsRoulette: 'Cargando ruleta bits',
             settings: 'Cargando ajustes',
             starting: 'Iniciando…'
         },
@@ -1263,6 +1271,40 @@ export const es = {
             loadingResult: 'Esperando resultado...',
         },
     },
+    alerts: {
+        bitsRoulette: {
+            title: 'Ruleta por bits',
+            desc: 'Cuando alguien cheeréa la cantidad que elijas, la ruleta gira sola en OBS con tus premios.',
+            triggerTitle: 'Disparo',
+            enabled: 'Activar alerta',
+            threshold: 'Bits',
+            matchMode: 'Modo',
+            matchExact: 'Exactamente esa cantidad',
+            matchMin: 'Esa cantidad o más',
+            cooldown: 'Cooldown (s)',
+            triggerHint:
+                'Bits y premios van en la URL del overlay (como el color). Guarda, genera Overlay y pégala en OBS. Activar solo enciende la escucha de Twitch.',
+            optionsTitle: 'Premios de la ruleta',
+            addOption: 'Añadir',
+            removeOption: 'Quitar',
+            optionsMin: 'Pon al menos 2 premios.',
+            optionsMaxHint: 'Máximo {max} premios (plan {plan}).',
+            save: 'Guardar en URL',
+            saving: 'Guardando…',
+            saved: 'Alerta guardada',
+            savedLocal: 'Config lista: genera Overlay y actualiza la URL en OBS',
+            enabledOn: 'Escucha de bits activada',
+            enabledOff: 'Escucha de bits desactivada',
+            saveError: 'No se pudo guardar la alerta',
+            loadError: 'No se pudo cargar la alerta',
+            testSpin: 'Probar en OBS',
+            testing: 'Lanzando…',
+            testOk: 'Cheer de prueba enviado (el overlay usa su URL)',
+            testError: 'No se pudo probar el spin',
+            announceChat: 'Enviar premio ganador en el chat',
+            announceChatHint: 'Al terminar el giro, el canal escribe en el chat el premio y quién lo ganó.'
+        }
+    },
     tools: {
         stalker: {
             toasts: {
@@ -1464,14 +1506,16 @@ export const es = {
             tools: {
                 trends: 'Tendencias',
                 roulette: 'Ruleta',
-                questions: 'Preguntas'
+                questions: 'Preguntas',
+                'bits-roulette': 'Ruleta Bits'
             },
             sizes: {
                 trends: (w: number, h: number): string =>
                     `${w} × ${h} px (top 10; ancho de escena si prefieres)`,
                 roulette: (w: number, h: number): string => `${w} × ${h} px`,
                 questions: (w: number, h: number): string =>
-                    `${w} × ${h} px (pregunta actual; ancho de escena si prefieres)`
+                    `${w} × ${h} px (pregunta actual; ancho de escena si prefieres)`,
+                'bits-roulette': (w: number, h: number): string => `${w} × ${h} px`
             }
         },
         appearance: {
@@ -1502,6 +1546,7 @@ export const es = {
         },
         apps: {
             rouletteErrorTitle: 'Overlay de ruleta',
+            bitsRouletteErrorTitle: 'Overlay de ruleta por bits',
             trendsErrorTitle: 'Overlay de tendencias',
             questionsErrorTitle: 'Overlay de preguntas'
         }

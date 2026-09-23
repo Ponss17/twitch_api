@@ -171,7 +171,8 @@ export function useOverlayMirror<T extends OverlayTool>(
                     };
                     setState(emptyStateRef.current);
                     lastReceivedFingerprintRef.current = '';
-                    setStale(true);
+                    // bits-roulette: sin estado en KV es idle normal (config va en la URL).
+                    setStale(tool !== 'bits-roulette');
                     syncPollInterval(null);
                     return;
                 }

@@ -33,6 +33,7 @@ export function buildDashboardProfile(
                   roleLabel: limits.roleLabel,
                   rateLimit: limits.rateLimit,
                   heavyLimit: limits.heavyLimit,
+                  maxBitsRouletteOptions: limits.maxBitsRouletteOptions,
                   cacheTtl: limits.cacheTtl,
                   hasCustomRateLimit: limits.hasCustomRateLimit,
                   hasCustomCacheTtl: limits.hasCustomCacheTtl

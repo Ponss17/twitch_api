@@ -18,6 +18,14 @@ describe('rouletteWheelUtils', () => {
         }
     });
 
+    it('winnerIndex with bottom pointer stays in bounds', () => {
+        for (let rotation = 0; rotation < 360; rotation += 15) {
+            const index = winnerIndex(rotation, 6, 'bottom');
+            expect(index).toBeGreaterThanOrEqual(0);
+            expect(index).toBeLessThan(6);
+        }
+    });
+
     it('truncateLabel shortens long names', () => {
         expect(truncateLabel('abcdefghijklm', 8)).toBe('abcdefg…');
         expect(truncateLabel('short', 8)).toBe('short');
