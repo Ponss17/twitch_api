@@ -59,6 +59,8 @@ export interface DashboardProfile {
     roleLabel?: string;
     rateLimit?: number;
     heavyLimit?: number;
+    /** Premios máximos en Ruleta Bits según plan. */
+    maxBitsRouletteOptions?: number;
     cacheTtl?: number;
     hasCustomRateLimit?: boolean;
     hasCustomCacheTtl?: boolean;

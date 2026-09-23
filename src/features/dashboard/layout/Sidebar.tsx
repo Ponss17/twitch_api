@@ -223,17 +223,22 @@ export function Sidebar({
                             <span className="text-[color:var(--brand-text)]">API</span>
                         </span>
                     </div>
-                    {/* Expandido: colapsar al lado del brand (estilo Netlify). Colapsado: el expand va abajo. */}
-                    {onCollapsedChange && !railCollapsed ? (
+                    {onCollapsedChange ? (
                         <button
                             type="button"
                             className={`hidden size-8 shrink-0 items-center justify-center rounded-lg text-text-muted lg:inline-flex ${hoverSubtleIconBtn}`}
-                            aria-label={t.sidebar.collapseMenu}
-                            aria-expanded
+                            aria-label={
+                                railCollapsed ? t.sidebar.expandMenu : t.sidebar.collapseMenu
+                            }
+                            aria-expanded={!railCollapsed}
                             aria-controls="dashboard-sidebar"
                             onClick={toggleCollapsed}
                         >
-                            <PanelLeftClose className="size-4" aria-hidden />
+                            {railCollapsed ? (
+                                <PanelLeftOpen className="size-4" aria-hidden />
+                            ) : (
+                                <PanelLeftClose className="size-4" aria-hidden />
+                            )}
                         </button>
                     ) : null}
                 </div>
@@ -327,18 +332,6 @@ export function Sidebar({
                     className={`relative shrink-0 overflow-visible border-t border-border-subtle transition-[padding] ${SIDEBAR_MOTION} ${railCollapsed ? 'px-1.5' : 'px-0'
                         }`}
                 >
-                    {onCollapsedChange && railCollapsed ? (
-                        <button
-                            type="button"
-                            className={`mx-auto mb-1 flex size-10 items-center justify-center rounded-lg text-text-muted ${hoverSubtleIconBtn}`}
-                            aria-label={t.sidebar.expandMenu}
-                            aria-expanded={false}
-                            aria-controls="dashboard-sidebar"
-                            onClick={toggleCollapsed}
-                        >
-                            <PanelLeftOpen className="size-4" aria-hidden />
-                        </button>
-                    ) : null}
                     <Dropdown
                         className={`relative overflow-visible transition-[width] ${SIDEBAR_MOTION} ${railCollapsed ? 'w-auto' : 'w-full'
                             }`}

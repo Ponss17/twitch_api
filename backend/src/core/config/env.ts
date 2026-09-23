@@ -37,7 +37,9 @@ const envSchema = z.object({
     FRONTEND_URL: z.string().url().optional(),
     /** Upstash Redis — obligatorias en producción, opcionales en dev/test (fail-open). */
     KV_REST_API_URL: z.string().url().optional(),
-    KV_REST_API_TOKEN: z.string().optional()
+    KV_REST_API_TOKEN: z.string().optional(),
+    /** Secreto EventSub webhook (opcional; cae a HMAC_SIGNING_SECRET / client secret). */
+    EVENTSUB_SECRET: z.string().min(10).optional()
 });
 
 const isTest = process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID !== undefined;
@@ -109,7 +111,8 @@ const envVars = {
         (isTest ? 'test_jwt_secret_for_testing_purposes_only' : undefined),
     FRONTEND_URL: resolveProductionUrl(process.env.FRONTEND_URL, 'FRONTEND_URL'),
     KV_REST_API_URL: process.env.KV_REST_API_URL,
-    KV_REST_API_TOKEN: process.env.KV_REST_API_TOKEN
+    KV_REST_API_TOKEN: process.env.KV_REST_API_TOKEN,
+    EVENTSUB_SECRET: process.env.EVENTSUB_SECRET
 };
 
 const isProd = process.env.NODE_ENV === 'production';
@@ -157,10 +160,19 @@ const rawConfig = parsed.success
     ? parsed.data
     : (envVars as unknown as z.infer<typeof envSchema>);
 
-/** Opcional en Vercel: dominio público = origen de BASE_URL (losperris.dev). */
-const deriveFrontendUrl = (baseUrl: string, explicit?: string): string | undefined => {
+/** Opcional en Vercel: dominio público = origen de BASE_URL (losperris.dev).
+ * En local NO derivar del BASE_URL (:3000): el panel Astro vive en :4321. */
+const deriveFrontendUrl = (
+    baseUrl: string,
+    explicit: string | undefined,
+    nodeEnv: string
+): string | undefined => {
     if (explicit && !isLocalhostUrl(explicit)) {
         return explicit.replace(/\/$/, '');
+    }
+    if (nodeEnv === 'development' || nodeEnv === 'test') {
+        if (explicit) return explicit.replace(/\/$/, '');
+        return 'http://localhost:4321';
     }
     try {
         return new URL(baseUrl).origin;
@@ -171,5 +183,5 @@ const deriveFrontendUrl = (baseUrl: string, explicit?: string): string | undefin
 
 export const CONFIG = {
     ...rawConfig,
-    FRONTEND_URL: deriveFrontendUrl(rawConfig.BASE_URL, rawConfig.FRONTEND_URL)
+    FRONTEND_URL: deriveFrontendUrl(rawConfig.BASE_URL, rawConfig.FRONTEND_URL, rawConfig.NODE_ENV)
 };

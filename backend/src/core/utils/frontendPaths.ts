@@ -13,12 +13,13 @@ export function frontendPagePath(page: string, search = ''): string {
     const mounted = segment === '/' ? `${APP_MOUNT}/` : `${APP_MOUNT}${segment}`;
     const suffix = search ? (search.startsWith('?') ? search : `?${search}`) : '';
 
-    if (CONFIG.FRONTEND_URL) {
-        return `${CONFIG.FRONTEND_URL.replace(/\/$/, '')}${mounted}${suffix}`;
-    }
-
+    // Dev: Astro en :4321 — nunca usar el origen de la API (:3000).
     if (CONFIG.NODE_ENV === 'development') {
         return `http://localhost:4321${mounted}${suffix}`;
+    }
+
+    if (CONFIG.FRONTEND_URL) {
+        return `${CONFIG.FRONTEND_URL.replace(/\/$/, '')}${mounted}${suffix}`;
     }
 
     try {

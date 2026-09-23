@@ -43,7 +43,7 @@ async function drainOverlayQueue(tool: OverlayTool): Promise<void> {
 
         lastPublishedFingerprint.set(tool, job.fingerprint);
         try {
-            const res = await fetch(`${API_ENDPOINTS.OVERLAY_STATE}${tool}`, withApiCredentials({
+            const res = await fetch(`${API_ENDPOINTS.OVERLAY_STATE}${tool}/`, withApiCredentials({
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', ...authHeaders(job.session) },
                 body: JSON.stringify({ state: job.state }),
@@ -106,7 +106,7 @@ export async function fetchOverlayLink(
 
     // Fallback elegante para entorno local si el backend no está disponible
     if (typeof window !== 'undefined') {
-        const base = `${window.location.origin}/overlay/${tool}`;
+        const base = `${window.location.origin}/overlay/${tool}/`;
         return session.apiKey ? `${base}?key=${encodeURIComponent(session.apiKey)}` : base;
     }
     return null;

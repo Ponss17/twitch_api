@@ -303,6 +303,60 @@ export const revealKeyRateLimiter = async (req: Request, res: Response, next: Ne
     }
 };
 
+/** Guardar / test-spin de Ruleta por bits (panel). */
+export const bitsRouletteConfigRateLimiter = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    const apiUser = res.locals?.apiUser as { userId?: string } | undefined;
+    const userId = apiUser?.userId;
+    if (!userId) return next();
+
+    const key = `rl:bits-roulette:cfg:${userId}`;
+    const limit = RATE_LIMITS.BITS_ROULETTE_CFG;
+
+    try {
+        const count = await kvIncrWithWindow(key, 60);
+        if (count > limit) {
+            return res.status(429).json({
+                error: 'Too Many Requests',
+                message: 'Demasiados cambios en la alerta de bits. Espera un momento.'
+            });
+        }
+        return next();
+    } catch (error) {
+        if (process.env.NODE_ENV !== 'production') {
+            logger.debug('KV bits-roulette cfg rate limit omitido en desarrollo', { error });
+            return next();
+        }
+        logger.error('Error in Bits Roulette Config Rate Limiter:', error);
+        return res.status(503).json({
+            error: 'Service Unavailable',
+            message: 'Servicio temporalmente no disponible'
+        });
+    }
+};
+
+/** Webhook EventSub por IP (anti-abuso; Twitch reintenta con backoff). */
+export const eventSubIpRateLimiter = async (req: Request, res: Response, next: NextFunction) => {
+    const safeIp = (req.ip || 'anon').replace(/[^a-zA-Z0-9.:]/g, '').slice(0, 45);
+    const key = `rl:eventsub:ip:${safeIp}`;
+    const limit = RATE_LIMITS.EVENTSUB_IP;
+
+    try {
+        const count = await kvIncrWithWindow(key, 60);
+        if (count > limit) {
+            return res.status(429).send('Too Many Requests');
+        }
+        return next();
+    } catch (error) {
+        if (process.env.NODE_ENV !== 'production') return next();
+        logger.error('Error in EventSub IP Rate Limiter:', error);
+        return res.status(503).send('Service Unavailable');
+    }
+};
+
 export const authRateLimiter = async (req: Request, res: Response, next: NextFunction) => {
     const safeIp = (req.ip || 'anon').replace(/[^a-zA-Z0-9.:]/g, '').slice(0, 45);
     const key = `rl:auth:${safeIp}`;

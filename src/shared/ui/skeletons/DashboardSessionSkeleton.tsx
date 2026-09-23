@@ -4,6 +4,7 @@ import { Skeleton, SkeletonCircle } from './SkeletonPrimitives';
 import { AnalyticsSkeleton } from './AnalyticsSkeleton';
 import { ClipsViewSkeleton } from './ClipsViewSkeleton';
 import { CommandViewSkeleton } from './CommandViewSkeleton';
+import { BitsRouletteSkeleton } from './BitsRouletteSkeleton';
 import { HomeViewSkeleton } from './HomeViewSkeleton';
 import { ReportsSkeleton } from './ReportsSkeleton';
 import { SettingsViewSkeleton } from './SettingsViewSkeleton';
@@ -20,6 +21,7 @@ export function DashboardSessionSkeleton({ tab = 'home' }: { tab?: string }) {
     else if (tab === 'trends') ContentSkeleton = TrendsSkeleton;
     else if (tab === 'stalker') ContentSkeleton = StalkerViewSkeleton;
     else if (tab === 'clips') ContentSkeleton = ClipsViewSkeleton;
+    else if (tab === 'bitsRoulette') ContentSkeleton = BitsRouletteSkeleton;
     else if (tab !== 'home') ContentSkeleton = CommandViewSkeleton;
 
     return (

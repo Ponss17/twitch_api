@@ -18,6 +18,7 @@ const DIST_ROOT = path.join(__dirname, '../../dist');
 const DIST_PAGE_FILES: Record<string, string> = {
     '/dashboard': 'dashboard/index.html',
     '/overlay/roulette': 'overlay/roulette/index.html',
+    '/overlay/roulette/': 'overlay/roulette/index.html',
     '/404': '404.html'
 };
 
@@ -40,12 +41,17 @@ describe('frontendPagePath', () => {
 
     it('builds overlay URL at root (overlay link)', () => {
         const url = frontendPagePath(overlayPagePath('roulette'), 'overlayToken=abc');
-        expect(url).toBe('http://localhost:4321/overlay/roulette?overlayToken=abc');
+        expect(url).toBe('http://localhost:4321/overlay/roulette/?overlayToken=abc');
     });
 
     it('builds overlay URL for questions', () => {
         const url = frontendPagePath(overlayPagePath('questions'), 'overlayToken=abc');
-        expect(url).toBe('http://localhost:4321/overlay/questions?overlayToken=abc');
+        expect(url).toBe('http://localhost:4321/overlay/questions/?overlayToken=abc');
+    });
+
+    it('builds overlay URL for bits-roulette with trailing slash', () => {
+        const url = frontendPagePath(overlayPagePath('bits-roulette'), 'overlayToken=abc');
+        expect(url).toBe('http://localhost:4321/overlay/bits-roulette/?overlayToken=abc');
     });
 
     it('builds 404 redirect at root (error middleware)', () => {

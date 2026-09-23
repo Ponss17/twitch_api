@@ -34,6 +34,8 @@ export const OVERLAY_POLL_TRENDS_MS = 2_500;
 export const OVERLAY_POLL_QUESTIONS_MS = 2_500;
 export const OVERLAY_POLL_ROULETTE_MS = 1500;
 export const OVERLAY_POLL_SPINNING_MS = 800;
+/** bits-roulette en reposo. El giro es local; 10 s basta para ver el cheer sin 30 GET/min. */
+export const OVERLAY_POLL_BITS_MS = 10_000;
 
 export interface OverlayPollAnchors {
     winnerShownAt: number | null;
@@ -49,7 +51,7 @@ export function updateOverlayPollAnchors(
 ): void {
     if (!state) return;
 
-    if (tool === 'roulette') {
+    if (tool === 'roulette' || tool === 'bits-roulette') {
         const roulette = state as RouletteOverlayState;
         if (!roulette.winner) {
             anchors.winnerShownAt = null;
@@ -94,6 +96,8 @@ export function resolveOverlayPollIntervalMs(
     now: number,
     anchors: OverlayPollAnchors
 ): number {
+    if (tool === 'bits-roulette') return OVERLAY_POLL_BITS_MS;
+
     if (!state) return OVERLAY_POLL_IDLE_MS;
 
     if (tool === 'trends') {

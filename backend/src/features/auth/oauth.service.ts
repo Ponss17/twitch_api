@@ -85,7 +85,7 @@ export const getAuthorizeUrl = (
     options?: { forceVerify?: boolean }
 ): string => {
     const scope =
-        'user:read:email moderator:read:followers clips:edit channel:manage:clips moderator:read:chatters user:write:chat chat:read chat:edit moderator:manage:banned_users channel:read:vips channel:read:subscriptions';
+        'user:read:email moderator:read:followers clips:edit channel:manage:clips moderator:read:chatters user:write:chat chat:read chat:edit moderator:manage:banned_users channel:read:vips channel:read:subscriptions bits:read';
     const state = providedState ?? createOAuthState(redirectOrigin, extraData);
 
     const params = new URLSearchParams({

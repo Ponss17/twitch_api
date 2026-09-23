@@ -29,8 +29,8 @@ export function promoteToasterAboveModals(): void {
     const el = document.querySelector<HTMLElement>(`[${TOAST_POPOVER_ATTR}]`);
     if (!el || typeof el.showPopover !== 'function') return;
     try {
-        if (el.matches(':popover-open')) el.hidePopover();
-        el.showPopover();
+        // No hacer hide→show si ya está abierto: el popover es inset-0 y provoca un flash de toda la UI.
+        if (!el.matches(':popover-open')) el.showPopover();
     } catch {
         try {
             el.showPopover();

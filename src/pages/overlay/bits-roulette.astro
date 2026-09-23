@@ -1,0 +1,8 @@
+---
+import OverlayLayout from '../../layouts/OverlayLayout.astro';
+import { OverlayBitsRouletteRoot } from '@/features/overlay/apps/OverlayBitsRouletteApp';
+---
+
+<OverlayLayout title="Ruleta por bits">
+    <OverlayBitsRouletteRoot client:only="react" />
+</OverlayLayout>

@@ -10,5 +10,12 @@ export const RATE_LIMITS = {
     REVEAL_API_KEY: 5, // Revelar API Key en panel (por minuto / usuario)
     FEEDBACK: 5, // Feedback Discord (por 15 min / usuario+IP)
     /** Borrar cuenta / acciones destructivas (por 15 min / usuario) */
-    DESTRUCTIVE_ACCOUNT: 3
+    DESTRUCTIVE_ACCOUNT: 3,
+    /** Guardar config / test-spin de Ruleta por bits (por minuto / usuario) */
+    BITS_ROULETTE_CFG: 20,
+    /**
+     * Webhook EventSub por IP y minuto.
+     * Twitch entrega todos los canales desde las mismas IPs: 120/min revocaba suscripciones.
+     */
+    EVENTSUB_IP: 3000
 };

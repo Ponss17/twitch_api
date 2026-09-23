@@ -117,6 +117,12 @@ export const verifyOverlayReadToken = (token: string): OverlayReadPayload | null
             login: data.login,
             displayName: data.displayName || data.login,
             profile_image_url: data.profile_image_url,
+            maxPrizes:
+                typeof data.maxPrizes === 'number' &&
+                data.maxPrizes >= 2 &&
+                data.maxPrizes <= 10
+                    ? Math.floor(data.maxPrizes)
+                    : undefined,
             iat: data.iat
         };
         overlayTokenCache.set(token, {
