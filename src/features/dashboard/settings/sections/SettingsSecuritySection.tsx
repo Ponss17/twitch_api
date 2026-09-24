@@ -1,4 +1,4 @@
-import { Key, EyeOff, Eye, Check, RotateCw, Copy, AlertTriangle } from 'lucide-react';
+import { Key, EyeOff, Eye, Check, RotateCw, Copy } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { SettingsRow } from '@/features/dashboard/settings/components/SettingsGroup';
 import { useTranslation } from '@/core/i18n/I18nContext';
@@ -152,24 +152,35 @@ export function SettingsSecuritySection({
             {showRotateNudge ? (
                 <div
                     role="status"
-                    className="mt-3 flex flex-wrap items-start gap-2 rounded-lg border border-warning/35 bg-warning/10 px-3 py-2.5 text-[0.75rem] text-text-main"
+                    className="mt-3 flex flex-col gap-2.5 rounded-lg border border-border-subtle bg-bg-secondary/60 px-3 py-2.5 sm:flex-row sm:items-center sm:gap-3"
                 >
-                    <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-warning" aria-hidden />
-                    <p className="min-w-0 flex-1">{pT.keyRotateNudge}</p>
-                    <button
-                        type="button"
-                        onClick={onRegenKey}
-                        className="rounded-md bg-bg-secondary px-2.5 py-1 text-[0.7rem] font-semibold hover:bg-bg-main"
-                    >
-                        {pT.keyRotateNudgeCta}
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => setNudgeDismissed(true)}
-                        className="rounded-md px-2 py-1 text-[0.7rem] text-text-muted hover:text-text-main"
-                    >
-                        {t.announcements.dismiss}
-                    </button>
+                    <div className="flex min-w-0 flex-1 items-start gap-2.5">
+                        <span
+                            className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-primary"
+                            aria-hidden
+                        >
+                            <RotateCw className="size-3.5" />
+                        </span>
+                        <p className="min-w-0 text-[0.75rem] leading-relaxed text-text-muted">
+                            {pT.keyRotateNudge}
+                        </p>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-1.5 self-end sm:self-auto">
+                        <button
+                            type="button"
+                            onClick={onRegenKey}
+                            className="rounded-md border border-primary/25 bg-primary/10 px-2.5 py-1 text-[0.7rem] font-semibold text-brand-text transition-colors hover:bg-primary/15"
+                        >
+                            {pT.keyRotateNudgeCta}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setNudgeDismissed(true)}
+                            className="rounded-md px-2 py-1 text-[0.7rem] text-text-muted transition-colors hover:bg-white/[0.04] hover:text-text-main"
+                        >
+                            {t.announcements.dismiss}
+                        </button>
+                    </div>
                 </div>
             ) : null}
         </SettingsRow>
