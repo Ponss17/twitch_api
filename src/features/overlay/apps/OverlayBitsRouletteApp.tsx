@@ -21,7 +21,7 @@ import {
     isCheerFresh,
     matchesBitsThreshold,
     parseBitsRouletteUrlConfig
-} from '@/features/alerts/bitsRouletteUrl';
+} from '@/features/alerts/lib/bitsRouletteUrl';
 
 function optionsToChatters(options: string[]): RouletteUser[] {
     return options.map((label, i) => ({

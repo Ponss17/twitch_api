@@ -37,7 +37,7 @@ const WatchtimeView = lazy(() =>
 const ShoutoutView = lazy(() =>
     import('@/features/commands/views/ShoutoutView').then((m) => ({ default: m.ShoutoutView }))
 );
-const ClipsView = lazy(() => import('@/features/clips/ClipsView').then((m) => ({ default: m.ClipsView })));
+const ClipsView = lazy(() => import('@/features/clips/views/ClipsView').then((m) => ({ default: m.ClipsView })));
 const Magic8View = lazy(() =>
     import('@/features/minigames/views/Magic8View').then((m) => ({ default: m.Magic8View }))
 );
@@ -63,7 +63,7 @@ const QuestionsView = lazy(() =>
     import('@/features/tools/questions/QuestionsView').then((m) => ({ default: m.QuestionsView }))
 );
 const BitsRouletteView = lazy(() =>
-    import('@/features/alerts/BitsRouletteView').then((m) => ({ default: m.BitsRouletteView }))
+    import('@/features/alerts/views/BitsRouletteView').then((m) => ({ default: m.BitsRouletteView }))
 );
 
 interface DashboardContentProps {

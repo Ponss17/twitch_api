@@ -1,0 +1,47 @@
+---
+description: Forma canónica de features FE/BE y excepciones permitidas
+alwaysApply: true
+---
+
+# Forma de features (LosPerris)
+
+Al crear o mover código de producto, sigue esta forma. No inventes carpetas vacías ni features fantasma.
+
+## Frontend — canónica
+
+Referencia: `src/features/commands`, `src/features/minigames`.
+
+```
+src/features/<name>/
+  views/          # pantallas *View.tsx
+  components/     # UI de la feature (opcional)
+  hooks/
+  lib/
+```
+
+- Pantallas nuevas → `views/`.
+- Helpers de dominio → `lib/`.
+- Hooks de la feature → `hooks/`.
+
+## Backend — canónica
+
+```
+backend/src/features/<name>/
+  *.routes.ts → *.controller.ts → *.service.ts + *.schema.ts
+```
+
+## Excepciones (no fuerza a renombrar)
+
+| Feature | Motivo |
+|---------|--------|
+| `dashboard` | Sub-app del panel |
+| `overlay` | Subapps OBS (`apps/`) |
+| `tools` | Un dominio por carpeta (`roulette/`, `trends/`, …) |
+| `about` / `legal` / `marketing` | Estáticas / landing |
+| BE `twitch` / `auth` / `integrations` | Plataforma, no UI de panel |
+
+## Prohibido
+
+- Features vacías (ej. no recrear `src/features/feedback/` — el feedback vive en `dashboard/feedback`).
+- Listas de features inventadas (`games`, etc.).
+- Meter pantallas nuevas en la raíz de la feature si ya existe `views/`.
