@@ -53,6 +53,19 @@ function dedupKey(messageId: string): string {
     return `eventsub:msg:${messageId}`;
 }
 
+/** Challenge de verificación: solo ASCII imprimible sin caracteres de markup. */
+function sanitizeEventSubChallenge(raw: unknown): string | null {
+    if (typeof raw !== 'string') return null;
+    if (raw.length < 1 || raw.length > 500) return null;
+    if (/[<>"'`\\]/.test(raw)) return null;
+    const n = Math.min(raw.length, 500);
+    for (let i = 0; i < n; i++) {
+        const code = raw.charCodeAt(i);
+        if (code < 0x20 || code > 0x7e) return null;
+    }
+    return raw;
+}
+
 export async function twitchEventSubWebhook(req: Request, res: Response) {
     const headers = readTwitchHeaders(req);
     const raw = getRawBody(req);
@@ -75,8 +88,12 @@ export async function twitchEventSubWebhook(req: Request, res: Response) {
     }
 
     if (headers.messageType === 'webhook_callback_verification') {
-        const challenge = typeof body.challenge === 'string' ? body.challenge : '';
-        return res.status(200).type('text/plain').send(challenge);
+        // Twitch exige devolver el challenge en texto plano. Solo eco seguro (sin markup).
+        const challenge = sanitizeEventSubChallenge(body.challenge);
+        if (!challenge) return res.status(400).send('Bad challenge');
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        res.setHeader('X-Content-Type-Options', 'nosniff');
+        return res.status(200).end(challenge);
     }
 
     if (headers.messageType === 'revocation') {
