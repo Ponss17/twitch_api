@@ -12,7 +12,7 @@ import { extractApiErrorMessage } from '@/core/api/apiError';
 import { appPath } from '@/core/config/paths';
 import { logout } from '@/core/auth/oauthFlow';
 import type { Translations } from '@/core/i18n/locales/es';
-import type { ClearDataScopes, SettingsDangerModal } from '@/features/dashboard/settings/lib/settingsTypes';
+import type { ClearDataScopes, SettingsDangerModal } from '@/features/settings/lib/settingsTypes';
 
 const DEFAULT_CLEAR_SCOPES: ClearDataScopes = { stats: true, activity: true, questions: true };
 

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Check, ChevronLeft, ChevronRight, Copy, ScrollText } from 'lucide-react';
-import { SettingsRow } from '@/features/dashboard/settings/components/SettingsGroup';
-import { useSettingsAuditLogs } from '@/features/dashboard/settings/hooks/useSettingsAuditLogs';
+import { SettingsRow } from '@/features/settings/components/SettingsGroup';
+import { useSettingsAuditLogs } from '@/features/settings/hooks/useSettingsAuditLogs';
 import {
     auditActionLabel,
     auditScopeDetail,

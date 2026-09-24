@@ -1,5 +1,5 @@
 import { Unlink, Check, Link2 } from 'lucide-react';
-import { SettingsRow } from '@/features/dashboard/settings/components/SettingsGroup';
+import { SettingsRow } from '@/features/settings/components/SettingsGroup';
 import { DiscordIcon } from '@/shared/ui/icons/BrandIcons';
 import { useTranslation } from '@/core/i18n/I18nContext';
 

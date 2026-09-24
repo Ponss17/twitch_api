@@ -4,8 +4,8 @@ import {
     DiscordUnlinkConfirmModal,
     DiscordResultModal,
     type DiscordResultKind
-} from '@/features/dashboard/settings/components/DiscordLinkModals';
-import type { SettingsDangerModal } from '@/features/dashboard/settings/lib/settingsTypes';
+} from '@/features/settings/components/DiscordLinkModals';
+import type { SettingsDangerModal } from '@/features/settings/lib/settingsTypes';
 import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface SettingsModalsProps {

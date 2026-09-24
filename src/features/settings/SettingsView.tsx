@@ -1,11 +1,11 @@
 import { fadeIn } from '@/core/utils/tw';
-import { SettingsTabs, SettingsTabPanel } from '@/features/dashboard/settings/components/SettingsTabs';
-import { SettingsGeneralPanel } from '@/features/dashboard/settings/panels/SettingsGeneralPanel';
-import { SettingsDataPanel } from '@/features/dashboard/settings/panels/SettingsDataPanel';
-import { SettingsSecurityPanel } from '@/features/dashboard/settings/panels/SettingsSecurityPanel';
-import { SettingsConnectionsPanel } from '@/features/dashboard/settings/panels/SettingsConnectionsPanel';
-import { SettingsModals } from '@/features/dashboard/settings/components/SettingsModals';
-import { useSettingsController } from '@/features/dashboard/settings/hooks/useSettingsController';
+import { SettingsTabs, SettingsTabPanel } from '@/features/settings/components/SettingsTabs';
+import { SettingsGeneralPanel } from '@/features/settings/panels/SettingsGeneralPanel';
+import { SettingsDataPanel } from '@/features/settings/panels/SettingsDataPanel';
+import { SettingsSecurityPanel } from '@/features/settings/panels/SettingsSecurityPanel';
+import { SettingsConnectionsPanel } from '@/features/settings/panels/SettingsConnectionsPanel';
+import { SettingsModals } from '@/features/settings/components/SettingsModals';
+import { useSettingsController } from '@/features/settings/hooks/useSettingsController';
 import { SettingsTabsSkeleton } from '@/shared/ui/Skeleton';
 
 

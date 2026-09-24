@@ -1,5 +1,5 @@
 import { AlertTriangle, LogOut } from 'lucide-react';
-import { SettingsGroup, SettingsRow } from '@/features/dashboard/settings/components/SettingsGroup';
+import { SettingsGroup, SettingsRow } from '@/features/settings/components/SettingsGroup';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { btnSecondary } from '@/core/utils/tw';
 

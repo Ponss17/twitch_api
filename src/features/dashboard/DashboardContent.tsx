@@ -20,13 +20,13 @@ const HomeView = lazy(() =>
     import('@/features/dashboard/home/HomeView').then((m) => ({ default: m.HomeView }))
 );
 const AnalyticsView = lazy(() =>
-    import('@/features/dashboard/analytics/AnalyticsView').then((m) => ({ default: m.AnalyticsView }))
+    import('@/features/analytics/AnalyticsView').then((m) => ({ default: m.AnalyticsView }))
 );
 const ReportsView = lazy(() =>
     import('@/features/dashboard/reports/ReportsView').then((m) => ({ default: m.ReportsView }))
 );
 const SettingsView = lazy(() =>
-    import('@/features/dashboard/settings/SettingsView').then((m) => ({ default: m.SettingsView }))
+    import('@/features/settings/SettingsView').then((m) => ({ default: m.SettingsView }))
 );
 const FollowageView = lazy(() =>
     import('@/features/commands/views/FollowageView').then((m) => ({ default: m.FollowageView }))

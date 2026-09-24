@@ -4,7 +4,7 @@ import { Maximize2, Menu } from 'lucide-react';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import type { Translations } from '@/core/i18n/locales/es';
 import { NotificationsBell } from '@/features/dashboard/announcements/NotificationsBell';
-import { FeedbackWidget } from '@/features/dashboard/feedback/FeedbackWidget';
+import { FeedbackWidget } from '@/features/feedback/FeedbackWidget';
 import { hoverSubtleIconBtn } from '@/core/utils/tw';
 
 interface DashboardHeaderProps {

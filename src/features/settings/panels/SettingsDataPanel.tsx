@@ -1,10 +1,10 @@
 import { Clock, CalendarDays, RotateCcw } from 'lucide-react';
 import type { DashboardProfile } from '@/features/dashboard/lib/data/dashboardSummary';
-import { SettingsGroup, SettingsRow } from '@/features/dashboard/settings/components/SettingsGroup';
+import { SettingsGroup, SettingsRow } from '@/features/settings/components/SettingsGroup';
 import {
     SettingsExportSection,
     type SettingsExportOptions
-} from '@/features/dashboard/settings/sections/SettingsExportSection';
+} from '@/features/settings/sections/SettingsExportSection';
 import { useTranslation, getBcp47 } from '@/core/i18n/I18nContext';
 import { btnSecondary } from '@/core/utils/tw';
 

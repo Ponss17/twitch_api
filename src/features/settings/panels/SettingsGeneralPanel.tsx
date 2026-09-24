@@ -1,7 +1,7 @@
 import type { DashboardProfile } from '@/features/dashboard/lib/data/dashboardSummary';
-import { SettingsGroup } from '@/features/dashboard/settings/components/SettingsGroup';
-import { SettingsAccountSection } from '@/features/dashboard/settings/sections/SettingsAccountSection';
-import { SettingsPreferencesSection } from '@/features/dashboard/settings/sections/SettingsPreferencesSection';
+import { SettingsGroup } from '@/features/settings/components/SettingsGroup';
+import { SettingsAccountSection } from '@/features/settings/sections/SettingsAccountSection';
+import { SettingsPreferencesSection } from '@/features/settings/sections/SettingsPreferencesSection';
 import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface SettingsGeneralPanelProps {

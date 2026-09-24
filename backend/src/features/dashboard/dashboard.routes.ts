@@ -2,7 +2,7 @@ import { Router } from 'express';
 import * as analyticsController from './analytics.controller';
 import * as accountController from './account.controller';
 import * as settingsController from './settings.controller';
-import * as overlayController from './overlay/controller';
+import * as overlayController from '../overlay/overlay.controller';
 import * as monthlyReportsController from './monthlyReports.controller';
 import { getViewerLeaderboard } from './viewerLeaderboard.controller';
 import toolsRoutes from '../tools/tools.routes';
@@ -29,7 +29,7 @@ import {
     markAllNotificationsReadSchema
 } from './dashboard.schema';
 import { exportCheckSchema, exportCompleteSchema } from './export.schema';
-import { overlayToolParamSchema, putOverlayStateSchema, overlayLinkSchema } from './overlay/schema';
+import { overlayToolParamSchema, putOverlayStateSchema, overlayLinkSchema } from '../overlay/overlay.schema';
 
 const router = Router();
 
