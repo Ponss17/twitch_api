@@ -80,6 +80,13 @@ Estas piezas **cruzan** carpetas a propósito. Antes de “arreglar” la forma,
 
 `src/features/dashboard/` y `backend/src/features/dashboard/` concentran panel, settings, analytics, export, announcements, feedback UI, overlay HTTP. **No partir** en un refactor genérico: peelar un subdominio solo cuando toques ese código.
 
-### SQL / scripts (nota — limpia aparte)
+### SQL / scripts
 
-No mezclar con features: tooling de app en `scripts/*.{mjs,js,ts}`; migraciones deberían vivir en un solo árbol (`supabase/migrations`). Hoy hay borradores locales en `scripts/supabase/` y `scripts/sql/` (varios en `.gitignore`). Consolidar = pasada aparte, no rename de features.
+| Sitio | Uso |
+|-------|-----|
+| `supabase/migrations/` | **Fuente de verdad** de SQL (versionada) |
+| `scripts/*.{mjs,js,ts}` | Tooling de app (build, smoke, env, verify) |
+| `scripts/supabase/` | Solo borradores locales (gitignored) |
+| `backend/migrations/*.sql` | No usar (gitignored) |
+
+No añadir migraciones nuevas bajo `scripts/sql` (eliminado).
