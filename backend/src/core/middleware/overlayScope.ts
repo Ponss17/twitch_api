@@ -23,14 +23,14 @@ function normalizePath(req: Request): string {
     return raw.replace(/\/+/g, '/').replace(/\/$/, '') || '/';
 }
 
-/** Overlay autenticado solo puede leer estado OBS vía GET (+ anunciar el premio de bits). */
-function isOverlayAllowedRoute(req: Request): boolean {
+/** Overlay autenticado: GET estado OBS, exchange, o anuncio Ruleta Bits (solo tool bits-roulette). */
+function isOverlayAllowedRoute(req: Request, res: Response): boolean {
     const path = normalizePath(req);
     if (
         req.method === 'POST' &&
         (path === '/api/alerts/bits-roulette/announce' || path === '/alerts/bits-roulette/announce')
     ) {
-        return true;
+        return res.locals.overlayTool === 'bits-roulette';
     }
     if (req.method !== 'GET') return false;
     if (path === '/api/auth/overlay-exchange' || path === '/auth/overlay-exchange') {
@@ -50,7 +50,7 @@ export const overlayScopeGuard = (req: Request, res: Response, next: NextFunctio
         return next();
     }
 
-    if (isOverlayAllowedRoute(req)) {
+    if (isOverlayAllowedRoute(req, res)) {
         return next();
     }
 

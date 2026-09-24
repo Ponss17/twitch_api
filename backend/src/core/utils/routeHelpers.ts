@@ -141,12 +141,20 @@ export const isPublicRoute = (path: string, method: string = 'GET'): boolean => 
     // 4.1 Rutas de Sistema Vercel (Speed Insights, Analytics)
     if (cleanPath.startsWith('/_vercel')) return true;
 
-    // 5. Auth Flows
+    // 5. Auth flows (callbacks exactos — no cualquier path con "/callback")
     if (
         cleanPath === '/auth' ||
         cleanPath.startsWith('/auth/') ||
-        cleanPath.startsWith('/api/auth/') ||
-        cleanPath.includes('/callback')
+        cleanPath.startsWith('/api/auth/')
+    ) {
+        return true;
+    }
+
+    // 6. Twitch EventSub webhook (firma HMAC; sin cookie ni API key)
+    if (
+        method === 'POST' &&
+        (cleanPath === '/webhooks/twitch/eventsub' ||
+            cleanPath === '/api/webhooks/twitch/eventsub')
     ) {
         return true;
     }

@@ -93,6 +93,22 @@ describe('overlayScopeGuard', () => {
         expect(jsonError).not.toHaveBeenCalled();
     });
 
+    it('blocks announce when overlay tool is not bits-roulette', () => {
+        const req = mockReq('POST', '/api/alerts/bits-roulette/announce');
+        const res = mockRes({ isOverlayReadRequest: true, overlayTool: 'roulette' });
+        const next = jest.fn() as NextFunction;
+
+        overlayScopeGuard(req, res, next);
+
+        expect(next).not.toHaveBeenCalled();
+        expect(jsonError).toHaveBeenCalledWith(
+            res,
+            403,
+            expect.stringContaining('overlay'),
+            expect.objectContaining({ code: 'OVERLAY_READ_ONLY' })
+        );
+    });
+
     it('blocks overlay POST to other alert routes', () => {
         const req = mockReq('POST', '/api/alerts/bits-roulette/test-spin');
         const res = mockRes({ isOverlayReadRequest: true, overlayTool: 'bits-roulette' });
