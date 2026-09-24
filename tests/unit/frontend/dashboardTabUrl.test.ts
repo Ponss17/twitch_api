@@ -8,7 +8,7 @@ import {
 import {
     parseSettingsTabFromLocation,
     settingsTabPath
-} from '@/features/dashboard/settings/lib/settingsPaths';
+} from '@/features/settings/lib/settingsPaths';
 
 const BASE = getDashboardBasePath();
 

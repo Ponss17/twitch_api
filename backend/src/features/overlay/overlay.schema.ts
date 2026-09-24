@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { OVERLAY_TOOLS } from '../../../core/overlay/keys';
+import { OVERLAY_TOOLS } from '../../core/overlay/keys';
 
 const MAX_OVERLAY_STATE_BYTES = 64 * 1024;
 const MAX_OVERLAY_KEYS = 200;

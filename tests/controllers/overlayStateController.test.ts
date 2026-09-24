@@ -18,7 +18,7 @@ import {
     getOverlayState,
     putOverlayState,
     createOverlayLink
-} from '../../backend/src/features/dashboard/overlay/controller';
+} from '../../backend/src/features/overlay/overlay.controller';
 import { AuthenticatedRequest } from '@/types/twitch';
 
 const mockReq = (overrides = {}) =>

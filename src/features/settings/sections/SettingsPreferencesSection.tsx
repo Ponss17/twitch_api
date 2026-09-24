@@ -7,7 +7,7 @@ import { authHeaders, withApiCredentials } from '@/core/api/auth';
 import { fetchWithRetry } from '@/core/api/fetchWithRetry';
 import { useRequiredSession } from '@/core/session/useSession';
 import { useToast } from '@/shared/ui/toast/ToastProvider';
-import { SettingsRow } from '@/features/dashboard/settings/components/SettingsGroup';
+import { SettingsRow } from '@/features/settings/components/SettingsGroup';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import type { Locale } from '@/core/i18n/I18nContext';
 import { useTheme, SUPPORTED_THEMES, THEME_DEFINITIONS } from '@/core/theme';

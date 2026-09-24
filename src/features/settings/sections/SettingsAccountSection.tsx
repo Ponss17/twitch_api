@@ -1,6 +1,6 @@
 import { Copy, Gauge, Clock, Crown, Hash, Check } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
-import { SettingsRow } from '@/features/dashboard/settings/components/SettingsGroup';
+import { SettingsRow } from '@/features/settings/components/SettingsGroup';
 import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface SettingsAccountSectionProps {

@@ -5,8 +5,8 @@ import { withApiCredentials } from '@/core/api/auth';
 import { fetchWithRetry } from '@/core/api/fetchWithRetry';
 import { writePanelSyncPref } from '@/features/dashboard/lib/data/dashboardSync';
 import type { Translations } from '@/core/i18n/locales/es';
-import type { DiscordResultKind } from '@/features/dashboard/settings/components/DiscordLinkModals';
-import { settingsTabPath } from '@/features/dashboard/settings/lib/settingsPaths';
+import type { DiscordResultKind } from '@/features/settings/components/DiscordLinkModals';
+import { settingsTabPath } from '@/features/settings/lib/settingsPaths';
 
 type ShowToast = (message: string, type?: 'success' | 'error' | 'info' | 'warning' | 'loading') => unknown;
 

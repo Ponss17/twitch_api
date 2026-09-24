@@ -34,59 +34,50 @@ backend/src/features/<name>/
 
 | Feature | Motivo |
 |---------|--------|
-| `dashboard` | Sub-app del panel |
-| `overlay` | Subapps OBS (`apps/`) |
+| `dashboard` | Shell del panel (layout, home, reports, announcements, providers) |
+| `overlay` (FE) | Subapps OBS (`apps/`) |
 | `tools` | Un dominio por carpeta (`roulette/`, `trends/`, …) |
 | `about` / `legal` / `marketing` | Estáticas / landing |
 | BE `twitch` / `auth` / `integrations` | Plataforma, no UI de panel |
 
+Features peeladas del panel (ya top-level): `settings`, `analytics`, `feedback`.
+
 ## Prohibido
 
-- Features vacías (ej. no recrear `src/features/feedback/` — el feedback vive en `dashboard/feedback`).
+- Features vacías.
 - Listas de features inventadas (`games`, etc.).
 - Meter pantallas nuevas en la raíz de la feature si ya existe `views/`.
 
 ## Cross-cuts (mapa real — no mover a ciegas)
 
-Estas piezas **cruzan** carpetas a propósito. Antes de “arreglar” la forma, lee esto.
-
 ### Overlay
 
 | Capa | Dónde | Rol |
 |------|--------|-----|
-| FE UI OBS | `src/features/overlay/` (`apps/`, `hooks/`, `lib/`, `components/`) | Browser sources / mirror |
-| FE URL Ruleta Bits | `src/features/alerts/lib/bitsRouletteUrl.ts` | Config en query del overlay |
-| BE HTTP | `backend/src/features/dashboard/overlay/` | `overlay-state`, `overlay-link` bajo `/api/dashboard/*` |
-| BE shared | `backend/src/core/overlay/keys.ts` | Redis keys + paths; lo usan auth/middleware y dashboard |
+| FE UI OBS | `src/features/overlay/` | Browser sources / mirror |
+| FE URL Ruleta Bits | `src/features/alerts/lib/bitsRouletteUrl.ts` | Config en query |
+| BE HTTP | `backend/src/features/overlay/` (`overlay.controller` / `overlay.schema`) | Montado bajo `/api/dashboard/overlay-*` |
+| BE shared | `backend/src/core/overlay/keys.ts` | Redis keys + paths |
 | BE guard | `backend/src/core/middleware/overlayScope.ts` | Tokens overlay solo lectura |
 
-**Por qué no está todo en `features/overlay`:** el estado se autentica como sesión de panel (`/dashboard/...`) y las keys deben vivir en `core` para no acoplar auth ↔ dashboard.
+**URLs públicas no cambian:** siguen en `/api/dashboard/overlay-state|overlay-link`.
 
 ### Tools
 
-- FE: `src/features/tools/` (ruleta, tendencias, stalker, preguntas…).
-- BE: `backend/src/features/tools/` (`tools.routes.ts`, controllers, schema).
-- **Montaje:** `dashboard.routes.ts` hace `router.use(toolsRoutes)` → URLs canónicas `/api/dashboard/get-clips|chatters|track-usage|questions|…`.
-- El router raíz (`backend/src/routes/index.ts`) solo monta `/dashboard`; no hay `/api/tools`.
+- FE: `src/features/tools/` · BE: `backend/src/features/tools/`
+- Montaje: `dashboard.routes.ts` → `/api/dashboard/get-clips|chatters|…` (sin `/api/tools`)
 
 ### Auth
 
-- Feature: `backend/src/features/auth/` (`auth.routes`, service, OAuth…).
-- **Montaje:** `backend/src/core/startup/routes.ts` → `/api/auth/*` y legacy `/auth/*`.
-- **No** está en `backend/src/routes/index.ts` (ese archivo es features de API tras auth: minigames, dashboard+tools, system, alerts, commands).
-- Middleware de sesión: `backend/src/core/middleware/authMiddleware.ts` (y relacionados).
-
-### Dashboard (excepción grande)
-
-`src/features/dashboard/` y `backend/src/features/dashboard/` concentran panel, settings, analytics, export, announcements, feedback UI, overlay HTTP. **No partir** en un refactor genérico: peelar un subdominio solo cuando toques ese código.
+- Feature: `backend/src/features/auth/`
+- Montaje: `core/startup/routes.ts` → `/api/auth/*` y `/auth/*`
+- No está en `routes/index.ts`
 
 ### SQL / scripts
 
 | Sitio | Uso |
 |-------|-----|
 | `supabase/migrations/` | **Fuente de verdad** de SQL (versionada) |
-| `scripts/*.{mjs,js,ts}` | Tooling de app (build, smoke, env, verify) |
-| `scripts/supabase/` | Solo borradores locales (gitignored) |
+| `scripts/*.{mjs,js,ts}` | Tooling de app |
+| `scripts/supabase/` | Solo borradores locales (gitignored; opcional) |
 | `backend/migrations/*.sql` | No usar (gitignored) |
-
-No añadir migraciones nuevas bajo `scripts/sql` (eliminado).

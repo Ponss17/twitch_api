@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Download, Loader2 } from 'lucide-react';
-import { SettingsRow } from '@/features/dashboard/settings/components/SettingsGroup';
+import { SettingsRow } from '@/features/settings/components/SettingsGroup';
 import { Modal, ModalCloseButton } from '@/shared/ui/modals/Modal';
 import { SplitFormatDownload, type DownloadFormat } from '@/shared/ui/SplitFormatDownload';
 import { useTranslation } from '@/core/i18n/I18nContext';

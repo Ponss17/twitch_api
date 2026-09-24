@@ -1,6 +1,6 @@
 import { Key, EyeOff, Eye, Check, RotateCw, Copy } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { SettingsRow } from '@/features/dashboard/settings/components/SettingsGroup';
+import { SettingsRow } from '@/features/settings/components/SettingsGroup';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import {
     formatAuditAbsoluteTime,
