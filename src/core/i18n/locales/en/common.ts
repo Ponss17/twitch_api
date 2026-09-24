@@ -66,7 +66,9 @@ sidebar: {
         discord: 'Community',
         navigation: 'Dashboard Navigation',
         collapseMenu: 'Collapse menu',
-        expandMenu: 'Expand menu'
+        expandMenu: 'Expand menu',
+        collapseSection: (name: string): string => `Collapse ${name}`,
+        expandSection: (name: string): string => `Expand ${name}`
     },
 
 common: {

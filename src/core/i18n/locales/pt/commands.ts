@@ -9,6 +9,13 @@ commands: {
                 templatePlaceholder: 'Ex: {user} está sofrendo há {time}.',
                 templateVars: 'Variáveis disponíveis: {user}, {time}, {channel}',
             },
+            watchtime: {
+                title: 'Comando !watchtime',
+                desc: 'Mostra há quanto tempo alguém assiste à transmissão',
+                info: 'Gera o código para seu bot responder com o tempo exato que um espectador está no canal.',
+                templatePlaceholder: 'Ex: {user} está assistindo há {time}.',
+                templateVars: 'Variáveis disponíveis: {user}, {time}, {channel}',
+            },
             clip: {
                 title: 'Comando !clip',
                 desc: 'Permite criar clips pelo chat',
