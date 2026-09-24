@@ -45,10 +45,14 @@ export function isEventSubTimestampFresh(timestamp: string, now = Date.now()): b
 
 export type BitsChatLang = 'es' | 'en' | 'pt';
 
+/** Tope duro del input antes de iterar (CodeQL loop-bound-injection). */
+const SCRUB_INPUT_HARD_MAX = 256;
+
 /** Quita controles / saltos sin regex de control chars (eslint no-control-regex). */
 function scrubPlainText(raw: string, max: number): string {
+    const cap = Math.min(raw.length, Math.max(1, Math.min(max * 4, SCRUB_INPUT_HARD_MAX)));
     let out = '';
-    for (let i = 0; i < raw.length; i++) {
+    for (let i = 0; i < cap; i++) {
         const code = raw.charCodeAt(i);
         out += code < 32 ? ' ' : raw[i]!;
     }
