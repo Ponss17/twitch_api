@@ -17,7 +17,12 @@ const router = express.Router();
  * - features/alerts     → /alerts/* + webhook EventSub
  * - features/commands   → /followage, /watchtime, /shoutout, /create-clip, … (sin prefijo)
  */
-router.post('/webhooks/twitch/eventsub', eventSubIpRateLimiter, twitchEventSubWebhook);
+// codeql[js/missing-rate-limiting]: eventSubIpRateLimiter (Redis KV; CodeQL no lo modela).
+router.post(
+    '/webhooks/twitch/eventsub',
+    eventSubIpRateLimiter,
+    /* codeql[js/missing-rate-limiting] */ twitchEventSubWebhook
+);
 router.use('/minigames', minigamesRoutes);
 router.use('/dashboard', dashboardRoutes);
 router.use('/system', systemRoutes);

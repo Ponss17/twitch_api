@@ -52,4 +52,14 @@ describe('bitsRoulette.logic', () => {
         );
         expect(bitsWinnerChatMessage('es', '   ', 'VIP', 100)).toBeNull();
     });
+
+    it('truncates oversized chat inputs without hanging', () => {
+        const longName = `${'a'.repeat(10_000)}evil`;
+        const longPrize = `premio${'\n'.repeat(5_000)}x`;
+        const msg = bitsWinnerChatMessage('es', longName, longPrize, 100);
+        expect(msg).not.toBeNull();
+        expect(msg!.length).toBeLessThan(120);
+        expect(msg).toContain('@aaaaaaaaaaaaaaaaaaaaaaaaa');
+        expect(msg).not.toContain('evil');
+    });
 });
