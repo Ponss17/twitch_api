@@ -32,10 +32,12 @@ export function parseEligibilityQuery(raw?: string): 'all' | ChatterEligibility[
 async function paginateHelixLogins(
     url: string,
     params: Record<string, string | number>,
-    token: string
+    token: string,
+    maxPages = 10
 ): Promise<string[]> {
     const logins: string[] = [];
     let cursor: string | undefined;
+    let pages = 0;
 
     do {
         const response = await apiClient.get(url, {
@@ -53,7 +55,8 @@ async function paginateHelixLogins(
         }
 
         cursor = response.data.pagination?.cursor;
-    } while (cursor);
+        pages += 1;
+    } while (cursor && pages < maxPages);
 
     return logins;
 }

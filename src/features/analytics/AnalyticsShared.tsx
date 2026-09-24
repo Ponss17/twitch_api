@@ -6,17 +6,6 @@ import { hoverSubtleIconBtn } from '@/core/utils/tw';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-export const COLORS = [
-    'var(--chart-1)',
-    'var(--chart-2)',
-    'var(--chart-3)',
-    'var(--chart-4)',
-    'var(--chart-5)',
-    'var(--chart-6)',
-    'var(--chart-7)',
-    'var(--chart-8)'
-];
-
 export const analyticsPanel =
     'rounded-xl border border-border-subtle bg-bg-panel shadow-[0_8px_30px_rgba(0,0,0,0.15)]';
 

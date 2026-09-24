@@ -3,7 +3,7 @@ import { panelCard } from '@/core/utils/tw';
 import { Skeleton } from './SkeletonPrimitives';
 import { SettingsGroupSkeleton } from './SectionSkeletons';
 
-/** Mismo layout que `SettingsHero` (Home): saludo + caja de 3 stats. */
+/** Mismo layout que `HomeHero` (Home): saludo + caja de 3 stats. */
 export function SettingsHeroSkeleton() {
     const { t } = useTranslation();
     return (

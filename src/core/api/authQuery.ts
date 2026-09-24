@@ -1,7 +1,5 @@
 import type { Session } from '@/core/config/config';
 
-export const API_KEY_PLACEHOLDER = 'sk_••••••••••••••••';
-
 /** Máscara ASCII para comandos en el dashboard (no codificar: evita %E2%80%A2… en la UI). */
 export const AUTH_QUERY_DISPLAY_MASK = '**************';
 
