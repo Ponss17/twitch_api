@@ -18,7 +18,7 @@ import {
     BITS_ROULETTE_PREF,
     DEFAULT_BITS_ROULETTE_URL,
     type BitsRouletteUrlConfig
-} from '@/features/alerts/bitsRouletteUrl';
+} from '@/features/alerts/lib/bitsRouletteUrl';
 import { copyText } from '@/core/utils/clipboard';
 import { modalBtnPrimary, themeActiveChip, themeActiveChoice, themeIdleChip, themeIdleChoice } from '@/core/utils/tw';
 

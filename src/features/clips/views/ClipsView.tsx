@@ -3,9 +3,9 @@ import { ClipsGridSkeleton } from '@/shared/ui/Skeleton';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { panelCard, fadeIn, textInput, hoverSubtleControl, hoverSubtleBorderedRow } from '@/core/utils/tw';
 import { subtleIcon } from '@/features/dashboard/lib/ui/subtleAccents';
-import { ClipPlayerOverlay } from '@/features/clips/ClipPlayerOverlay';
+import { ClipPlayerOverlay } from '@/features/clips/components/ClipPlayerOverlay';
 import { SelectField } from '@/shared/ui/SelectField';
-import { ClipCommandView } from '@/features/clips/ClipCommandView';
+import { ClipCommandView } from '@/features/clips/views/ClipCommandView';
 import {
     Star,
     RotateCw,

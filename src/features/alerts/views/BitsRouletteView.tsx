@@ -20,7 +20,7 @@ import {
     normalizePrizeOptions,
     type BitsMatchMode,
     type BitsRouletteUrlConfig
-} from '@/features/alerts/bitsRouletteUrl';
+} from '@/features/alerts/lib/bitsRouletteUrl';
 import { useDashboardPanel } from '@/features/dashboard/providers/DashboardPanelProvider';
 
 interface BitsAlertSubscription {
