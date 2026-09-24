@@ -66,7 +66,9 @@ sidebar: {
         discord: 'Comunidade',
         navigation: 'Navegação do Painel',
         collapseMenu: 'Recolher menu',
-        expandMenu: 'Expandir menu'
+        expandMenu: 'Expandir menu',
+        collapseSection: (name: string): string => `Recolher ${name}`,
+        expandSection: (name: string): string => `Expandir ${name}`
     },
 
 common: {
