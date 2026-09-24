@@ -59,5 +59,3 @@ CREATE POLICY user_notifications_update_own
   FOR UPDATE
   USING ((auth.jwt() ->> 'user_id') = user_id)
   WITH CHECK ((auth.jwt() ->> 'user_id') = user_id);
-
--- Inserts for both tables are performed by the service-role API only.

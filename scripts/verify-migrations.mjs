@@ -6,13 +6,19 @@ const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const directory = path.join(root, 'supabase', 'migrations');
 
 if (!fs.existsSync(directory)) {
-    console.log('supabase/migrations ausente (local-only / gitignored); nada que verificar.');
-    process.exit(0);
+    console.error('Falta supabase/migrations/ (fuente de verdad de SQL).');
+    process.exit(1);
 }
 
 const migrations = fs.readdirSync(directory)
     .filter((name) => name.endsWith('.sql'))
     .sort();
+
+if (migrations.length === 0) {
+    console.error('supabase/migrations/ no tiene archivos .sql');
+    process.exit(1);
+}
+
 const failures = [];
 const timestamps = new Set();
 
@@ -42,6 +48,8 @@ if (fs.existsSync(readmePath)) {
     ]) {
         if (!readme.includes(conflict)) failures.push(`README no documenta ${conflict}`);
     }
+} else {
+    failures.push('falta supabase/migrations/README.md');
 }
 
 if (migrations.length && !migrations[0]?.includes('preflight')) {
@@ -52,4 +60,4 @@ if (failures.length) {
     process.exit(1);
 }
 
-console.log(`${migrations.length} migraciones locales ordenadas y documentadas.`);
+console.log(`${migrations.length} migraciones en supabase/migrations/ ordenadas y documentadas.`);
