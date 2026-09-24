@@ -21,7 +21,7 @@ import { overlayScopeGuard } from '../middleware/overlayScope';
  * - Auth: `/api/auth/*` (preferido) y `/auth/*` (legacy / consola Twitch) → features/auth
  * - Health: `/health` y `/api/health`
  * - SEO: `/robots.txt` + `/sitemap.xml` (+ `/api/...`) → features/system/seo.controller
- * - Features API: `routes/index.ts` → minigames, dashboard(+tools), system, commands
+ * - Features API: `routes/index.ts` → minigames, dashboard(+tools), system, alerts, commands, EventSub
  */
 export const configureRoutes = (app: Application) => {
     app.use(stripTwitchPrefix);

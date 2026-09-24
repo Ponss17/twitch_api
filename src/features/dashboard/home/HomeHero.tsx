@@ -6,7 +6,7 @@ import { subtleIcon } from '@/features/dashboard/lib/ui/subtleAccents';
 import { Heart, Video, Calendar } from 'lucide-react';
 import { TwitchIcon } from '@/shared/ui/icons/BrandIcons';
 
-interface SettingsHeroProps {
+interface HomeHeroProps {
     followers?: number;
     broadcasterLabel: string;
     memberSince: string;
@@ -40,13 +40,13 @@ function ProfileStat({
     );
 }
 
-export function SettingsHero({
+export function HomeHero({
     followers,
     broadcasterLabel,
     memberSince,
     isLive = false,
     isLoading = false
-}: SettingsHeroProps) {
+}: HomeHeroProps) {
     const session = useRequiredSession();
     const { t } = useTranslation();
     const sT = t.settings.hero;

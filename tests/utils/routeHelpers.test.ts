@@ -19,6 +19,18 @@ describe('isPublicRoute', () => {
     it('no trata comandos bot como públicos', () => {
         expect(isPublicRoute('/api/twitch/followage', 'GET')).toBe(false);
     });
+
+    it('trata EventSub webhook como público (POST)', () => {
+        expect(isPublicRoute('/api/webhooks/twitch/eventsub', 'POST')).toBe(true);
+        expect(isPublicRoute('/webhooks/twitch/eventsub', 'POST')).toBe(true);
+        expect(isPublicRoute('/api/webhooks/twitch/eventsub', 'GET')).toBe(false);
+    });
+
+    it('no trata paths arbitrarios con callback como públicos', () => {
+        expect(isPublicRoute('/api/dashboard/evil/callback', 'GET')).toBe(false);
+        expect(isPublicRoute('/api/auth/twitch/callback', 'GET')).toBe(true);
+        expect(isPublicRoute('/api/auth/discord/callback', 'GET')).toBe(true);
+    });
 });
 
 describe('isBotCommand', () => {

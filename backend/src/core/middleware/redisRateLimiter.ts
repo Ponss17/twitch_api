@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { kv } from '../database/redisClient';
 import { isKvWriteAvailable, reportKvFailure } from '../database/cacheService';
 import { RATE_LIMITS } from '../config/limits';
-import { resolveUserRateLimit, resolveUserHeavyLimit } from '../config/userRoles';
+import { resolveUserRateLimit, resolveUserHeavyLimit, type UserLimitsSource } from '../config/userRoles';
 import { MESSAGES } from '../config/messages';
 import { isPublicRoute, isPublicHtmlRoute, isApiRoute, isBotCommand } from '../utils/routeHelpers';
 import { AuthenticatedRequest } from '../../types/twitch';
@@ -196,17 +196,20 @@ async function handleLimitExceeded(req: Request, res: Response, cleanPath: strin
 }
 
 /**
- * Limitador específico para endpoints pesados (clips, chatters).
- * La cuota depende del rol: Default 5 → Partner 40 req/min.
+ * Limitador específico para endpoints pesados (clips, chatters, summary).
+ * Aplica a API key y a sesión cookie (cuotas separadas por clave).
+ * La cuota de API key depende del rol: Default 5 → Partner 40 req/min.
  */
 export const heavyRateLimiter = async (req: Request, res: Response, next: NextFunction) => {
-    // Solo aplica para peticiones con API Key externa
-    if (!res.locals?.isApiKeyRequest) return next();
+    const apiUser = res.locals?.apiUser as
+        | ({ userId?: string } & UserLimitsSource)
+        | undefined;
+    const sessionUserId = (req as { userId?: string }).userId;
+    const userId = apiUser?.userId || sessionUserId;
+    if (!userId) return next();
 
-    const apiUser = res.locals?.apiUser;
-    if (!apiUser) return next();
-
-    const key = `rl:heavy:${apiUser.userId}`;
+    const isApiKey = Boolean(res.locals?.isApiKeyRequest);
+    const key = isApiKey ? `rl:heavy:${userId}` : `rl:heavy:sess:${userId}`;
     const limit = resolveUserHeavyLimit(apiUser);
 
     try {
@@ -227,7 +230,7 @@ export const heavyRateLimiter = async (req: Request, res: Response, next: NextFu
         }
 
         logger.error('Error in Heavy Rate Limiter:', error);
-        return res.status(503).json({ error: 'Service Unavailable', message: 'Servicio temporalmente no disponible' });
+        return next();
     }
 };
 

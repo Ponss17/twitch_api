@@ -70,6 +70,8 @@ export function eventSubSecret(): string {
     if (dedicated.length >= 10 && dedicated.length <= 100) return dedicated;
     const hmac = (CONFIG.HMAC_SIGNING_SECRET || '').trim();
     if (hmac.length >= 10 && hmac.length <= 100) return hmac;
+    // Twitch exige ≤100; HMAC largo se recorta de forma estable para create+verify.
+    if (hmac.length > 100) return hmac.slice(0, 100);
     return '';
 }
 

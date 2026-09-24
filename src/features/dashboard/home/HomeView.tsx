@@ -1,6 +1,6 @@
 import type { DashboardTab } from '@/core/config/config';
 
-import { SettingsHero } from '@/features/settings/components/SettingsHero';
+import { HomeHero } from '@/features/dashboard/home/HomeHero';
 import { HomeActivityFeed } from '@/features/dashboard/home/HomeActivityFeed';
 import { HomeResourcesPanel } from '@/features/dashboard/home/HomeResourcesPanel';
 import { useRequiredSession } from '@/core/session/useSession';
@@ -49,7 +49,7 @@ function HomeViewContent({ onNavigate }: { onNavigate?: (tab: DashboardTab) => v
 
     return (
         <div className={fadeIn}>
-            <SettingsHero
+            <HomeHero
                 followers={profile?.followers}
                 broadcasterLabel={broadcasterLabel(profile?.broadcaster_type)}
                 memberSince={formatDate(profile?.created_at ?? '', locale)}
