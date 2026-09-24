@@ -1,0 +1,243 @@
+/** Fragmento i18n: settings (es). */
+export const settings = {
+settings: {
+        title: 'Ajustes',
+        tabs: {
+            general: 'General',
+            data: 'Datos',
+            security: 'Seguridad',
+            connections: 'Conexiones',
+            sessionExpiredLogin: 'Sesión expirada. Por favor, inicia sesión de nuevo.',
+            overlayExpired: 'Enlace de overlay caducado. Vuelve a generar uno en tu panel.',
+            unstableConnection: 'Conexión inestable con Twitch. Reintentando...'
+        },
+        account: {
+            title: 'Cuenta',
+            description: 'Identificador y límites de tu plan',
+        },
+        preferences: {
+            title: 'Preferencias',
+            description: 'Ajustes de tu cuenta',
+            timezone: {
+                label: 'Zona Horaria',
+                description: 'Tu zona horaria se utiliza para agrupar y mostrar correctamente los días en tus estadísticas y reportes.',
+                searchPlaceholder: 'Buscar zona horaria...',
+                searchAriaLabel: 'Buscar zona horaria',
+                noResults: 'No se encontraron resultados',
+                save: 'Guardar',
+                saving: 'Guardando...',
+            },
+            language: {
+                label: 'Idioma de la Interfaz',
+                description: 'Elige el idioma en que se muestra el panel de control.',
+            },
+            theme: {
+                label: 'Tema de la Interfaz',
+                description: 'Elige el esquema de colores de la aplicación.',
+                options: {
+                    dark: 'Oscuro',
+                    light: 'Claro',
+                    liga: 'Liga (LDA)',
+                    minimal: 'Minimal',
+                    matrix: 'Neo Matrix'
+                }
+            }
+        },
+        data: {
+            title: 'Datos',
+            description: 'Exporta la información de tu cuenta',
+        },
+        toasts: {
+            settingsSaved: 'Ajustes guardados correctamente.',
+            settingsError: 'Error al guardar los ajustes.',
+            networkError: 'Error de red al guardar los ajustes.',
+            invalidSession: 'Sesión inválida o CSRF rechazado. Recarga la página.',
+            regenError: 'Error al regenerar API Key',
+            regenSuccess: 'Nueva API Key generada',
+            clearError: 'Error de conexión al limpiar los datos',
+            clearSuccess: 'Estadísticas reiniciadas',
+            deleteError: 'Error de conexión al eliminar la cuenta',
+            revokeSessionsError: 'No se pudieron cerrar las sesiones',
+            deleteSuccess: 'Cuenta eliminada. Redirigiendo...',
+            copyKeySuccess: 'API Key copiada',
+            copyKeyError: 'No se pudo copiar la API Key',
+            revealKeyError: 'No se pudo revelar la API Key',
+            copyIdSuccess: 'ID copiado',
+            limitError: 'Error de conexión al verificar límite.',
+            connectionError: 'Error de conexión.',
+            discordUnlinkError: 'No se pudo desvincular Discord',
+            discordUnlinkSuccess: 'Discord desvinculado',
+            profileError: 'Error al cargar perfil',
+            discordLinkSuccess: 'Discord vinculado correctamente',
+            discordLinkTaken: 'Ese Discord ya está vinculado a otra cuenta',
+            discordLinkAuth: 'Debes iniciar sesión para vincular Discord',
+            discordLinkConfig: 'La vinculación con Discord no está disponible ahora',
+            discordLinkError: 'No se pudo vincular Discord',
+            exportLimitError: 'Debes esperar para generar otro reporte.',
+            exportSuccess: 'Archivo descargado correctamente'
+        },
+        dangerModals: {
+            resetTitle: 'Reiniciar datos',
+            resetDesc: 'Elige qué borrar. Tu cuenta y API Key seguirán activas.',
+            resetWord: 'LIMPIAR',
+            resetConfirm: 'Confirmar y Borrar',
+            resetScopesLabel: 'Qué borrar',
+            resetScopeStats: 'Estadísticas',
+            resetScopeStatsHint: 'Uso de comandos, analíticas y contadores del panel. No borra los informes mensuales.',
+            resetScopeActivity: 'Historial de actividad',
+            resetScopeActivityHint: 'Feed de eventos recientes del panel (comandos, minijuegos, etc.).',
+            resetScopeQuestions: 'Historial de preguntas',
+            resetScopeQuestionsHint: 'Preguntas capturadas del chat en la herramienta Preguntas.',
+            resetScopesRequired: 'Marca al menos una opción.',
+            deleteTitle: 'Eliminar Perfil de LosPerris API',
+            deleteDesc: '¡ATENCIÓN! Esta acción es irreversible dentro de nuestra plataforma. Se borrarán tus datos y API Key. Esto NO afectará a tu canal ni cuenta de Twitch de ninguna manera.',
+            deleteWord: 'ELIMINAR',
+            deleteConfirm: 'Confirmar y Borrar',
+            revokeSessionsTitle: 'Cerrar todas las sesiones',
+            revokeSessionsDesc:
+                'Te sacará de todos los dispositivos, incluido este. Tu API Key seguirá activa; solo se invalidan las sesiones del panel.',
+            revokeSessionsWord: 'CERRAR',
+            revokeSessionsConfirm: 'Cerrar sesiones'
+        },
+        hero: {
+            hello: 'Hola,',
+            welcome: 'Bienvenido a tu panel · actividad y accesos rápidos',
+            followers: 'Seguidores',
+            channelType: 'Tipo Canal',
+            memberSince: 'Miembro Desde',
+            notAvailable: 'No disponible ahora mismo',
+            liveBadge: 'EN VIVO'
+        },
+        groups: {
+            account: { title: 'Cuenta', desc: 'Identificador y límites de tu plan' },
+            preferences: { title: 'Preferencias', desc: 'Ajustes de tu cuenta' },
+            data: {
+                title: 'Datos de Cuenta',
+                desc: 'Fechas de ingreso a LosPerrisAPI.',
+                firstLogin: 'Primer Ingreso',
+                firstLoginDesc:
+                    'Primera vez que entraste a LosPerrisAPI (no es la fecha de creación de tu cuenta de Twitch).',
+                lastLogin: 'Último Ingreso Previo',
+                lastLoginDesc: 'Fecha de tu última sesión antes de la actual.'
+            },
+            manageData: {
+                title: 'Limpiar datos',
+                desc: 'Borra analíticas o historial sin eliminar tu cuenta.'
+            },
+            export: { title: 'Respaldo de cuenta', desc: 'Descarga tus datos de cuenta (no es el informe mensual)' },
+            security: { title: 'Seguridad', desc: 'Claves y accesos' },
+            auditLogs: {
+                title: 'Registro de seguridad',
+                desc: 'Inicios de sesión, cambios de API key, Discord y limpieza de datos.'
+            },
+            dangerZone: { title: 'Zona de Peligro', desc: 'Cerrar sesiones o eliminar tu cuenta' },
+            discord: { title: 'Discord', desc: 'Integraciones' }
+        },
+        panels: {
+            userId: 'User ID',
+            userIdDesc:
+                'Identificador interno de tu cuenta. Úsalo para soporte; no es tu ID de Twitch.',
+            copyUserId: 'Copiar User ID',
+            planAndQuota: 'Plan y cuota',
+            planAndQuotaDesc: 'Tu plan de API y los límites de peticiones y caché de esta cuenta.',
+            planTooltip: 'Tu plan de API: más alto = más cuota y datos más frescos',
+            apiQuotaTooltip: 'Peticiones por minuto con tu API Key (comandos e integraciones)',
+            heavyQuotaTooltip: 'Cuota de endpoints pesados (clips / chatters) con API Key',
+            cacheTooltip: 'Retención de caché de comandos de bot (followage, etc.)',
+            planTier: 'Plan',
+            requestsLimit: 'Peticiones / min',
+            heavyLimit: 'Pesadas / min',
+            cacheTime: 'Caché (min)',
+            apiKeyPrivate: 'API Key privada',
+            apiKeyInfo: 'Mantén esta información privada. No la compartas en directo.',
+            apiKeyWarning: 'Tu clave personal e intransferible. Úsala en Nightbot, StreamElements, etc.',
+            activeKey: 'API Key Activa',
+            activeKeyDesc: 'Lista para autenticar bots (query apiKey o cabecera X-Api-Key).',
+            keyLastUsed: 'Último uso por bots',
+            keyLastUsedNever: 'Aún no hay uso registrado con esta key',
+            keyRotated: 'Última regeneración',
+            keyRotatedUnknown: 'Sin fecha de rotación',
+            keyRotateNudge:
+                'Llevas 90 días o más sin regenerar la API key. Si la pegaste en un sitio público, conviene rotarla.',
+            keyRotateNudgeCta: 'Regenerar ahora',
+            toggleVisibility: 'Ver/Ocultar',
+            copyKey: 'Copiar',
+            regenKey: 'Regenerar',
+            dangerZoneTitle: 'Zona de Peligro',
+            resetStats: 'Reiniciar datos',
+            resetStatsDesc: 'Elige qué limpiar: analíticas, actividad o historial de preguntas. No afecta a tu cuenta.',
+            resetStatsAction: 'Reiniciar',
+            revokeSessions: 'Cerrar todas las sesiones',
+            revokeSessionsDesc:
+                'Te saca del panel en todos los dispositivos, incluido este. La API Key no se regenera.',
+            revokeSessionsAction: 'Cerrar sesiones',
+            deleteAccount: 'Eliminar cuenta',
+            deleteAccountDesc: 'Borra todos tus datos permanentemente y cierra tu sesión.',
+            deleteAccountAction: 'Eliminar',
+            discordTitle: 'Discord',
+            discordStatus: (linked: boolean): string => (linked ? 'Conectado' : 'No conectado'),
+            linkDiscord: 'Vincular Discord',
+            unlinkDiscord: 'Desvincular Discord',
+            fullReport: 'Reporte de Cuenta Completo',
+            exportReport: 'Exportar HTML',
+            exportDesc: 'Descarga un reporte HTML con tu perfil y ajustes.',
+            exportAccount: 'Descargar archivo',
+            exportAccountDesc:
+                'Descarga perfil y datos de cuenta. El informe del mes cerrado está en Reportes.',
+            exportFormatLabel: 'Formato de exportación',
+            exportFormatHtml: 'HTML',
+            exportFormatCsv: 'CSV',
+            exportAction: 'Descargar respaldo',
+            exportModalTitle: 'Descargar respaldo HTML',
+            exportModalDesc: 'Elige qué datos sensibles incluir. Por defecto se omiten.',
+            exportModalOptions: 'Opciones',
+            exportModalConfirm: 'Descargar HTML',
+            exportIncludeActivity: 'Incluir historial de actividad',
+            exportIncludeActivityHint: 'Nombres de viewers y respuestas de comandos recientes.',
+            exportIncludeApiKey: 'Incluir API Key en URLs de comandos',
+            exportIncludeApiKeyHint: 'Solo si guardas el archivo en privado. Por defecto se usa un placeholder.',
+            exportApiKeyOmitted: 'No incluida',
+            exportFallbackUser: 'Usuario',
+            copyKeySecretWarning: 'API Key copiada. No la muestres en stream ni la pegues en chats públicos.',
+            commandCopiedSecretWarning: 'Comando copiado con tu API Key. No lo compartas en vivo.',
+            csvReport: 'Analíticas en CSV',
+            exportCsv: 'Exportar CSV',
+            csvDesc: 'Descarga un CSV con el resumen, uso por comando y la serie de los últimos 30 días. Sirve para Excel o un recap semanal.'
+        },
+        auditLogs: {
+            action: 'Acción',
+            when: 'Cuándo',
+            show: 'Ver registro',
+            hide: 'Ocultar',
+            close: 'Cerrar',
+            empty: 'Aún no hay eventos. Aparecerán al iniciar sesión, tocar tu API key o vincular Discord.',
+            error: 'No se pudo cargar el registro.',
+            accountLabel: 'User ID de esta cuenta',
+            accountHint: 'Referencia para soporte. Los eventos de abajo son solo de tu cuenta.',
+            page: (current: number, total: number): string => `Página ${current} de ${total}`,
+            prevPage: 'Página anterior',
+            nextPage: 'Página siguiente',
+            actions: {
+                session_login: 'Inicio de sesión',
+                session_logout: 'Cierre de sesión',
+                api_key_regenerated: 'Regeneraste tu API key',
+                api_key_revealed: 'Mostraste tu API key',
+                discord_linked: 'Conectaste Discord',
+                discord_unlinked: 'Desconectaste Discord',
+                stats_cleared: 'Limpiaste tus datos'
+            },
+            scopes: {
+                stats: 'Estadísticas',
+                activity: 'Actividad',
+                questions: 'Historial de preguntas',
+                both: 'Estadísticas y preguntas'
+            },
+            relativeTime: {
+                now: 'ahora',
+                minutes: (mins: number): string => `hace ${mins} min`,
+                hours: (hours: number): string => `hace ${hours} h`,
+                days: (days: number): string => `hace ${days} d`
+            }
+        },
+    }
+};
