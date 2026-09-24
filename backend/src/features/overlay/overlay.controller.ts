@@ -1,15 +1,15 @@
 import { Response } from 'express';
-import * as cacheService from '../../../core/database/cacheService';
-import { CACHE_TTL_MATRIX } from '../../../core/config/cacheTtl';
-import { MESSAGES } from '../../../core/config/messages';
-import { isPanelBrowserRequest } from '../../../core/config/origins';
-import { logger } from '../../../core/utils/logger';
-import { AuthenticatedRequest } from '../../../types/twitch';
-import { jsonError } from '../../../core/utils/jsonResponse';
-import { frontendPagePath } from '../../../core/utils/frontendPaths';
-import { signOverlayReadToken } from '../../auth/auth.service';
-import { resolveMaxBitsRouletteOptions } from '../../../core/config/userRoles';
-import { overlayPagePath, overlayStateKey } from '../../../core/overlay/keys';
+import * as cacheService from '../../core/database/cacheService';
+import { CACHE_TTL_MATRIX } from '../../core/config/cacheTtl';
+import { MESSAGES } from '../../core/config/messages';
+import { isPanelBrowserRequest } from '../../core/config/origins';
+import { logger } from '../../core/utils/logger';
+import { AuthenticatedRequest } from '../../types/twitch';
+import { jsonError } from '../../core/utils/jsonResponse';
+import { frontendPagePath } from '../../core/utils/frontendPaths';
+import { signOverlayReadToken } from '../auth/auth.service';
+import { resolveMaxBitsRouletteOptions } from '../../core/config/userRoles';
+import { overlayPagePath, overlayStateKey } from '../../core/overlay/keys';
 
 function overlayToolMismatch(res: Response, requestedTool: string): boolean {
     const tokenTool = res.locals?.overlayTool as string | undefined;

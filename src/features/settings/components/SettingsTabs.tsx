@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState, type ReactNode } from 'react';
-import { isSettingsTabId, type SettingsTabId } from '@/features/dashboard/settings/lib/settingsPaths';
+import { isSettingsTabId, type SettingsTabId } from '@/features/settings/lib/settingsPaths';
 import { useTranslation } from '@/core/i18n/I18nContext';
 
 export type { SettingsTabId };

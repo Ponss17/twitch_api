@@ -7,7 +7,7 @@ import {
     settingsTabPath,
     SETTINGS_TAB_STORAGE_KEY,
     type SettingsTabId
-} from '@/features/dashboard/settings/lib/settingsPaths';
+} from '@/features/settings/lib/settingsPaths';
 
 const VALID_TABS: ReadonlySet<DashboardTab> = new Set([
     'home',

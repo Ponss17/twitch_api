@@ -1,7 +1,7 @@
-import { SettingsGroup } from '@/features/dashboard/settings/components/SettingsGroup';
-import { SettingsSecuritySection } from '@/features/dashboard/settings/sections/SettingsSecuritySection';
-import { SettingsAuditLogs } from '@/features/dashboard/settings/sections/SettingsAuditLogs';
-import { SettingsDangerZone } from '@/features/dashboard/settings/sections/SettingsDangerZone';
+import { SettingsGroup } from '@/features/settings/components/SettingsGroup';
+import { SettingsSecuritySection } from '@/features/settings/sections/SettingsSecuritySection';
+import { SettingsAuditLogs } from '@/features/settings/sections/SettingsAuditLogs';
+import { SettingsDangerZone } from '@/features/settings/sections/SettingsDangerZone';
 import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface SettingsSecurityPanelProps {

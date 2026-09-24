@@ -23,11 +23,11 @@ import {
     writeSettingsTabUrl,
     SETTINGS_TAB_STORAGE_KEY,
     type SettingsTabId
-} from '@/features/dashboard/settings/lib/settingsPaths';
-import type { ClearDataScopes, SettingsDangerModal } from '@/features/dashboard/settings/lib/settingsTypes';
-import { useSettingsDangerActions } from '@/features/dashboard/settings/hooks/useSettingsDangerActions';
-import { useSettingsDiscord } from '@/features/dashboard/settings/hooks/useSettingsDiscord';
-import { useSettingsProfile } from '@/features/dashboard/settings/hooks/useSettingsProfile';
+} from '@/features/settings/lib/settingsPaths';
+import type { ClearDataScopes, SettingsDangerModal } from '@/features/settings/lib/settingsTypes';
+import { useSettingsDangerActions } from '@/features/settings/hooks/useSettingsDangerActions';
+import { useSettingsDiscord } from '@/features/settings/hooks/useSettingsDiscord';
+import { useSettingsProfile } from '@/features/settings/hooks/useSettingsProfile';
 import { useTranslation } from '@/core/i18n/I18nContext';
 
 export type { ClearDataScopes, SettingsDangerModal };
