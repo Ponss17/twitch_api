@@ -17,7 +17,10 @@ coverage/
 # Notas internas y borradores SQL (local only; no versionar)
 /docs/
 legal-edit-draft.md
+# Borradores SQL sueltos — la fuente de verdad es supabase/migrations/
 /scripts/supabase/
-/supabase/
 /backend/migrations/*.sql
+# Runtime local de Supabase CLI (si aparece)
+/supabase/.branches/
+/supabase/.temp/
 .vscode/
