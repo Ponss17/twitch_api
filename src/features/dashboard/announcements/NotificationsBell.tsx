@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState, useRef, type ComponentType } from 'react';
 import { Bell, Download, FileBarChart, Sparkles, X } from 'lucide-react';
-import { reauthorizeTwitchPermissions } from '@/core/api/auth';
 import { useTranslation, getBcp47 } from '@/core/i18n/I18nContext';
 import { useRequiredSession } from '@/core/session/useSession';
 import {
@@ -9,13 +8,12 @@ import {
     DropdownTrigger,
     useDropdown
 } from '@/shared/ui/dropdown/Dropdown';
-import { Sheet } from '@/shared/ui/Sheet';
+import { UpdateTwitchPermissionsSheet } from '@/features/dashboard/components/UpdateTwitchPermissions';
 import { useAnnouncements } from './useAnnouncements';
 import type {
     AnnouncementDef,
     AnnouncementIcon,
-    AnnouncementId,
-    AnnouncementPermissionHint
+    AnnouncementId
 } from './announcements';
 import {
     ensureMonthlyReport,
@@ -203,33 +201,15 @@ function BellPanel({
     const aT = t.announcements;
     const { close } = useDropdown();
     const [pendingPermissions, setPendingPermissions] = useState<AnnouncementDef | null>(null);
-    const [updatingPermissions, setUpdatingPermissions] = useState(false);
 
     const openPermissionsSheet = (item: AnnouncementDef) => {
         setPendingPermissions(item);
         close();
     };
 
-    const confirmPermissionsUpdate = async () => {
-        if (!pendingPermissions) return;
-        setUpdatingPermissions(true);
-        dismiss(pendingPermissions.id);
-        try {
-            await reauthorizeTwitchPermissions();
-        } catch {
-            setUpdatingPermissions(false);
-            setPendingPermissions(null);
-        }
-    };
-
     const markAll = () => {
         dismissAll();
         onMarkAllServerRead();
-    };
-
-    const permissionLabels = (hints: readonly AnnouncementPermissionHint[] | undefined) => {
-        if (!hints?.length) return [];
-        return hints.map((key) => aT.permissions[key]).filter(Boolean);
     };
 
     return (
@@ -379,48 +359,14 @@ function BellPanel({
                 </footer>
             )}
 
-            <Sheet
+            <UpdateTwitchPermissionsSheet
                 open={pendingPermissions !== null}
-                onClose={() => {
-                    if (updatingPermissions) return;
-                    setPendingPermissions(null);
+                onClose={() => setPendingPermissions(null)}
+                hints={pendingPermissions?.permissionHints}
+                onConfirmStart={() => {
+                    if (pendingPermissions) dismiss(pendingPermissions.id);
                 }}
-                title={aT.updatePermissionsTitle}
-                description={aT.updatePermissionsIntro}
-                footer={
-                    <div className="flex flex-wrap justify-end gap-2">
-                        <button
-                            type="button"
-                            disabled={updatingPermissions}
-                            onClick={() => setPendingPermissions(null)}
-                            className="rounded-lg px-3 py-2 text-sm font-medium text-text-muted hover:bg-bg-secondary hover:text-text-main disabled:opacity-50"
-                        >
-                            {aT.updatePermissionsCancel}
-                        </button>
-                        <button
-                            type="button"
-                            disabled={updatingPermissions}
-                            onClick={() => void confirmPermissionsUpdate()}
-                            className="rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-white hover:bg-primary-hover disabled:opacity-50"
-                        >
-                            {updatingPermissions
-                                ? aT.reloginLoading
-                                : aT.updatePermissionsConfirm}
-                        </button>
-                    </div>
-                }
-            >
-                <ul className="space-y-2 text-sm text-text-main">
-                    {permissionLabels(pendingPermissions?.permissionHints).map((label) => (
-                        <li
-                            key={label}
-                            className="rounded-lg border border-border-subtle bg-bg-secondary px-3 py-2"
-                        >
-                            {label}
-                        </li>
-                    ))}
-                </ul>
-            </Sheet>
+            />
         </>
     );
 }

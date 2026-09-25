@@ -57,16 +57,16 @@ announcements: {
             followers: 'Ver follows do canal (!followage)',
             chatters: 'Listar viewers do chat (roleta / chatters)',
             chat: 'Ler e escrever no chat (ferramentas do painel)',
-            bits: 'Ler bits / cheers do canal (alertas de roleta)'
+            bits: 'Ler bits do canal (Roleta Bits)'
         },
         items: {
             'clips-download-2026-08': {
                 title: 'Baixar clips em MP4',
                 body: 'Atualize as permissões da Twitch para liberar o download de clips.'
             },
-            'bits-roulette-2026-09': {
+            'bits-roulette-2026-09-perms': {
                 title: 'Roleta por bits',
-                body: 'Nova alerta: quando alguém doar bits, a roleta de prémios gira no OBS. Configura em Alertas.'
+                body: 'Nova alerta no OBS. Se já usavas o painel, atualiza as permissões da Twitch para poder ler bits.'
             }
         }
     },

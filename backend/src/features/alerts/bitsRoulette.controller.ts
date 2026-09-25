@@ -65,8 +65,8 @@ export const putBitsAlertHandler = async (req: AuthenticatedRequest, res: Respon
         if (msg === 'EVENTSUB_CREATE_FAILED') {
             return jsonError(
                 res,
-                502,
-                'Twitch rechazó la suscripción a bits. Revisa bits:read (Actualizar permisos) y que el callback EventSub sea HTTPS público.'
+                403,
+                'Necesitas actualizar los permisos de Twitch para leer bits. Usa «Actualizar permisos» y vuelve a activar.'
             );
         }
         if (msg === 'KV_UNAVAILABLE') {
