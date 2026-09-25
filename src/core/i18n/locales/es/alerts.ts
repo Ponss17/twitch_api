@@ -25,6 +25,10 @@ alerts: {
             enabledOn: 'Escucha de bits activada',
             enabledOff: 'Escucha de bits desactivada',
             saveError: 'No se pudo guardar la alerta',
+            permissionsNeeded:
+                'Para escuchar bits reales hace falta un permiso de Twitch. Si al activar falla, actualízalo aquí y vuelve a intentarlo.',
+            permissionsError:
+                'Falta el permiso de bits. Actualiza los permisos de Twitch y vuelve a activar.',
             loadError: 'No se pudo cargar la alerta',
             testSpin: 'Probar en OBS',
             testing: 'Lanzando…',

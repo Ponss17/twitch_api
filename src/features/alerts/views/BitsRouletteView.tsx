@@ -12,6 +12,7 @@ import { BitsRouletteSkeleton } from '@/shared/ui/skeletons/BitsRouletteSkeleton
 import { btnSecondary, toolPanelShell, toolConfigInput } from '@/core/utils/tw';
 import { useToolFocus } from '@/features/dashboard/lib/ui/ToolFocusContext';
 import { readScopedPref, writeScopedPref } from '@/core/session/localPrefs';
+import { UpdateTwitchPermissionsCallout } from '@/features/dashboard/components/UpdateTwitchPermissions';
 import {
     BITS_ROULETTE_OPTIONS_MIN,
     BITS_ROULETTE_PREF,
@@ -156,8 +157,11 @@ export function BitsRouletteView({ active = true }: { active?: boolean }) {
                 showToast(nextEnabled ? aT.enabledOn : aT.enabledOff, 'success');
             }
         } catch (err) {
-            const msg = err instanceof Error ? err.message : aT.saveError;
-            showToast(msg, 'error');
+            const raw = err instanceof Error ? err.message : '';
+            const needsPerms =
+                /permisos|permissions|permiss|bits/i.test(raw) &&
+                /actualiz|update|atualiz/i.test(raw);
+            showToast(needsPerms ? aT.permissionsError : raw || aT.saveError, 'error');
         } finally {
             setSaving(false);
         }
@@ -211,6 +215,11 @@ export function BitsRouletteView({ active = true }: { active?: boolean }) {
                         />
                         {aT.enabled}
                     </label>
+
+                    <UpdateTwitchPermissionsCallout
+                        hints={['bits']}
+                        message={aT.permissionsNeeded}
+                    />
 
                     <div className="flex flex-wrap gap-3">
                         <label className="block text-xs text-text-muted">

@@ -25,6 +25,10 @@ alerts: {
             enabledOn: 'Bits listening enabled',
             enabledOff: 'Bits listening disabled',
             saveError: 'Could not save the alert',
+            permissionsNeeded:
+                'Listening for real bits needs a Twitch permission. If enabling fails, update it here and try again.',
+            permissionsError:
+                'Bits permission is missing. Update Twitch permissions and enable the alert again.',
             loadError: 'Could not load the alert',
             testSpin: 'Test on OBS',
             testing: 'Sending…',
