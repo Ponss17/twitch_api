@@ -11,6 +11,7 @@ import { MESSAGES } from '../../core/config/messages';
 import { overlayRevokeKey } from '../../core/overlay/keys';
 import { getHmacSecrets, getPrimaryHmacSecret } from '../../core/utils/hmacSecrets';
 import { DEFAULT_USER_ROLE } from '../../core/config/userRoles';
+import { rememberTwitchScopes } from './twitchScopes.service';
 
 const TWITCH_AUTH_URL = 'https://id.twitch.tv/oauth2';
 const TWITCH_API_URL = 'https://api.twitch.tv/helix';
@@ -82,7 +83,7 @@ export const getAuthorizeUrl = (
     redirectOrigin: string,
     extraData?: Record<string, unknown>,
     providedState?: string,
-    options?: { forceVerify?: boolean }
+    _options?: { forceVerify?: boolean }
 ): string => {
     const scope =
         'user:read:email moderator:read:followers clips:edit channel:manage:clips moderator:read:chatters user:write:chat chat:read chat:edit moderator:manage:banned_users channel:read:vips channel:read:subscriptions bits:read';
@@ -93,12 +94,9 @@ export const getAuthorizeUrl = (
         redirect_uri: CONFIG.TWITCH_REDIRECT_URI as string,
         response_type: 'code',
         scope: scope,
-        state: state
+        state: state,
+        force_verify: 'true'
     });
-    // Solo al actualizar permisos: evita forzar re-consent en cada login cotidiano.
-    if (options?.forceVerify) {
-        params.set('force_verify', 'true');
-    }
 
     return `${TWITCH_AUTH_URL}/authorize?${params.toString()}`;
 };
@@ -231,6 +229,7 @@ export const handleCallback = async (
     // Invalidar L1 de API keys: si no, instancias warm siguen con el accessToken
     // anterior (sin scopes nuevos) y followage falla aunque el re-login haya ido bien.
     _invalidateCacheFn?.(user.id);
+    await rememberTwitchScopes(user.id, grantedScopes);
 
     let redirectOrigin = '';
     if (state) {

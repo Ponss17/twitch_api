@@ -1,10 +1,69 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { reauthorizeTwitchPermissions } from '@/core/api/auth';
 import { useTranslation } from '@/core/i18n/I18nContext';
-import { Sheet } from '@/shared/ui/Sheet';
+import { useRequiredSession } from '@/core/session/useSession';
+import { Modal } from '@/shared/ui/modals/Modal';
 import type { AnnouncementPermissionHint } from '@/features/dashboard/announcements/announcements';
+import { validateSession } from '@/core/auth/validateSession';
+import { getSession, saveSession } from '@/core/auth/sessionStorage';
 
 export type TwitchPermissionHint = AnnouncementPermissionHint;
+
+export const PERMISSION_HINT_SCOPES: Record<TwitchPermissionHint, string> = {
+    bits: 'bits:read',
+    clips: 'channel:manage:clips',
+    followers: 'moderator:read:followers',
+    chatters: 'moderator:read:chatters',
+    chat: 'chat:read'
+};
+
+export function missingPermissionHints(
+    scopes: readonly string[] | undefined,
+    hints: readonly TwitchPermissionHint[]
+): TwitchPermissionHint[] {
+    if (!scopes) return [...hints];
+    return hints.filter((hint) => !scopes.includes(PERMISSION_HINT_SCOPES[hint]));
+}
+
+export function useTwitchScopes(): { scopes: string[] | undefined; ready: boolean } {
+    const session = useRequiredSession();
+    const [scopes, setScopes] = useState<string[] | undefined>(session.scopes);
+    const [ready, setReady] = useState(Array.isArray(session.scopes));
+
+    useEffect(() => {
+        if (Array.isArray(session.scopes)) {
+            setScopes(session.scopes);
+            setReady(true);
+            return;
+        }
+
+        let cancelled = false;
+        void (async () => {
+            try {
+                const result = await validateSession(session);
+                const next = Array.isArray(result.scopes)
+                    ? result.scopes.filter((s): s is string => typeof s === 'string')
+                    : undefined;
+                if (cancelled) return;
+                if (next) {
+                    const stored = getSession();
+                    if (stored) saveSession({ ...stored, scopes: next });
+                }
+                setScopes(next);
+            } catch {
+                if (!cancelled) setScopes(undefined);
+            } finally {
+                if (!cancelled) setReady(true);
+            }
+        })();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [session.userId, session.scopes]);
+
+    return { scopes, ready };
+}
 
 interface UpdateTwitchPermissionsSheetProps {
     open: boolean;
@@ -39,14 +98,14 @@ export function UpdateTwitchPermissionsSheet({
     };
 
     return (
-        <Sheet
+        <Modal
             open={open}
             onClose={() => {
                 if (updating) return;
                 onClose();
             }}
+            closeDisabled={updating}
             title={aT.updatePermissionsTitle}
-            description={aT.updatePermissionsIntro}
             footer={
                 <div className="flex flex-wrap justify-end gap-2">
                     <button
@@ -68,8 +127,9 @@ export function UpdateTwitchPermissionsSheet({
                 </div>
             }
         >
+            <p className="text-sm leading-relaxed text-text-muted">{aT.updatePermissionsIntro}</p>
             {labels.length > 0 ? (
-                <ul className="space-y-2 text-sm text-text-main">
+                <ul className="mt-3 space-y-2 text-sm text-text-main">
                     {labels.map((label) => (
                         <li
                             key={label}
@@ -80,7 +140,7 @@ export function UpdateTwitchPermissionsSheet({
                     ))}
                 </ul>
             ) : null}
-        </Sheet>
+        </Modal>
     );
 }
 
@@ -97,6 +157,10 @@ export function UpdateTwitchPermissionsCallout({
 }: UpdateTwitchPermissionsCalloutProps) {
     const { t } = useTranslation();
     const [open, setOpen] = useState(false);
+    const { scopes, ready } = useTwitchScopes();
+    const missing = missingPermissionHints(scopes, hints);
+
+    if (!ready || missing.length === 0) return null;
 
     return (
         <>
@@ -115,7 +179,7 @@ export function UpdateTwitchPermissionsCallout({
             <UpdateTwitchPermissionsSheet
                 open={open}
                 onClose={() => setOpen(false)}
-                hints={hints}
+                hints={missing}
             />
         </>
     );

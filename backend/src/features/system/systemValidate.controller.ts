@@ -8,6 +8,7 @@ import { jsonError } from '../../core/utils/jsonResponse';
 import { isAuthenticationError } from '../../core/errors/AppError';
 
 import { AuthenticatedRequest } from '../../types/twitch';
+import { resolveTwitchScopes } from '../auth/twitchScopes.service';
 
 /** Respuesta de validate al panel: sin secretos; renovación usa tokenExpiresAt + cookie. */
 function panelValidatePayload(params: {
@@ -17,10 +18,12 @@ function panelValidatePayload(params: {
     profileImageUrl?: string;
     timezone?: string;
     tokenExpiresAt?: number | null;
+    scopes?: string[];
 }) {
     return {
         valid: true as const,
         tokenExpiresAt: params.tokenExpiresAt && params.tokenExpiresAt > 0 ? params.tokenExpiresAt : null,
+        ...(params.scopes?.length ? { scopes: params.scopes } : {}),
         user: {
             id: params.userId,
             login: params.login,
@@ -84,6 +87,7 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
                     tokenExpiresAt = fresh.tokenExpiresAt;
                 }
             }
+            const scopes = await resolveTwitchScopes(user.userId, token);
             return res.json(
                 panelValidatePayload({
                     userId: user.userId,
@@ -91,7 +95,8 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
                     displayName: user.displayName,
                     profileImageUrl: user.profileImageUrl,
                     timezone: user.timezone,
-                    tokenExpiresAt
+                    tokenExpiresAt,
+                    scopes
                 })
             );
         }
@@ -113,6 +118,9 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
 
             const tokenExpiresAt =
                 dbUser?.tokenExpiresAt && dbUser.tokenExpiresAt > 0 ? dbUser.tokenExpiresAt : null;
+            const scopes = Array.isArray(validation.scopes)
+                ? validation.scopes
+                : await resolveTwitchScopes(validation.user_id, token);
             return res.json(
                 panelValidatePayload({
                     userId: userProfile.id,
@@ -120,7 +128,8 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
                     displayName: userProfile.display_name,
                     profileImageUrl: userProfile.profile_image_url,
                     timezone: dbUser?.timezone,
-                    tokenExpiresAt
+                    tokenExpiresAt,
+                    scopes
                 })
             );
         } catch (err) {
