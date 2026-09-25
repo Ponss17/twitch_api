@@ -110,6 +110,8 @@ export interface Session {
     isNewLogin?: boolean;
     /** Timestamp (ms) en que expira el OAuth token de Twitch. Viene del backend via /validate. */
     tokenExpiresAt?: number;
+    /** Scopes OAuth actuales (desde /validate). */
+    scopes?: string[];
 }
 
 export interface ApiResponse<T = unknown> {

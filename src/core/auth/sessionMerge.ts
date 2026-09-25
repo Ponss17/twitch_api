@@ -22,6 +22,9 @@ function pickSessionFromValidate(result: ApiResponse): Partial<Session> {
     if (typeof result.tokenExpiresAt === 'number' && result.tokenExpiresAt > 0) {
         partial.tokenExpiresAt = result.tokenExpiresAt;
     }
+    if (Array.isArray(result.scopes)) {
+        partial.scopes = result.scopes.filter((s): s is string => typeof s === 'string');
+    }
     const user = result.user;
     if (user && typeof user === 'object') {
         const profile = user as Record<string, unknown>;
