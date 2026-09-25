@@ -99,7 +99,7 @@ describe('authController', () => {
                 'https://losperris.dev',
                 undefined,
                 'signed-browser-state',
-                { forceVerify: false }
+                { forceVerify: true }
             );
             expect(setOAuthStateCookie).toHaveBeenCalledWith(res, 'signed-browser-state');
         });

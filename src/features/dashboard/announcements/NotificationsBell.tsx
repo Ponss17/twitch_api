@@ -8,7 +8,11 @@ import {
     DropdownTrigger,
     useDropdown
 } from '@/shared/ui/dropdown/Dropdown';
-import { UpdateTwitchPermissionsSheet } from '@/features/dashboard/components/UpdateTwitchPermissions';
+import {
+    UpdateTwitchPermissionsSheet,
+    missingPermissionHints,
+    useTwitchScopes
+} from '@/features/dashboard/components/UpdateTwitchPermissions';
 import { useAnnouncements } from './useAnnouncements';
 import type {
     AnnouncementDef,
@@ -200,6 +204,7 @@ function BellPanel({
     const { t } = useTranslation();
     const aT = t.announcements;
     const { close } = useDropdown();
+    const { scopes } = useTwitchScopes();
     const [pendingPermissions, setPendingPermissions] = useState<AnnouncementDef | null>(null);
 
     const openPermissionsSheet = (item: AnnouncementDef) => {
@@ -329,7 +334,9 @@ function BellPanel({
                                             <p className="mt-0.5 text-[0.75rem] leading-snug text-text-muted">
                                                 {copy.body}
                                             </p>
-                                            {item.requiresRelogin && (
+                                            {item.requiresRelogin &&
+                                                missingPermissionHints(scopes, item.permissionHints ?? [])
+                                                    .length > 0 && (
                                                 <button
                                                     type="button"
                                                     onClick={() => openPermissionsSheet(item)}
@@ -362,7 +369,11 @@ function BellPanel({
             <UpdateTwitchPermissionsSheet
                 open={pendingPermissions !== null}
                 onClose={() => setPendingPermissions(null)}
-                hints={pendingPermissions?.permissionHints}
+                hints={
+                    pendingPermissions
+                        ? missingPermissionHints(scopes, pendingPermissions.permissionHints ?? [])
+                        : undefined
+                }
                 onConfirmStart={() => {
                     if (pendingPermissions) dismiss(pendingPermissions.id);
                 }}
