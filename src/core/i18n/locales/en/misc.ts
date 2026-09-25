@@ -57,16 +57,16 @@ announcements: {
             followers: 'View channel follows (!followage)',
             chatters: 'List chat viewers (roulette / chatters)',
             chat: 'Read and write chat (panel tools)',
-            bits: 'Read channel bits / cheers (roulette alerts)'
+            bits: 'Read channel bits (Bits roulette)'
         },
         items: {
             'clips-download-2026-08': {
                 title: 'Download clips as MP4',
                 body: 'Update Twitch permissions to unlock clip downloads.'
             },
-            'bits-roulette-2026-09': {
+            'bits-roulette-2026-09-perms': {
                 title: 'Bits roulette',
-                body: 'New alert: when someone cheers bits, the prize wheel spins on OBS. Set it up under Alerts.'
+                body: 'New OBS alert. If you already used the panel, update Twitch permissions so it can read bits.'
             }
         }
     },

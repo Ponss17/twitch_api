@@ -18,8 +18,10 @@ export interface AnnouncementDef {
 
 export const ANNOUNCEMENTS: readonly AnnouncementDef[] = [
     {
-        id: 'bits-roulette-2026-09' as AnnouncementId,
-        icon: 'sparkles'
+        id: 'bits-roulette-2026-09-perms' as AnnouncementId,
+        icon: 'sparkles',
+        requiresRelogin: true,
+        permissionHints: ['bits']
     }
 ] as const;
 
