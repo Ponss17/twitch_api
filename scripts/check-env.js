@@ -18,7 +18,7 @@ const REQUIRED_VARS = [
 
 const KV_VARS = ['KV_REST_API_URL', 'KV_REST_API_TOKEN'];
 
-const PROD_RECOMMENDED_VARS = ['HMAC_SIGNING_SECRET'];
+const PROD_RECOMMENDED_VARS = ['HMAC_SIGNING_SECRET', 'EVENTSUB_SECRET'];
 
 if (!fs.existsSync(envPath)) {
     console.error('❌ No se encontró .env en twitch_api/');
@@ -60,8 +60,14 @@ for (const key of KV_VARS) {
 for (const key of PROD_RECOMMENDED_VARS) {
     if (!envConfig[key]?.trim()) {
         if (isProd) {
-            console.error(`❌ Faltante en producción: ${key} (firma HMAC de tokens de sesión)`);
+            const hint =
+                key === 'EVENTSUB_SECRET'
+                    ? 'webhook de bits (10–100 caracteres, distinto del HMAC)'
+                    : 'firma HMAC de tokens de sesión';
+            console.error(`❌ Faltante en producción: ${key} (${hint})`);
             hasError = true;
+        } else if (key === 'EVENTSUB_SECRET') {
+            console.warn(`⚠️  ${key} no configurado — en local la ruleta de bits no crea la suscripción`);
         } else {
             console.warn(`⚠️  ${key} no configurado — se usará TWITCH_CLIENT_SECRET como fallback en dev`);
         }

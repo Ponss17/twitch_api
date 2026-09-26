@@ -1,4 +1,4 @@
-import React, { Suspense, useMemo, useEffect, useState } from 'react';
+import React, { Suspense, useMemo, useEffect, useRef, useState } from 'react';
 import { useDashboardPanel } from '@/features/dashboard/providers/DashboardPanelProvider';
 import { fadeIn } from '@/core/utils/tw';
 import { useRequiredSession } from '@/core/session/useSession';
@@ -27,6 +27,7 @@ const AnalyticsTodayBarChart = React.lazy(() =>
 );
 
 function AnalyticsViewContent({ active }: { active: boolean }) {
+    const chartsRef = useRef<HTMLDivElement>(null);
     const { stats, hasLiveData, error, profile, syncing, refreshPanel } = useDashboardPanel();
     const { t } = useTranslation();
     const [timeRange, setTimeRange] = useState<AnalyticsTimeRange>('today');
@@ -133,8 +134,10 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
 
     useEffect(() => {
         if (!active) return;
+        const root = chartsRef.current;
+        if (!root) return;
         const cleanTabIndex = () => {
-            document
+            root
                 .querySelectorAll(
                     '.recharts-wrapper [tabindex], .recharts-surface [tabindex], .recharts-wrapper g[tabindex]'
                 )
@@ -148,7 +151,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
         const t1 = window.setTimeout(cleanTabIndex, 50);
         const t2 = window.setTimeout(cleanTabIndex, 400);
         const mo = new MutationObserver(cleanTabIndex);
-        mo.observe(document.body, {
+        mo.observe(root, {
             subtree: true,
             childList: true,
             attributes: true,
@@ -211,7 +214,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
     const latencyDuration = active ? 1000 : 0;
 
     return (
-        <div data-tour="analytics" className={`space-y-4 ${fadeIn}`}>
+        <div ref={chartsRef} data-tour="analytics" className={`space-y-4 ${fadeIn}`}>
             <AnalyticsKPIs
                 timeRange={timeRange}
                 setTimeRange={setTimeRange}

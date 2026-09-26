@@ -20,7 +20,8 @@ export type ApiErrorCode =
     | 'OVERLAY_REVOKED'
     | 'AJAX_REQUIRED'
     | 'API_KEY_NOT_FOUND'
-    | 'COOKIE_SESSION_REQUIRED';
+    | 'COOKIE_SESSION_REQUIRED'
+    | 'API_KEY_NOT_ALLOWED';
 
 export interface ApiErrorBody {
     success: false;

@@ -12,6 +12,7 @@ import { errorHandler } from '../middleware/errorMiddleware';
 import { jsonError } from '../utils/jsonResponse';
 import { stripTwitchPrefix } from '../middleware/twitchPrefix';
 import { overlayScopeGuard } from '../middleware/overlayScope';
+import { rejectApiKeyOnPanelRoutes } from '../middleware/apiKeyScope';
 
 /**
  * Composer HTTP único (aliases intencionales — no quitar sin auditar bots/OAuth).
@@ -57,6 +58,7 @@ export const configureRoutes = (app: Application) => {
     // codeql[js/missing-rate-limiting] Redis pre-auth limiter is applied above
     app.use(checkToken);
     // codeql[js/missing-rate-limiting] Feature routes apply post-auth Redis quotas
+    app.use(rejectApiKeyOnPanelRoutes);
     app.use(overlayScopeGuard);
 
     // codeql[js/missing-rate-limiting] Redis pre-auth limiter is applied globally above

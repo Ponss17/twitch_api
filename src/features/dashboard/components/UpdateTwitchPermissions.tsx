@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { reauthorizeTwitchPermissions } from '@/core/api/auth';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { useRequiredSession } from '@/core/session/useSession';
@@ -27,10 +27,17 @@ export function missingPermissionHints(
 
 export function useTwitchScopes(): { scopes: string[] | undefined; ready: boolean } {
     const session = useRequiredSession();
+    const sessionRef = useRef(session);
+    sessionRef.current = session;
     const [scopes, setScopes] = useState<string[] | undefined>(session.scopes);
     const [ready, setReady] = useState(Array.isArray(session.scopes));
 
     useEffect(() => {
+        const current = sessionRef.current;
+        if (!session.userId) {
+            setReady(true);
+            return;
+        }
         if (Array.isArray(session.scopes)) {
             setScopes(session.scopes);
             setReady(true);
@@ -40,7 +47,7 @@ export function useTwitchScopes(): { scopes: string[] | undefined; ready: boolea
         let cancelled = false;
         void (async () => {
             try {
-                const result = await validateSession(session);
+                const result = await validateSession(current);
                 const next = Array.isArray(result.scopes)
                     ? result.scopes.filter((s): s is string => typeof s === 'string')
                     : undefined;

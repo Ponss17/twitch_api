@@ -20,6 +20,15 @@ export const isPublicHtmlRoute = (path: string, method: string = 'GET'): boolean
     if (cleanPath === '/health' || cleanPath === '/api/health') return false;
     if (cleanPath.endsWith('/robots.txt') || cleanPath.endsWith('/sitemap.xml')) return false;
 
+    // EventSub tiene su propio límite (EVENTSUB_IP). El tope de HTML público (300/min)
+    // cortaba el webhook antes de llegar a ese límite.
+    if (
+        method === 'POST' &&
+        (cleanPath === '/webhooks/twitch/eventsub' || cleanPath === '/api/webhooks/twitch/eventsub')
+    ) {
+        return false;
+    }
+
     return true;
 };
 
@@ -107,6 +116,7 @@ export const isPublicRoute = (path: string, method: string = 'GET'): boolean => 
         '/health',
         '/dashboard',
         '/docs',
+        '/about',
         '/sobre-la-api',
         '/legal',
         '/privacidad',
@@ -124,6 +134,7 @@ export const isPublicRoute = (path: string, method: string = 'GET'): boolean => 
         '/sitemap.xml',
         '/api/sitemap.xml',
         '/api/twitch/docs',
+        '/api/twitch/about',
         '/api/twitch/sobre-la-api',
         '/api/twitch/dashboard',
         '/api/twitch/legal',

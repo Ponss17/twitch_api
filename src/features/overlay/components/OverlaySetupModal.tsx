@@ -1,5 +1,5 @@
 import { Loader2 } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRequiredSession } from '@/core/session/useSession';
 import { fetchOverlayLink } from '@/features/overlay/lib/sync';
 import {
@@ -15,12 +15,30 @@ import { resolveWheelPalette, ROULETTE_COLOR_PRESETS } from '@/features/tools/ro
 import { appendOverlayAppearanceParams, isOverlayScaleId, type OverlayScaleId } from '@/features/overlay/lib/overlayAppearance';
 import {
     appendBitsRouletteParams,
-    BITS_ROULETTE_PREF,
-    DEFAULT_BITS_ROULETTE_URL,
-    type BitsRouletteUrlConfig
+    BITS_WINNER_HOLD_MAX_SEC,
+    BITS_WINNER_HOLD_MIN_SEC,
+    DEFAULT_BITS_SPIN_BANNER,
+    normalizeSpinBanner,
+    normalizeWinnerHoldSec,
+    type BitsRouletteUrlConfig,
+    type BitsWinnerCardStyle
 } from '@/features/alerts/lib/bitsRouletteUrl';
+import { patchBitsRoulettePrefs, readBitsRoulettePrefs } from '@/features/alerts/lib/bitsRoulettePrefs';
+import {
+    BITS_CONFETTI_SOUND_IDS,
+    normalizeConfettiSound,
+    playBitsConfettiSound
+} from '@/features/alerts/lib/bitsConfettiSound';
 import { copyText } from '@/core/utils/clipboard';
-import { modalBtnPrimary, themeActiveChip, themeActiveChoice, themeIdleChip, themeIdleChoice } from '@/core/utils/tw';
+import {
+    modalBtnPrimary,
+    themeActiveChip,
+    themeActiveChoice,
+    themeIdleChip,
+    themeIdleChoice,
+    toolConfigInput
+} from '@/core/utils/tw';
+import { SelectField } from '@/shared/ui/SelectField';
 
 interface OverlaySetupModalProps {
     open: boolean;
@@ -46,24 +64,14 @@ function overlayScalePrefKey(tool: OverlayTool): string {
     return `${OBS_OVERLAY_SCALE_PREF}_${tool}`;
 }
 
-function readBitsUrlConfig(userId?: string): BitsRouletteUrlConfig {
-    try {
-        const raw = readScopedPref(BITS_ROULETTE_PREF, userId);
-        if (!raw) return { ...DEFAULT_BITS_ROULETTE_URL };
-        return { ...DEFAULT_BITS_ROULETTE_URL, ...(JSON.parse(raw) as BitsRouletteUrlConfig) };
-    } catch {
-        return { ...DEFAULT_BITS_ROULETTE_URL };
-    }
-}
-
 export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProps) {
     const session = useRequiredSession();
     const { showToast } = useToast();
     const { t } = useTranslation();
     const mT = t.overlay.setupModal;
     const gT = t.overlay.guide;
-    
     const aT = t.overlay.appearance;
+    const bitsT = t.alerts.bitsRoulette;
     const [platform, setPlatform] = useState<OverlayPlatform>('obs');
     const [rawUrl, setRawUrl] = useState('');
     const [loading, setLoading] = useState(false);
@@ -77,6 +85,10 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
         const stored = readScopedPref(overlayScalePrefKey(tool), session.userId);
         return stored && isOverlayScaleId(stored) ? stored : 'md';
     });
+    const [bitsConfig, setBitsConfig] = useState<BitsRouletteUrlConfig>(() =>
+        readBitsRoulettePrefs(session.userId)
+    );
+    const spinBannerInputRef = useRef<HTMLInputElement>(null);
 
     const guide = useMemo(
         () => getOverlayPlatformGuide(tool, platform, gT, obsScale),
@@ -100,10 +112,36 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
             scale: obsScale
         });
         if (tool === 'bits-roulette') {
-            url = appendBitsRouletteParams(url, readBitsUrlConfig(session.userId));
+            url = appendBitsRouletteParams(url, bitsConfig);
         }
         return url;
-    }, [rawUrl, obsWheelColor, obsScale, tool, session.userId]);
+    }, [rawUrl, obsWheelColor, obsScale, tool, bitsConfig]);
+
+    const updateBits = (patch: Partial<BitsRouletteUrlConfig>) => {
+        setBitsConfig(patchBitsRoulettePrefs(session.userId, patch));
+    };
+
+    const insertSpinBannerVar = (token: string) => {
+        const el = spinBannerInputRef.current;
+        const current = bitsConfig.spinBanner || '';
+        if (!el) {
+            updateBits({
+                spinBanner: normalizeSpinBanner(`${current}${token}`)
+            });
+            return;
+        }
+        const start = el.selectionStart ?? current.length;
+        const end = el.selectionEnd ?? current.length;
+        const next = normalizeSpinBanner(
+            `${current.slice(0, start)}${token}${current.slice(end)}`
+        );
+        updateBits({ spinBanner: next });
+        requestAnimationFrame(() => {
+            const pos = Math.min(start + token.length, next.length);
+            el.focus();
+            el.setSelectionRange(pos, pos);
+        });
+    };
 
     const loadUrl = useCallback(async () => {
         setLoading(true);
@@ -130,6 +168,7 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
         setObsWheelColor(readScopedPref(overlayColorPrefKey(tool), session.userId) || 'auto');
         const storedScale = readScopedPref(overlayScalePrefKey(tool), session.userId);
         setObsScale(storedScale && isOverlayScaleId(storedScale) ? storedScale : 'md');
+        setBitsConfig(readBitsRoulettePrefs(session.userId));
         void loadUrl();
     }, [open, loadUrl, session.userId, tool]);
 
@@ -287,6 +326,192 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
                             );
                         })}
                     </div>
+
+                    {tool === 'bits-roulette' ? (
+                        <div className="mt-4 space-y-3 border-t border-border-subtle pt-4">
+                            <p className="text-[0.7rem] font-semibold text-text-muted">
+                                {bitsT.appearanceTitle}
+                            </p>
+                            <div className="grid gap-2 sm:grid-cols-2">
+                                <div className="flex items-center gap-2 text-[0.75rem] text-text-main">
+                                    <input
+                                        type="checkbox"
+                                        checked={Boolean(bitsConfig.spinBanner)}
+                                        onChange={(e) =>
+                                            updateBits({
+                                                spinBanner: e.target.checked
+                                                    ? normalizeSpinBanner(
+                                                          bitsConfig.spinBanner ||
+                                                              bitsT.spinBannerDefault ||
+                                                              DEFAULT_BITS_SPIN_BANNER
+                                                      )
+                                                    : ''
+                                            })
+                                        }
+                                        aria-label={bitsT.spinBanner}
+                                        className="size-3.5 shrink-0 accent-primary"
+                                    />
+                                    <span className="select-none">{bitsT.spinBanner}</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-[0.75rem] text-text-main">
+                                    <input
+                                        type="checkbox"
+                                        checked={bitsConfig.showDonor}
+                                        onChange={(e) =>
+                                            updateBits({ showDonor: e.target.checked })
+                                        }
+                                        aria-label={bitsT.showDonor}
+                                        className="size-3.5 shrink-0 accent-primary"
+                                    />
+                                    <span className="select-none">{bitsT.showDonor}</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-[0.75rem] text-text-main sm:col-span-2">
+                                    <input
+                                        type="checkbox"
+                                        checked={bitsConfig.confetti}
+                                        onChange={(e) => {
+                                            const on = e.target.checked;
+                                            updateBits({
+                                                confetti: on,
+                                                ...(on && bitsConfig.confettiSound === 'none'
+                                                    ? { confettiSound: 'confetti' as const }
+                                                    : {})
+                                            });
+                                        }}
+                                        aria-label={bitsT.confetti}
+                                        className="size-3.5 shrink-0 accent-primary"
+                                    />
+                                    <span className="select-none">{bitsT.confetti}</span>
+                                </div>
+                            </div>
+                            {bitsConfig.spinBanner ? (
+                                <div className="space-y-1">
+                                    <label className="block text-[0.7rem] text-text-muted">
+                                        {bitsT.spinBannerText}
+                                        <input
+                                            ref={spinBannerInputRef}
+                                            type="text"
+                                            value={bitsConfig.spinBanner}
+                                            maxLength={80}
+                                            onChange={(e) =>
+                                                updateBits({
+                                                    spinBanner: normalizeSpinBanner(
+                                                        e.target.value
+                                                    )
+                                                })
+                                            }
+                                            placeholder={
+                                                bitsT.spinBannerDefault ||
+                                                DEFAULT_BITS_SPIN_BANNER
+                                            }
+                                            className={`${toolConfigInput} mt-1`}
+                                        />
+                                    </label>
+                                    <small className="flex flex-wrap items-center gap-x-1 gap-y-1 text-[0.6875rem] leading-snug text-text-muted">
+                                        <strong className="text-text-main">
+                                            {bitsT.spinBannerVars}
+                                        </strong>
+                                        {(['{name}', '{bits}'] as const).map((token) => (
+                                            <button
+                                                key={token}
+                                                type="button"
+                                                onClick={() => insertSpinBannerVar(token)}
+                                                title={bitsT.spinBannerInsertVar.replace(
+                                                    '{var}',
+                                                    token
+                                                )}
+                                                aria-label={bitsT.spinBannerInsertVar.replace(
+                                                    '{var}',
+                                                    token
+                                                )}
+                                                className="rounded border border-primary/30 bg-primary/15 px-1.5 py-0.5 font-mono text-[0.8125rem] font-medium text-brand-text transition-colors hover:border-primary/50 hover:bg-primary/25 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40"
+                                            >
+                                                {token}
+                                            </button>
+                                        ))}
+                                    </small>
+                                </div>
+                            ) : null}
+                            <label className="block text-[0.7rem] text-text-muted">
+                                {bitsT.confettiSound}
+                                <div className="mt-1 flex items-center gap-2">
+                                    <div className="min-w-0 flex-1">
+                                        <SelectField
+                                            value={bitsConfig.confettiSound}
+                                            onChange={(e) =>
+                                                updateBits({
+                                                    confettiSound: normalizeConfettiSound(
+                                                        e.target.value
+                                                    )
+                                                })
+                                            }
+                                            aria-label={bitsT.confettiSound}
+                                            options={BITS_CONFETTI_SOUND_IDS.map((id) => ({
+                                                value: id,
+                                                label: bitsT.confettiSounds[id]
+                                            }))}
+                                        />
+                                    </div>
+                                    <button
+                                        type="button"
+                                        disabled={bitsConfig.confettiSound === 'none'}
+                                        onClick={() =>
+                                            playBitsConfettiSound(bitsConfig.confettiSound)
+                                        }
+                                        className="shrink-0 rounded-md border border-border-subtle px-2 py-1.5 text-[0.7rem] font-medium text-text-main transition hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-40"
+                                    >
+                                        {bitsT.confettiSoundPreview}
+                                    </button>
+                                </div>
+                                <span className="mt-1 block text-[0.65rem] leading-snug text-text-muted">
+                                    {bitsT.confettiSoundHint}
+                                </span>
+                            </label>
+                            <div className="grid gap-3 sm:grid-cols-2">
+                                <label className="block text-[0.7rem] text-text-muted">
+                                    {bitsT.cardStyle}
+                                    <div className="mt-1">
+                                        <SelectField
+                                            value={bitsConfig.cardStyle}
+                                            onChange={(e) =>
+                                                updateBits({
+                                                    cardStyle: e.target
+                                                        .value as BitsWinnerCardStyle
+                                                })
+                                            }
+                                            aria-label={bitsT.cardStyle}
+                                            options={[
+                                                { value: 'glass', label: bitsT.cardGlass },
+                                                { value: 'solid', label: bitsT.cardSolid }
+                                            ]}
+                                        />
+                                    </div>
+                                </label>
+                                <label className="block text-[0.7rem] text-text-muted">
+                                    {bitsT.winnerHold}
+                                    <input
+                                        type="number"
+                                        min={BITS_WINNER_HOLD_MIN_SEC}
+                                        max={BITS_WINNER_HOLD_MAX_SEC}
+                                        step={1}
+                                        value={bitsConfig.winnerHoldSec}
+                                        onChange={(e) =>
+                                            updateBits({
+                                                winnerHoldSec: normalizeWinnerHoldSec(
+                                                    e.target.value
+                                                )
+                                            })
+                                        }
+                                        aria-label={bitsT.winnerHold}
+                                        className={`${toolConfigInput} mt-1 w-full`}
+                                    />
+                                    <span className="mt-1 block text-[0.65rem] leading-snug text-text-muted">
+                                        {bitsT.winnerHoldHint}
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    ) : null}
                 </div>
 
                 <div role="tabpanel" className="rounded-xl border border-border-subtle bg-bg-secondary/70 px-5 py-5 shadow-xs backdrop-blur-xs">

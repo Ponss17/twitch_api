@@ -143,14 +143,14 @@ export async function deleteEventSubSubscription(subscriptionId: string): Promis
     }
 }
 
-/** Nombre del donador: no va al overlay. Solo lo usa el anuncio en chat. */
+/** Nombre del donador: privado para chat + público en lastCheer (OBS decide si lo muestra). */
 export function bitsCheerPrivateKey(userId: string): string {
     return `alerts:bits-cheer:${userId}`;
 }
 
 const PRIVATE_CHEER_TTL_SEC = 30 * 60;
 
-/** Publica el cheer sin el nombre. El overlay decide umbral/premios según su URL. */
+/** Publica el cheer (incl. nombre) para el overlay OBS. */
 export async function publishCheerEvent(
     userId: string,
     cheer: BitsCheerEvent
@@ -163,7 +163,12 @@ export async function publishCheerEvent(
     } catch {
         /* ignore */
     }
-    const publicCheer = { id: cheer.id, bits: cheer.bits, at: cheer.at };
+    const publicCheer = {
+        id: cheer.id,
+        bits: cheer.bits,
+        at: cheer.at,
+        userName: (cheer.userName || '').trim().slice(0, 25) || undefined
+    };
     await setStrict(
         bitsCheerPrivateKey(userId),
         {

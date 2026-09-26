@@ -23,7 +23,10 @@ describe('production URL resolution (Vercel)', () => {
         process.env.SUPABASE_URL = 'https://example.supabase.co';
         process.env.SUPABASE_SERVICE_ROLE_KEY = 'service';
         process.env.SUPABASE_ANON_KEY = 'anon';
-        process.env.SUPABASE_JWT_SECRET = 'jwt';
+        process.env.SUPABASE_JWT_SECRET = 'j'.repeat(32);
+        process.env.EVENTSUB_SECRET = 'eventsub-secret-test';
+        process.env.KV_REST_API_URL = 'https://example.upstash.io';
+        process.env.KV_REST_API_TOKEN = 'token';
 
         const { CONFIG } = await import('../../backend/src/core/config/env');
         expect(CONFIG.TWITCH_REDIRECT_URI).toBe(
@@ -46,7 +49,10 @@ describe('production URL resolution (Vercel)', () => {
         process.env.SUPABASE_URL = 'https://example.supabase.co';
         process.env.SUPABASE_SERVICE_ROLE_KEY = 'service';
         process.env.SUPABASE_ANON_KEY = 'anon';
-        process.env.SUPABASE_JWT_SECRET = 'jwt';
+        process.env.SUPABASE_JWT_SECRET = 'j'.repeat(32);
+        process.env.EVENTSUB_SECRET = 'eventsub-secret-test';
+        process.env.KV_REST_API_URL = 'https://example.upstash.io';
+        process.env.KV_REST_API_TOKEN = 'token';
 
         const { CONFIG } = await import('../../backend/src/core/config/env');
         expect(CONFIG.FRONTEND_URL).toBe('https://ttv.losperris.dev');

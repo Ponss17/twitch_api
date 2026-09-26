@@ -59,8 +59,6 @@ export function NotificationsBell() {
     const bcp47 = getBcp47(locale);
     const sessionRef = useRef(session);
     sessionRef.current = session;
-    const sessionKey = session.userId ?? '';
-
     const refreshServer = useCallback(async () => {
         const current = sessionRef.current;
         try {
@@ -74,11 +72,11 @@ export function NotificationsBell() {
         } catch {
             /* silencioso: campanita no debe romper el panel */
         }
-    }, [sessionKey]);
+    }, []);
 
     useEffect(() => {
         void refreshServer();
-    }, [refreshServer]);
+    }, [refreshServer, session.userId]);
 
     const handleRealtimeNotification = useCallback((incoming: ServerNotification) => {
         setServerNotifications((prev) => {

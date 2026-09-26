@@ -104,6 +104,10 @@ axiosRetry(apiClient, {
         if (CIRCUIT_BREAKER.state === 'OPEN') {
             return false;
         }
+        const method = (error.config?.method || 'get').toLowerCase();
+        const idempotent = method === 'get' || method === 'head' || method === 'options';
+        if (!idempotent) return false;
+
         if (axiosRetry.isNetworkError(error)) {
             logger.warn('Network error detected, retrying...', { error: error.message });
             return true;

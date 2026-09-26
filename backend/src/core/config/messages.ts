@@ -18,7 +18,9 @@ export const MESSAGES = {
         SESSION_EXPIRED:
             'Sesión expirada. Por favor, vuelve a autenticarte o pide ayuda a Ponss 🦆',
         COOKIE_SESSION_REQUIRED:
-            'Esta acción requiere sesión del panel. Inicia sesión en el dashboard (no uses API Key).'
+            'Esta acción requiere sesión del panel. Inicia sesión en el dashboard (no uses API Key).',
+        API_KEY_SCOPE:
+            'Esta ruta es del panel. La API Key solo sirve para comandos de bot (followage, clips, minijuegos).'
     },
     SYSTEM: {
         KEY_REQUIRED: 'Key requerida',

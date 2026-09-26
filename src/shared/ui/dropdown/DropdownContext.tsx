@@ -45,6 +45,7 @@ export function Dropdown({ children, className = 'relative' }: DropdownProps) {
     const close = useCallback(() => setOpen(false), []);
 
     useEffect(() => {
+        if (!open) return;
         const onDocClick = (e: MouseEvent) => {
             const target = e.target as Node;
             if (containerRef.current?.contains(target)) return;
@@ -60,7 +61,7 @@ export function Dropdown({ children, className = 'relative' }: DropdownProps) {
             document.removeEventListener('click', onDocClick);
             document.removeEventListener('keydown', onKey);
         };
-    }, [close]);
+    }, [close, open]);
 
     return (
         <DropdownContext.Provider value={{ open, setOpen, close, containerRef, panelRef }}>
