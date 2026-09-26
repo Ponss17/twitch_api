@@ -22,7 +22,7 @@ import {
     parseBitsRouletteUrlConfig,
     parseSpinBannerParts
 } from '@/features/alerts/lib/bitsRouletteUrl';
-import { playBitsConfettiSound } from '@/features/alerts/lib/bitsConfettiSound';
+import { playBitsConfettiSound, unlockBitsConfettiAudio } from '@/features/alerts/lib/bitsConfettiSound';
 import { resolveWheelPalette } from '@/features/tools/roulette/lib/wheelUtils';
 
 function optionsToChatters(options: string[]): RouletteUser[] {
@@ -181,6 +181,10 @@ function OverlayBitsRouletteContent({ session }: { session: Session }) {
         }, ms);
     }, [requestLeave]);
 
+    useEffect(() => {
+        unlockBitsConfettiAudio();
+    }, []);
+
     useEffect(
         () => () => {
             clearSpinTimers();
@@ -285,7 +289,7 @@ function OverlayBitsRouletteContent({ session }: { session: Session }) {
             }
         };
 
-        // 1) Aparición (ruleta quieta con premios visibles).
+        unlockBitsConfettiAudio();
         setPhase('enter');
         setLocal((prev) => ({
             ...prev,

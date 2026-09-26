@@ -44,7 +44,7 @@ alerts: {
             confetti: 'Confete ao ganhar',
             confettiSound: 'Som ao ganhar',
             confettiSoundHint:
-                'Toca ao revelar o prémio. No OBS: Browser Source → desmarcar “Controlar áudio pelo OBS” ou subir o volume.',
+                'Toca ao revelar o prémio. Volta a copiar o URL do overlay se mudaste o som. No OBS, sobe o volume do Browser Source.',
             confettiSoundPreview: 'Testar',
             confettiSounds: {
                 none: 'Sem som',
