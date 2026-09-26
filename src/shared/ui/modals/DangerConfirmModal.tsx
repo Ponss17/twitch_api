@@ -81,6 +81,11 @@ export function DangerConfirmModal({
             setAnimKey((k) => k + 1);
             dialog.showModal();
             promoteToasterAboveModals();
+            const prev = document.body.style.overflow;
+            document.body.style.overflow = 'hidden';
+            return () => {
+                document.body.style.overflow = prev;
+            };
         }
     }, [open]);
 

@@ -29,10 +29,23 @@ const VALID_TABS: ReadonlySet<DashboardTab> = new Set([
     'settings'
 ]);
 
+/**
+ * Herramientas de bits: `/dashboard/bits/{slug}`.
+ * El id interno de la pestaña no cambia; así se pueden sumar variaciones sin romper el panel.
+ */
+const BITS_TOOL_SLUGS: Record<string, DashboardTab> = {
+    roulette: 'bitsRoulette'
+};
+
+const BITS_TAB_SLUG: Partial<Record<DashboardTab, string>> = {
+    bitsRoulette: 'roulette'
+};
+
 /** Pestañas antiguas → id actual. */
 const LEGACY_TAB_MAP: Record<string, DashboardTab> = {
     giveaway: 'questions',
-    feedback: 'home'
+    feedback: 'home',
+    bitsRoulette: 'bitsRoulette'
 };
 
 function resolveLegacyTab(value: string | null | undefined): DashboardTab | null {
@@ -58,7 +71,16 @@ function isBareDashboardPath(pathname: string): boolean {
     return pathname === base || pathname === `${base}/`;
 }
 
-/** Lee la pestaña desde el segmento de path (`/dashboard/followage`). */
+/** Path canónico de una pestaña. Bits vive en `/dashboard/bits/roulette`. */
+export function dashboardTabPath(tab: DashboardTab): string {
+    const base = getDashboardBasePath();
+    if (tab === 'home') return base;
+    const bitsSlug = BITS_TAB_SLUG[tab];
+    if (bitsSlug) return `${base}/bits/${bitsSlug}`;
+    return `${base}/${tab}`;
+}
+
+/** Lee la pestaña desde el path (`/dashboard/followage`, `/dashboard/bits/roulette`). */
 export function parseTabFromPathname(pathname: string): DashboardTab | null {
     const base = getDashboardBasePath();
     if (isBareDashboardPath(pathname)) return 'home';
@@ -66,8 +88,13 @@ export function parseTabFromPathname(pathname: string): DashboardTab | null {
     const prefix = `${base}/`;
     if (!pathname.startsWith(prefix)) return null;
 
-    const segment = pathname.slice(prefix.length).split('/').filter(Boolean)[0];
+    const segments = pathname.slice(prefix.length).split('/').filter(Boolean);
+    const segment = segments[0];
     if (!segment) return 'home';
+
+    if (segment === 'bits') {
+        return BITS_TOOL_SLUGS[segments[1] ?? ''] ?? null;
+    }
 
     return resolveLegacyTab(segment);
 }
@@ -143,6 +170,8 @@ export function setTabInUrl(
 
     if (tab === 'home') {
         url.pathname = base;
+    } else if (BITS_TAB_SLUG[tab]) {
+        url.pathname = dashboardTabPath(tab);
     } else if (tab === 'settings') {
         const fromPath = parseSettingsTabFromLocation(url.pathname, url.search);
         const sub =

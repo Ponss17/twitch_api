@@ -45,10 +45,20 @@ function devSpaFallback() {
         /** @param {any} server */
         configureServer(server) {
             server.middlewares.use(
-                /** @param {any} req @param {any} _res @param {() => void} next */
-                (req, _res, next) => {
+                /** @param {any} req @param {any} res @param {() => void} next */
+                (req, res, next) => {
                     const url = req.url ?? '';
                     const pathname = url.split('?')[0];
+                    const search = url.includes('?') ? `?${url.split('?')[1]}` : '';
+                    if (
+                        pathname === '/dashboard/bitsRoulette' ||
+                        pathname === '/dashboard/bitsRoulette/'
+                    ) {
+                        res.statusCode = 308;
+                        res.setHeader('Location', `/dashboard/bits/roulette/${search}`);
+                        res.end();
+                        return;
+                    }
                     if (pathname.startsWith('/dashboard/') && !pathname.includes('.')) {
                         req.url = '/dashboard/' + (url.includes('?') ? '?' + url.split('?')[1] : '');
                     }
@@ -63,6 +73,7 @@ const FRONTEND_EXACT = new Set([
     '/',
     '/dashboard',
     '/docs',
+    '/about',
     '/sobre-la-api',
     '/legal',
     '/privacidad',
@@ -94,6 +105,8 @@ const DASHBOARD_TAB_SLUGS = new Set([
     'duel',
     'slots',
     'questions',
+    'reports',
+    'bitsRoulette',
     'settings'
 ]);
 
@@ -104,7 +117,10 @@ function isDashboardTabRoute(path) {
     const prefix = `${base}/`;
     if (!path.startsWith(prefix)) return false;
     const segment = path.slice(prefix.length).split('/').filter(Boolean)[0];
-    return DASHBOARD_TAB_SLUGS.has(segment);
+    if (DASHBOARD_TAB_SLUGS.has(segment)) return true;
+    if (segment !== 'bits') return false;
+    const tool = path.slice(prefix.length).split('/').filter(Boolean)[1];
+    return tool === 'roulette';
 }
 
 /** @param {string | undefined} url */
@@ -121,6 +137,10 @@ function isFrontendRoute(url) {
 
 export default defineConfig({
     output: 'static',
+    redirects: {
+        '/sobre-la-api': '/about',
+        '/dashboard/bitsRoulette': '/dashboard/bits/roulette'
+    },
     // Evita que BASE_URL del backend (.env) se use como base de Vite/Astro en el build.
     // base no se debe definir como '/' porque rompe las rutas de Astro (crea //_astro/).
     site: 'https://ttv.losperris.dev',

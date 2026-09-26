@@ -168,8 +168,9 @@ export function useDashboardPanelEngine({
 
             try {
                 const result = await loadDashboardPanelData(currentSession, { fresh: options?.fresh });
-                // Aplicar aunque TabSync se haya recreado: los datos REST son válidos para esta sesión.
-                if (!activeRef.current || sessionRef.current.userId !== currentSession.userId) {
+                // Aplicar aunque el tab no esté en modo live: el perfil lo usan bits y ajustes.
+                // `active` solo frena el polling, no esta respuesta.
+                if (sessionRef.current.userId !== currentSession.userId) {
                     return false;
                 }
 
@@ -181,13 +182,13 @@ export function useDashboardPanelEngine({
                 });
                 return true;
             } catch (e) {
-                if (!activeRef.current || sessionRef.current.userId !== currentSession.userId) {
+                if (sessionRef.current.userId !== currentSession.userId) {
                     return false;
                 }
 
                 if (isFetchNetworkError(e) && options?.retryOnNetwork !== false) {
                     await new Promise((r) => setTimeout(r, 800));
-                    if (activeRef.current && sessionRef.current.userId === currentSession.userId) {
+                    if (sessionRef.current.userId === currentSession.userId) {
                         try {
                             const retry = await loadDashboardPanelData(currentSession, { fresh: options?.fresh });
                             applyResult(retry, { broadcast, clearError: true });

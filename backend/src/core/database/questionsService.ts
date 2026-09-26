@@ -73,8 +73,8 @@ async function pruneUserQuestions(userId: string): Promise<void> {
     }
 }
 
-export async function listStreamerQuestions(userId: string) {
-    await pruneUserQuestions(userId);
+export async function listStreamerQuestions(userId: string, options?: { skipPrune?: boolean }) {
+    if (!options?.skipPrune) await pruneUserQuestions(userId);
     const { data, error } = await supabase
         .from('streamer_questions')
         .select('id, user_id, username, display_name, question_text, status, created_at')
@@ -105,7 +105,7 @@ export async function addStreamerQuestion(userId: string, input: StreamerQuestio
     );
     if (error) throw error;
     await pruneUserQuestions(userId);
-    return listStreamerQuestions(userId);
+    return listStreamerQuestions(userId, { skipPrune: true });
 }
 
 export async function updateStreamerQuestionStatus(

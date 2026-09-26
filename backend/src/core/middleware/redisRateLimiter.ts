@@ -230,7 +230,8 @@ export const heavyRateLimiter = async (req: Request, res: Response, next: NextFu
         }
 
         logger.error('Error in Heavy Rate Limiter:', error);
-        return next();
+        res.setHeader('Content-Type', 'text/plain');
+        return res.status(503).send('Service Unavailable');
     }
 };
 

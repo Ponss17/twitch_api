@@ -75,7 +75,7 @@
             ]
         },
         {
-            "source": "/(legal|sobre-la-api|404|429|500)/",
+            "source": "/(legal|about|sobre-la-api|404|429|500)/",
             "headers": [
                 {
                     "key": "Cache-Control",
@@ -145,7 +145,11 @@
         { "source": "/terminos", "destination": "/legal#terminos", "permanent": true },
         { "source": "/terminos/", "destination": "/legal#terminos", "permanent": true },
         { "source": "/cookies", "destination": "/legal#cookies", "permanent": true },
-        { "source": "/cookies/", "destination": "/legal#cookies", "permanent": true }
+        { "source": "/cookies/", "destination": "/legal#cookies", "permanent": true },
+        { "source": "/sobre-la-api", "destination": "/about", "permanent": true },
+        { "source": "/sobre-la-api/", "destination": "/about", "permanent": true },
+        { "source": "/dashboard/bitsRoulette", "destination": "/dashboard/bits/roulette/", "permanent": true },
+        { "source": "/dashboard/bitsRoulette/", "destination": "/dashboard/bits/roulette/", "permanent": true }
     ],
     "rewrites": [
         {

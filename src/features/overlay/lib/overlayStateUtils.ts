@@ -147,13 +147,14 @@ export function shouldShowTrendsOverlay(
 export function shouldShowRouletteOverlay(
     state: RouletteOverlayState,
     now = Date.now(),
-    winnerShownAt?: number | null
+    winnerShownAt?: number | null,
+    winnerMs = ROULETTE_OVERLAY_WINNER_MS
 ): boolean {
     if (state.isSpinning) return true;
 
     if (state.winner) {
         const anchor = winnerShownAt ?? state.updatedAt ?? now;
-        return now - anchor < ROULETTE_OVERLAY_WINNER_MS;
+        return now - anchor < winnerMs;
     }
 
     if (state.isOpen) return true;

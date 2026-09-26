@@ -15,7 +15,12 @@ router.get('/exchange', authRateLimiter, validate(exchangeSchema), /* codeql[js/
 router.post('/logout', authRateLimiter, csrfProtection, /* codeql[js/missing-rate-limiting] */ authController.logout);
 router.get('/overlay-exchange', authRateLimiter, validate(overlayExchangeSchema), /* codeql[js/missing-rate-limiting] */ authController.overlayExchange);
 
-router.get('/discord', authRateLimiter, /* codeql[js/missing-rate-limiting] */ authController.discordLinkStart);
+router.get(
+    '/discord',
+    requireCookieSession,
+    authRateLimiter,
+    /* codeql[js/missing-rate-limiting] */ authController.discordLinkStart
+);
 router.get('/discord/callback', authRateLimiter, /* codeql[js/missing-rate-limiting] */ authController.discordLinkCallback);
 router.post(
     '/discord/unlink',

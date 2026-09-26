@@ -225,6 +225,12 @@ export const overlayExchange = async (req: Request, res: Response) => {
 };
 
 export const discordLinkStart = (req: AuthenticatedRequest, res: Response) => {
+    if (res.locals.authSource === 'apiKey' || res.locals.isApiKeyRequest === true) {
+        return jsonError(res, 403, MESSAGES.AUTH.COOKIE_SESSION_REQUIRED, {
+            code: 'COOKIE_SESSION_REQUIRED'
+        });
+    }
+
     const userId = req.userId ?? readSessionUserId(req);
     if (!userId) {
         return res.redirect(frontendPagePath('/dashboard/settings', 'discord=error_auth'));

@@ -21,7 +21,10 @@ function useVisibilityClock(active: boolean) {
 }
 
 /** Ancla local del ganador — no depende de updatedAt del servidor (se refresca en cada PUT). */
-export function useRouletteOverlayVisible(state: RouletteOverlayState): boolean {
+export function useRouletteOverlayVisible(
+    state: RouletteOverlayState,
+    winnerMs = ROULETTE_OVERLAY_WINNER_MS
+): boolean {
     const winnerShownAtRef = useRef<number | null>(null);
     const lastSpinSeqRef = useRef(-1);
 
@@ -38,10 +41,10 @@ export function useRouletteOverlayVisible(state: RouletteOverlayState): boolean 
         state.isSpinning ||
         (state.winner !== null &&
             winnerShownAt !== null &&
-            Date.now() - winnerShownAt < ROULETTE_OVERLAY_WINNER_MS);
+            Date.now() - winnerShownAt < winnerMs);
     const now = useVisibilityClock(ticking);
 
-    return shouldShowRouletteOverlay(state, now, winnerShownAt);
+    return shouldShowRouletteOverlay(state, now, winnerShownAt, winnerMs);
 }
 
 /** Ancla local del fin del timer — evita que re-publicaciones del panel reinicien el contador. */

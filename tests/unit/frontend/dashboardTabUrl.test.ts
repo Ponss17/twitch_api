@@ -1,5 +1,6 @@
 import { describe, expect, it, beforeEach } from '@jest/globals';
 import {
+    dashboardTabPath,
     getDashboardBasePath,
     isDashboardTab,
     parseTabFromPathname,
@@ -33,7 +34,16 @@ describe('dashboardTabUrl', () => {
         expect(parseTabFromPathname(BASE)).toBe('home');
         expect(parseTabFromPathname(`${BASE}/roulette`)).toBe('roulette');
         expect(parseTabFromPathname(`${BASE}/settings/conexiones`)).toBe('settings');
+        expect(parseTabFromPathname(`${BASE}/bits/roulette`)).toBe('bitsRoulette');
+        expect(parseTabFromPathname(`${BASE}/bitsRoulette`)).toBe('bitsRoulette');
+        expect(parseTabFromPathname(`${BASE}/bits/unknown`)).toBeNull();
         expect(parseTabFromPathname(`${BASE}/unknown`)).toBeNull();
+    });
+
+    it('publica la ruleta de bits en /dashboard/bits/roulette', () => {
+        expect(dashboardTabPath('bitsRoulette')).toBe(`${BASE}/bits/roulette`);
+        expect(dashboardTabPath('home')).toBe(BASE);
+        expect(dashboardTabPath('clips')).toBe(`${BASE}/clips`);
     });
 
     it('restores last tab per user on bare dashboard', () => {
