@@ -44,7 +44,7 @@ alerts: {
             confetti: 'Confeti al ganar',
             confettiSound: 'Sonido al ganar',
             confettiSoundHint:
-                'Suena al revelar el premio. En OBS: Browser Source → desmarcar “Control audio por OBS” o subir volumen.',
+                'Suena al revelar el premio. Vuelve a copiar la URL del overlay si cambiaste el sonido. En OBS sube el volumen del Browser Source.',
             confettiSoundPreview: 'Probar',
             confettiSounds: {
                 none: 'Sin sonido',

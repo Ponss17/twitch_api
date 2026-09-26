@@ -1,5 +1,3 @@
-/** Sonidos cortos de celebración (Web Audio — sin subir archivos). */
-
 export const BITS_CONFETTI_SOUND_IDS = [
     'none',
     'confetti',
@@ -21,12 +19,74 @@ export function normalizeConfettiSound(raw: unknown): BitsConfettiSoundId {
 
 type Tone = { freq: number; start: number; dur: number; type?: OscillatorType; gain?: number };
 
-function getAudioContext(): AudioContext | null {
+let sharedCtx: AudioContext | null = null;
+let unlockBound = false;
+
+function createAudioContext(): AudioContext | null {
     if (typeof window === 'undefined') return null;
     const AC =
         window.AudioContext ||
         (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    return AC ? new AC() : null;
+    if (!AC) return null;
+    try {
+        return new AC();
+    } catch {
+        return null;
+    }
+}
+
+function getAudioContext(): AudioContext | null {
+    if (sharedCtx && sharedCtx.state !== 'closed') return sharedCtx;
+    sharedCtx = createAudioContext();
+    return sharedCtx;
+}
+
+async function ensureRunning(ctx: AudioContext): Promise<boolean> {
+    if (ctx.state === 'closed') return false;
+    try {
+        await ctx.resume();
+        return ctx.state === 'running';
+    } catch {
+        return false;
+    }
+}
+
+function tickSilent(ctx: AudioContext): void {
+    try {
+        const buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
+        const src = ctx.createBufferSource();
+        src.buffer = buffer;
+        src.connect(ctx.destination);
+        src.start(0);
+    } catch {
+        /* empty */
+    }
+}
+
+export function unlockBitsConfettiAudio(): void {
+    if (typeof window === 'undefined') return;
+    const ctx = getAudioContext();
+    if (ctx) {
+        void ensureRunning(ctx).then((ok) => {
+            if (ok) tickSilent(ctx);
+        });
+    }
+
+    if (unlockBound) return;
+    unlockBound = true;
+    const unlock = () => {
+        const live = getAudioContext();
+        if (!live) return;
+        void ensureRunning(live).then((ok) => {
+            if (ok) tickSilent(live);
+        });
+    };
+    for (const event of ['pointerdown', 'keydown', 'touchstart', 'mousedown'] as const) {
+        window.addEventListener(event, unlock, { passive: true });
+    }
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') unlock();
+    });
 }
 
 function playTones(ctx: AudioContext, tones: Tone[], masterGain = 0.28): number {
@@ -56,7 +116,6 @@ function playTones(ctx: AudioContext, tones: Tone[], masterGain = 0.28): number 
     return end;
 }
 
-/** Cañón + lluvia de papel (sin tonos musicales). */
 function playConfettiBursts(ctx: AudioContext): number {
     const master = ctx.createGain();
     master.gain.value = 0.55;
@@ -74,16 +133,12 @@ function playConfettiBursts(ctx: AudioContext): number {
             const t = i / n;
             let sample = Math.random() * 2 - 1;
             if (shape === 'rustle') {
-                // Ruido marrón suave (papel lejos)
                 last = (last + 0.02 * sample) / 1.02;
                 sample = last;
                 sample *= 0.35 + 0.65 * Math.sin(t * Math.PI);
             } else if (shape === 'flutter') {
-                // Chasquido corto de hoja
-                const env = Math.exp(-t * 14) * (1 - t);
-                sample *= env;
+                sample *= Math.exp(-t * 14) * (1 - t);
             } else {
-                // Poof / crack del disparo
                 const env = Math.exp(-t * 22);
                 sample = sample * env * 0.85 + (Math.random() * 2 - 1) * env * env * 0.4;
             }
@@ -116,16 +171,24 @@ function playConfettiBursts(ctx: AudioContext): number {
         g.gain.setValueAtTime(0.0001, t0);
         g.gain.exponentialRampToValueAtTime(Math.max(0.001, opts.gain), t0 + attack);
         g.gain.exponentialRampToValueAtTime(0.0001, t0 + buffer.duration);
-        const pan = ctx.createStereoPanner();
-        pan.pan.value = opts.pan ?? 0;
+        let panNode: StereoPannerNode | null = null;
+        try {
+            panNode = ctx.createStereoPanner();
+            panNode.pan.value = opts.pan ?? 0;
+        } catch {
+            panNode = null;
+        }
         src.connect(filter);
         filter.connect(g);
-        g.connect(pan);
-        pan.connect(master);
+        if (panNode) {
+            g.connect(panNode);
+            panNode.connect(master);
+        } else {
+            g.connect(master);
+        }
         src.start(t0);
     };
 
-    // 1) Disparo / poof inicial
     fire(noiseBuf(0.14, 'crack'), {
         at: 0,
         filterType: 'lowpass',
@@ -143,8 +206,6 @@ function playConfettiBursts(ctx: AudioContext): number {
         gain: 0.7,
         pan: 0.15
     });
-
-    // 2) Cama de papel cayendo
     fire(noiseBuf(1.05, 'rustle'), {
         at: 0.04,
         filterType: 'bandpass',
@@ -164,7 +225,6 @@ function playConfettiBursts(ctx: AudioContext): number {
         pan: 0.25
     });
 
-    // 3) Lluvia irregular de hojitas (muchas, cortas, pan aleatorio)
     const flutters = 28;
     let end = 1.05;
     for (let i = 0; i < flutters; i++) {
@@ -184,7 +244,6 @@ function playConfettiBursts(ctx: AudioContext): number {
         end = Math.max(end, at + dur);
     }
 
-    // 4) Unos pocos “ticks” más graves al final (piezas más grandes)
     for (let i = 0; i < 5; i++) {
         const at = 0.55 + i * 0.1 + Math.random() * 0.05;
         fire(noiseBuf(0.06 + Math.random() * 0.04, 'flutter'), {
@@ -225,21 +284,30 @@ const TONE_PRESETS: Record<Exclude<BitsConfettiSoundId, 'none' | 'confetti'>, To
     ]
 };
 
-/** Reproduce el sonido elegido (o nada si `none`). Seguro llamar varias veces. */
+function schedulePlayback(ctx: AudioContext, sound: Exclude<BitsConfettiSoundId, 'none'>): void {
+    if (sound === 'confetti') {
+        playConfettiBursts(ctx);
+        return;
+    }
+    playTones(ctx, TONE_PRESETS[sound]);
+}
+
 export function playBitsConfettiSound(id: BitsConfettiSoundId): void {
     const sound = normalizeConfettiSound(id);
     if (sound === 'none') return;
     try {
+        unlockBitsConfettiAudio();
         const ctx = getAudioContext();
         if (!ctx) return;
-        const end =
-            sound === 'confetti'
-                ? playConfettiBursts(ctx)
-                : playTones(ctx, TONE_PRESETS[sound]);
-        window.setTimeout(() => {
-            void ctx.close().catch(() => undefined);
-        }, Math.ceil((end + 0.2) * 1000));
+        void ensureRunning(ctx).then((ok) => {
+            if (!ok) return;
+            try {
+                schedulePlayback(ctx, sound);
+            } catch {
+                /* empty */
+            }
+        });
     } catch {
-        /* OBS / autoplay: silencio sin romper el overlay */
+        /* empty */
     }
 }
