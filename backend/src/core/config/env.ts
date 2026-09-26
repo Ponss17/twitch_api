@@ -33,7 +33,7 @@ const envSchema = z.object({
     SUPABASE_URL: z.string().url().min(1, 'SUPABASE_URL es obligatorio'),
     SUPABASE_SERVICE_ROLE_KEY: z.string().min(1, 'SUPABASE_SERVICE_ROLE_KEY es obligatorio'),
     SUPABASE_ANON_KEY: z.string().min(1, 'SUPABASE_ANON_KEY es obligatorio'),
-    SUPABASE_JWT_SECRET: z.string().min(1, 'SUPABASE_JWT_SECRET es obligatorio'),
+    SUPABASE_JWT_SECRET: z.string().min(32, 'SUPABASE_JWT_SECRET debe tener al menos 32 caracteres'),
     FRONTEND_URL: z.string().url().optional(),
     /** Upstash Redis — obligatorias en producción, opcionales en dev/test (fail-open). */
     KV_REST_API_URL: z.string().url().optional(),
@@ -144,6 +144,25 @@ if (isProd && !isTest) {
         console.error(
             '🛑 HMAC_SIGNING_SECRET es obligatorio en producción (≥32 caracteres). No reutilices TWITCH_CLIENT_SECRET.'
         );
+        process.exit(1);
+    }
+
+    const jwtSecret = process.env.SUPABASE_JWT_SECRET?.trim() ?? '';
+    if (jwtSecret.length < 32) {
+        console.error('🛑 SUPABASE_JWT_SECRET debe tener al menos 32 caracteres en producción.');
+        process.exit(1);
+    }
+
+    const eventSub = process.env.EVENTSUB_SECRET?.trim() ?? '';
+    if (!eventSub) {
+        console.error(
+            '⚠️ EVENTSUB_SECRET no está en producción. La ruleta de bits sigue con el fallback HMAC hasta que lo definas (10–100 caracteres, distinto del HMAC) y reactives la alerta.'
+        );
+    } else if (eventSub.length < 10 || eventSub.length > 100) {
+        console.error('🛑 EVENTSUB_SECRET debe tener entre 10 y 100 caracteres.');
+        process.exit(1);
+    } else if (eventSub === hmac) {
+        console.error('🛑 EVENTSUB_SECRET debe ser distinto de HMAC_SIGNING_SECRET.');
         process.exit(1);
     }
 

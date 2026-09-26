@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useOverlayMirror } from '@/features/overlay/hooks/useOverlayMirror';
 import { useRouletteOverlayVisible } from '@/features/overlay/hooks/useOverlayVisibilityClock';
 import { RouletteWheelDisplay } from '@/features/tools/roulette/RouletteWheelDisplay';
@@ -13,15 +13,17 @@ import { API_ENDPOINTS, type Session } from '@/core/config/config';
 import { I18nProvider, useTranslation } from '@/core/i18n/I18nContext';
 import { useSession } from '@/core/session/useSession';
 import { withApiCredentials } from '@/core/auth/apiCredentials';
-import { ROULETTE_OVERLAY_WINNER_MS } from '@/features/overlay/lib/overlayStateUtils';
 import { overlayAuthHeaders } from '@/features/overlay/lib/overlayApi';
 import { winnerIndex } from '@/features/tools/roulette/lib/wheelUtils';
 import {
     BITS_ROULETTE_OPTIONS_HARD_MAX,
     isCheerFresh,
     matchesBitsThreshold,
-    parseBitsRouletteUrlConfig
+    parseBitsRouletteUrlConfig,
+    parseSpinBannerParts
 } from '@/features/alerts/lib/bitsRouletteUrl';
+import { playBitsConfettiSound } from '@/features/alerts/lib/bitsConfettiSound';
+import { resolveWheelPalette } from '@/features/tools/roulette/lib/wheelUtils';
 
 function optionsToChatters(options: string[]): RouletteUser[] {
     return options.map((label, i) => ({
@@ -30,16 +32,21 @@ function optionsToChatters(options: string[]): RouletteUser[] {
     }));
 }
 
+function decodeBase64UrlJson(token: string): string {
+    const lastDot = token.lastIndexOf('.');
+    if (lastDot <= 0) throw new Error('token');
+    let padded = token.slice(0, lastDot).replace(/-/g, '+').replace(/_/g, '/');
+    while (padded.length % 4) padded += '=';
+    const binary = atob(padded);
+    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+    return new TextDecoder().decode(bytes);
+}
+
 /** Lee profile_image_url del overlayToken (payload público; sin verificar firma). */
 function channelAvatarFromOverlayToken(token?: string): string | null {
     if (!token) return null;
     try {
-        const lastDot = token.lastIndexOf('.');
-        if (lastDot <= 0) return null;
-        let padded = token.slice(0, lastDot).replace(/-/g, '+').replace(/_/g, '/');
-        while (padded.length % 4) padded += '=';
-        const json = decodeURIComponent(escape(atob(padded)));
-        const data = JSON.parse(json) as { profile_image_url?: string; maxPrizes?: number };
+        const data = JSON.parse(decodeBase64UrlJson(token)) as { profile_image_url?: string };
         return data.profile_image_url?.trim() || null;
     } catch {
         return null;
@@ -58,9 +65,7 @@ function maxPrizesFromOverlayToken(token?: string): number {
     try {
         const lastDot = token.lastIndexOf('.');
         if (lastDot <= 0) return BITS_ROULETTE_OPTIONS_HARD_MAX;
-        let padded = token.slice(0, lastDot).replace(/-/g, '+').replace(/_/g, '/');
-        while (padded.length % 4) padded += '=';
-        const data = JSON.parse(decodeURIComponent(escape(atob(padded)))) as { maxPrizes?: number };
+        const data = JSON.parse(decodeBase64UrlJson(token)) as { maxPrizes?: number };
         const max = Math.floor(Number(data.maxPrizes));
         if (max >= 2 && max <= BITS_ROULETTE_OPTIONS_HARD_MAX) return max;
     } catch {
@@ -71,7 +76,8 @@ function maxPrizesFromOverlayToken(token?: string): number {
 
 function OverlayBitsRouletteContent({ session }: { session: Session }) {
     const { session: panelSession } = useSession();
-    const { locale } = useTranslation();
+    const { t, locale } = useTranslation();
+    const aT = t.alerts.bitsRoulette;
     const maxPrizes = useMemo(
         () => maxPrizesFromOverlayToken(session.overlayToken),
         [session.overlayToken]
@@ -83,6 +89,7 @@ function OverlayBitsRouletteContent({ session }: { session: Session }) {
                 : parseBitsRouletteUrlConfig('', maxPrizes),
         [maxPrizes]
     );
+    const winnerHoldMs = urlConfig.winnerHoldSec * 1000;
 
     const channelAvatar = useMemo(
         () =>
@@ -125,10 +132,10 @@ function OverlayBitsRouletteContent({ session }: { session: Session }) {
     const roundTokenRef = useRef(0);
     wheelRotationRef.current = local.wheelRotation;
 
-    const clearSpinTimers = () => {
+    const clearSpinTimers = useCallback(() => {
         for (const id of timersRef.current) window.clearTimeout(id);
         timersRef.current = [];
-    };
+    }, []);
 
     const schedule = (fn: () => void, ms: number) => {
         const id = window.setTimeout(fn, ms);
@@ -136,7 +143,7 @@ function OverlayBitsRouletteContent({ session }: { session: Session }) {
         return id;
     };
 
-    const forceHide = () => {
+    const forceHide = useCallback(() => {
         leavingRef.current = false;
         if (hideTimerRef.current !== null) {
             window.clearTimeout(hideTimerRef.current);
@@ -151,9 +158,9 @@ function OverlayBitsRouletteContent({ session }: { session: Session }) {
             isSpinning: false,
             updatedAt: Date.now()
         }));
-    };
+    }, [clearSpinTimers]);
 
-    const requestLeave = () => {
+    const requestLeave = useCallback(() => {
         if (leavingRef.current) return;
         const reduced =
             typeof window !== 'undefined' &&
@@ -164,29 +171,29 @@ function OverlayBitsRouletteContent({ session }: { session: Session }) {
         }
         leavingRef.current = true;
         setPhase('leave');
-    };
+    }, [forceHide]);
 
-    const armHide = (ms: number) => {
+    const armHide = useCallback((ms: number) => {
         if (hideTimerRef.current !== null) window.clearTimeout(hideTimerRef.current);
         hideTimerRef.current = window.setTimeout(() => {
             hideTimerRef.current = null;
             requestLeave();
         }, ms);
-    };
+    }, [requestLeave]);
 
     useEffect(
         () => () => {
             clearSpinTimers();
             if (hideTimerRef.current !== null) window.clearTimeout(hideTimerRef.current);
         },
-        []
+        [clearSpinTimers]
     );
 
     useEffect(() => {
         if (phase !== 'leave') return;
         const id = window.setTimeout(() => forceHide(), BITS_POP_MS);
         return () => window.clearTimeout(id);
-    }, [phase]);
+    }, [phase, forceHide]);
 
     useEffect(() => {
         if (!connected) return;
@@ -241,8 +248,24 @@ function OverlayBitsRouletteContent({ session }: { session: Session }) {
                 winner: chatters[idx] ?? null,
                 updatedAt: Date.now()
             }));
-            // 20 s con el ganador y luego OBS transparente. Timer aparte: no lo cancela el poll.
-            armHide(ROULETTE_OVERLAY_WINNER_MS);
+            if (
+                urlConfig.confetti &&
+                !(
+                    typeof window !== 'undefined' &&
+                    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+                )
+            ) {
+                void import('canvas-confetti').then(({ default: confetti }) => {
+                    confetti({
+                        particleCount: 160,
+                        spread: 90,
+                        origin: { y: 0.55 },
+                        colors: ['#9146ff', '#a78bfa', '#7c3aed', '#c4b5fd', '#6d28d9']
+                    });
+                });
+            }
+            playBitsConfettiSound(urlConfig.confettiSound);
+            armHide(winnerHoldMs);
             if (urlConfig.announceChat && chatters[idx]) {
                 void fetch(
                     API_ENDPOINTS.ALERTS_BITS_ROULETTE_ANNOUNCE,
@@ -309,8 +332,8 @@ function OverlayBitsRouletteContent({ session }: { session: Session }) {
 
         schedule(startSpin, prefersReduced ? 0 : BITS_ENTER_MS);
         // Red de seguridad: si el giro no cierra, igual se apaga.
-        armHide(BITS_ENTER_MS + duration + ROULETTE_OVERLAY_WINNER_MS + 1500);
-    }, [connected, remote?.lastCheer, urlConfig, local.isSpinning, local.isOpen, phase, locale, session]);
+        armHide(BITS_ENTER_MS + duration + winnerHoldMs + 1500);
+    }, [connected, remote?.lastCheer, urlConfig, local.isSpinning, local.isOpen, phase, locale, session, armHide, clearSpinTimers, winnerHoldMs]);
 
     const display: BitsRouletteOverlayState = {
         ...local,
@@ -321,13 +344,13 @@ function OverlayBitsRouletteContent({ session }: { session: Session }) {
         isOpen: phase === 'enter'
     };
 
-    const visible = useRouletteOverlayVisible(display);
+    const visible = useRouletteOverlayVisible(display, winnerHoldMs);
 
     useEffect(() => {
         if (visible || phase === 'enter' || phase === 'spin' || phase === 'leave') return;
         if (!local.winner && !local.isOpen && phase === 'idle') return;
         requestLeave();
-    }, [visible, phase, local.winner, local.isOpen]);
+    }, [visible, phase, local.winner, local.isOpen, requestLeave]);
 
     if (!visible && phase !== 'leave') {
         return (
@@ -342,6 +365,15 @@ function OverlayBitsRouletteContent({ session }: { session: Session }) {
             ? new URLSearchParams(window.location.search).get('color') ||
               new URLSearchParams(window.location.search).get('theme')
             : undefined;
+    const bannerPalette = resolveWheelPalette(urlColor || undefined);
+    const spinBannerParts =
+        urlConfig.spinBanner && display.lastCheer
+            ? parseSpinBannerParts(
+                  urlConfig.spinBanner,
+                  display.lastCheer.userName || '',
+                  display.lastCheer.bits
+              )
+            : [];
 
     return (
         <OverlayAppearanceRoot>
@@ -362,6 +394,43 @@ function OverlayBitsRouletteContent({ session }: { session: Session }) {
                                 : 'motion-safe:animate-overlay-pop-in'
                         }`}
                     >
+                        {spinBannerParts.length > 0 &&
+                        (phase === 'enter' || phase === 'spin') &&
+                        display.lastCheer ? (
+                            <div
+                                className="mb-3 w-[min(100%,28rem)] rounded-xl border px-4 py-2.5 text-center"
+                                role="status"
+                                style={{
+                                    borderColor: bannerPalette.borderRgba,
+                                    backgroundColor:
+                                        urlConfig.cardStyle === 'solid'
+                                            ? `color-mix(in srgb, ${bannerPalette.primaryHex} 38%, #0a0a0f 62%)`
+                                            : bannerPalette.glowRgba
+                                                  .replace('0.45', '0.14')
+                                                  .replace('0.4', '0.14'),
+                                    boxShadow:
+                                        urlConfig.cardStyle === 'solid'
+                                            ? `0 8px 24px color-mix(in srgb, ${bannerPalette.primaryHex} 26%, transparent)`
+                                            : undefined
+                                }}
+                            >
+                                <p className="text-[1.05rem] font-semibold leading-snug text-white">
+                                    {spinBannerParts.map((part, i) =>
+                                        part.type === 'var' ? (
+                                            <span
+                                                key={`${part.key}-${i}`}
+                                                className="font-extrabold"
+                                                style={{ color: bannerPalette.primaryHex }}
+                                            >
+                                                {part.value}
+                                            </span>
+                                        ) : (
+                                            <span key={`t-${i}`}>{part.value}</span>
+                                        )
+                                    )}
+                                </p>
+                            </div>
+                        ) : null}
                         <RouletteWheelDisplay
                             chatters={display.chatters}
                             wheelRotation={display.wheelRotation}
@@ -376,6 +445,15 @@ function OverlayBitsRouletteContent({ session }: { session: Session }) {
                             hideLabelsWhileSpinning={false}
                             announceWinnerInChat={false}
                             centerAvatarUrl={channelAvatar}
+                            winnerCardStyle={urlConfig.cardStyle}
+                            winnerSubtitle={
+                                urlConfig.showDonor && display.lastCheer?.userName
+                                    ? aT.donorLabel.replace(
+                                          '{name}',
+                                          display.lastCheer.userName
+                                      )
+                                    : null
+                            }
                         />
                     </div>
                 </div>

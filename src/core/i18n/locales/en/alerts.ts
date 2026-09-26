@@ -12,7 +12,7 @@ alerts: {
             matchMin: 'That amount or more',
             cooldown: 'Cooldown (s)',
             triggerHint:
-                'Bits and prizes go in the overlay URL (like color). Save, generate Overlay, paste in OBS. Enable only turns on Twitch listening.',
+                'Bits and prizes are saved here. Color, text, confetti, sound, and card are set when you generate Overlay.',
             optionsTitle: 'Wheel prizes',
             addOption: 'Add',
             removeOption: 'Remove',
@@ -21,7 +21,7 @@ alerts: {
             save: 'Save to URL',
             saving: 'Saving…',
             saved: 'Alert saved',
-            savedLocal: 'Config ready: generate Overlay and update the URL in OBS',
+            savedLocal: 'Config ready: open Overlay for appearance and update the URL in OBS',
             enabledOn: 'Bits listening enabled',
             enabledOff: 'Bits listening disabled',
             saveError: 'Could not save the alert',
@@ -35,7 +35,37 @@ alerts: {
             testOk: 'Test cheer sent (overlay uses its URL)',
             testError: 'Could not test the spin',
             announceChat: 'Send the winning prize in chat',
-            announceChatHint: 'When the spin ends, the channel posts the prize and who won it.'
+            announceChatHint: 'When the spin ends, the channel posts the prize and who won it.',
+            announceChatOn: 'Chat announcement enabled',
+            announceChatOff: 'Chat announcement disabled',
+            appearanceTitle: 'Overlay',
+            showDonor: 'Who cheered on the card',
+            showDonorHint: 'Under the prize when it ends.',
+            confetti: 'Confetti on win',
+            confettiSound: 'Win sound',
+            confettiSoundHint:
+                'Plays when the prize is revealed. In OBS: Browser Source → uncheck “Control audio via OBS” or raise volume.',
+            confettiSoundPreview: 'Preview',
+            confettiSounds: {
+                none: 'No sound',
+                confetti: 'Confetti',
+                pop: 'Pop',
+                chime: 'Chime',
+                fanfare: 'Fanfare',
+                sparkle: 'Sparkle'
+            },
+            cardStyle: 'Card',
+            cardGlass: 'Transparent',
+            cardSolid: 'Solid',
+            winnerHold: 'Visible time (s)',
+            winnerHoldHint: 'How long the winner card stays. From 3 to 15 seconds.',
+            donorLabel: 'Cheer from {name}',
+            spinBanner: 'Text while spinning',
+            spinBannerHint: '{name} and {bits}',
+            spinBannerText: 'Text',
+            spinBannerVars: 'Available variables:',
+            spinBannerInsertVar: 'Insert {var}',
+            spinBannerDefault: '{name} spun the wheel with {bits} bits'
         }
     }
 };

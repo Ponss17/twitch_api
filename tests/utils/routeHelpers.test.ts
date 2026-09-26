@@ -26,6 +26,11 @@ describe('isPublicRoute', () => {
         expect(isPublicRoute('/api/webhooks/twitch/eventsub', 'GET')).toBe(false);
     });
 
+    it('trata /about como público', () => {
+        expect(isPublicRoute('/about', 'GET')).toBe(true);
+        expect(isPublicRoute('/api/twitch/about', 'GET')).toBe(true);
+    });
+
     it('no trata paths arbitrarios con callback como públicos', () => {
         expect(isPublicRoute('/api/dashboard/evil/callback', 'GET')).toBe(false);
         expect(isPublicRoute('/api/auth/twitch/callback', 'GET')).toBe(true);
@@ -60,5 +65,10 @@ describe('isPublicHtmlRoute', () => {
         expect(isPublicHtmlRoute('/img/logo.svg', 'GET')).toBe(false);
         expect(isPublicHtmlRoute('/health', 'GET')).toBe(false);
         expect(isPublicHtmlRoute('/api/twitch/health', 'GET')).toBe(false);
+    });
+
+    it('no aplica el límite de HTML al webhook EventSub', () => {
+        expect(isPublicHtmlRoute('/webhooks/twitch/eventsub', 'POST')).toBe(false);
+        expect(isPublicHtmlRoute('/api/webhooks/twitch/eventsub', 'POST')).toBe(false);
     });
 });

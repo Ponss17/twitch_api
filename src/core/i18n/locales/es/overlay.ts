@@ -69,7 +69,7 @@ overlay: {
         appearance: {
             title: 'Apariencia en directo',
             badge: 'Solo overlay',
-            desc: 'Color y tamaño van en la URL. Las medidas de OBS/Streamlabs abajo se actualizan según Pequeño, Normal o Grande.',
+            desc: 'Color, tamaño y opciones de la alerta van en la URL. Las medidas de OBS/Streamlabs abajo se actualizan según Pequeño, Normal o Grande.',
             colorLabel: 'Color',
             customColor: 'Color personalizado',
             preset: 'Preset',

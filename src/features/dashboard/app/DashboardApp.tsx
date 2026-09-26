@@ -53,6 +53,7 @@ function DashboardMain({
     const session = useRequiredSession();
     const { showToast } = useToast();
     const prioritySync = tab === 'home' || tab === 'analytics';
+    const panelLive = prioritySync || tab === 'reports';
     const [sidebarCollapsed, setSidebarCollapsed] = useState(readSidebarCollapsedPref);
     const [focusPhase, setFocusPhase] = useState<ToolFocusPhase>('off');
     const toolFocus =
@@ -131,7 +132,7 @@ function DashboardMain({
 
     return (
         <DashboardPanelProvider
-            active
+            active={panelLive}
             prioritySync={prioritySync}
             session={session}
             showToast={showToast}

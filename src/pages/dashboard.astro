@@ -4,5 +4,13 @@ import { DashboardApp } from '@/features/dashboard/app/DashboardApp';
 ---
 
 <BaseLayout page="Panel" description="Panel de control para streamers" footer>
+    <script is:inline>
+        (function () {
+            const path = location.pathname.replace(/\/$/, '');
+            if (path === '/dashboard/bitsRoulette') {
+                location.replace('/dashboard/bits/roulette/' + location.search + location.hash);
+            }
+        })();
+    </script>
     <DashboardApp client:only="react" />
 </BaseLayout>

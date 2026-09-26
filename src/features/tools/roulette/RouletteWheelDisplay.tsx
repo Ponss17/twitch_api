@@ -8,6 +8,7 @@ import { useTheme } from '@/core/theme/useTheme';
 
 export type RouletteWheelVariant = 'full' | 'overlay';
 export type RoulettePointerSide = 'top' | 'bottom';
+export type RouletteWinnerCardStyle = 'glass' | 'solid';
 
 export interface RouletteWheelDisplayProps {
     chatters: RouletteUser[];
@@ -27,6 +28,9 @@ export interface RouletteWheelDisplayProps {
     /** Avatar del canal en el hub (p. ej. Ruleta Bits). */
     centerAvatarUrl?: string | null;
     announceWinnerInChat?: boolean;
+    /** Texto bajo el premio (p. ej. quién cheeró). */
+    winnerSubtitle?: string | null;
+    winnerCardStyle?: RouletteWinnerCardStyle;
     onWheelTransitionEnd?: (e: TransitionEvent<HTMLDivElement>) => void;
     onDismissWinner?: () => void;
     onRespinWithoutWinner?: () => void;
@@ -46,6 +50,8 @@ export function RouletteWheelDisplay({
     hideLabelsWhileSpinning = true,
     centerAvatarUrl = null,
     announceWinnerInChat = true,
+    winnerSubtitle = null,
+    winnerCardStyle = 'glass',
     onWheelTransitionEnd,
     onDismissWinner,
     onRespinWithoutWinner
@@ -178,26 +184,75 @@ export function RouletteWheelDisplay({
                     aria-live="polite"
                     className={
                         isOverlay
-                            ? 'animate-in fade-in zoom-in-95 absolute top-[calc(100%-0.25rem)] left-1/2 z-30 w-[min(100%,24rem)] -translate-x-1/2 rounded-xl border border-primary/40 bg-primary/10 px-4 py-3 duration-200'
-                            : 'animate-in fade-in zoom-in-95 mx-auto mt-2 flex max-w-sm flex-col items-center gap-1.5 rounded-xl border border-primary/40 bg-primary/10 px-4 py-3 duration-200'
+                            ? 'animate-in fade-in zoom-in-95 absolute top-[calc(100%-0.25rem)] left-1/2 z-30 w-[min(100%,24rem)] -translate-x-1/2 rounded-xl border border-primary/40 px-4 py-3 duration-200'
+                            : 'animate-in fade-in zoom-in-95 mx-auto mt-2 flex max-w-sm flex-col items-center gap-1.5 rounded-xl border border-primary/40 px-4 py-3 duration-200'
                     }
                     style={{
                         borderColor: palette.borderRgba,
-                        backgroundColor: palette.glowRgba.replace('0.45', '0.12')
+                        backgroundColor:
+                            winnerCardStyle === 'solid'
+                                ? `color-mix(in srgb, ${palette.primaryHex} 38%, #0a0a0f 62%)`
+                                : palette.glowRgba.replace('0.45', '0.12').replace('0.4', '0.12'),
+                        ...(winnerCardStyle === 'solid'
+                            ? { boxShadow: `0 8px 28px color-mix(in srgb, ${palette.primaryHex} 28%, transparent)` }
+                            : {})
                     }}
                 >
                     <div className="flex items-center justify-center gap-2">
-                        <Crown className="size-4" style={{ color: palette.primaryHex }} aria-hidden="true" />
-                        <span className="text-[0.75rem] font-medium uppercase tracking-wider text-text-muted">
+                        <Crown
+                            className="size-4"
+                            style={{
+                                color:
+                                    winnerCardStyle === 'solid' ? '#fff' : palette.primaryHex
+                            }}
+                            aria-hidden="true"
+                        />
+                        <span
+                            className={
+                                winnerCardStyle === 'solid'
+                                    ? 'text-[0.8125rem] font-bold uppercase tracking-wider text-white'
+                                    : 'text-[0.75rem] font-medium uppercase tracking-wider text-text-muted'
+                            }
+                        >
                             {rlT.winner}
                         </span>
-                        <Sparkles className="size-4" style={{ color: palette.primaryHex }} aria-hidden="true" />
+                        <Sparkles
+                            className="size-4"
+                            style={{
+                                color:
+                                    winnerCardStyle === 'solid' ? '#fff' : palette.primaryHex
+                            }}
+                            aria-hidden="true"
+                        />
                     </div>
-                    <span className="mt-1 block text-[1.125rem] font-bold text-text-main">
+                    <span
+                        className={
+                            winnerCardStyle === 'solid'
+                                ? 'mt-1 block text-[1.25rem] font-extrabold text-white'
+                                : 'mt-1 block text-[1.125rem] font-bold text-text-main'
+                        }
+                    >
                         {winner.user_name}
                     </span>
+                    {winnerSubtitle ? (
+                        <span
+                            className={
+                                winnerCardStyle === 'solid'
+                                    ? 'mt-0.5 block text-[0.8125rem] font-semibold text-white'
+                                    : 'mt-0.5 block text-[0.75rem] text-text-muted'
+                            }
+                        >
+                            {winnerSubtitle}
+                        </span>
+                    ) : null}
                     {showResultMeta && (lastSpinCount || chatters.length) > 1 ? (
-                        <span className="mt-0.5 block text-[0.75rem] text-text-muted">
+                        <span
+                            className={
+                                winnerCardStyle === 'solid'
+                                    ? 'mt-0.5 block text-[0.75rem] font-medium text-white/90'
+                                    : 'mt-0.5 block text-[0.75rem] text-text-muted'
+                            }
+                        >
                             {lastSpinCount || chatters.length} {rlT.participants}
                             {announceWinnerInChat ? ` · ${rlT.inChat}` : ''}
                         </span>

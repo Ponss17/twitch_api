@@ -122,16 +122,18 @@ export const set = async <T = unknown>(
 
 /** Escritura sin caducidad. En producción falla si Redis no confirma. */
 export const setPersistent = async <T = unknown>(key: string, value: T): Promise<void> => {
-    l1Set(key, value, 120);
     if (!isKvWriteAvailable()) {
         if (process.env.NODE_ENV === 'production') throw new Error('KV_UNAVAILABLE');
+        l1Set(key, value, 120);
         return;
     }
     try {
         await kv.set(`twitch_api:${key}`, value);
+        l1Set(key, value, 120);
     } catch (error) {
         if (process.env.NODE_ENV !== 'production') {
             disableKvWrites('KV no permite escritura');
+            l1Set(key, value, 120);
             return;
         }
         console.error('[Cache] Error KV setPersistent:', { key, error });
@@ -145,16 +147,18 @@ export const setStrict = async <T = unknown>(
     value: T,
     ttlSeconds: number
 ): Promise<void> => {
-    l1Set(key, value, ttlSeconds);
     if (!isKvWriteAvailable()) {
         if (process.env.NODE_ENV === 'production') throw new Error('KV_UNAVAILABLE');
+        l1Set(key, value, ttlSeconds);
         return;
     }
     try {
         await kv.set(`twitch_api:${key}`, value, { ex: ttlSeconds });
+        l1Set(key, value, ttlSeconds);
     } catch (error) {
         if (process.env.NODE_ENV !== 'production') {
             disableKvWrites('KV no permite escritura');
+            l1Set(key, value, ttlSeconds);
             return;
         }
         console.error('[Cache] Error KV setStrict:', { key, error });

@@ -1,10 +1,22 @@
 import { Request, Response } from 'express';
 import { CONFIG } from '../../core/config/env';
 
+/** Origen público del sitio (sin el sufijo /api de BASE_URL). */
+function publicSiteOrigin(): string {
+    const explicit = (CONFIG.FRONTEND_URL || '').replace(/\/$/, '');
+    if (explicit) return explicit;
+    try {
+        return new URL(CONFIG.BASE_URL).origin;
+    } catch {
+        return 'https://ttv.losperris.dev';
+    }
+}
+
 export const getRobotsTxt = (req: Request, res: Response): void => {
+    const site = publicSiteOrigin();
     const robotsContent = `User-agent: *
 Allow: /
-Sitemap: ${CONFIG.BASE_URL}/sitemap.xml`;
+Sitemap: ${site}/sitemap.xml`;
 
     res.header('Content-Type', 'text/plain');
     res.header('Cache-Control', 'public, s-maxage=86400, stale-while-revalidate');
@@ -12,7 +24,7 @@ Sitemap: ${CONFIG.BASE_URL}/sitemap.xml`;
 };
 
 export const getSitemapXml = (req: Request, res: Response): void => {
-    const baseUrl = CONFIG.BASE_URL.replace(/\/$/, '');
+    const baseUrl = publicSiteOrigin();
 
     const sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -25,7 +37,7 @@ export const getSitemapXml = (req: Request, res: Response): void => {
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>${baseUrl}/sobre-la-api</loc>
+    <loc>${baseUrl}/about</loc>
     <priority>0.6</priority>
   </url>
   <url>

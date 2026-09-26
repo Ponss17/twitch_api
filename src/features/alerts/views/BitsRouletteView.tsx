@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Gift, Plus, Trash2 } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Gift, MessageSquare, Plus, Trash2 } from 'lucide-react';
 import { API_ENDPOINTS } from '@/core/config/config';
 import { apiFetch } from '@/core/api/auth';
 import { useRequiredSession } from '@/core/session/useSession';
@@ -8,15 +8,24 @@ import { useToast } from '@/shared/ui/toast/ToastProvider';
 import { OverlayUrlButton } from '@/features/overlay/components/OverlayUrlButton';
 import { ToolPanelHeader } from '@/features/tools/components/ToolPanelHeader';
 import { SelectField } from '@/shared/ui/SelectField';
+import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { BitsRouletteSkeleton } from '@/shared/ui/skeletons/BitsRouletteSkeleton';
-import { btnSecondary, toolPanelShell, toolConfigInput } from '@/core/utils/tw';
+import {
+    btnSecondary,
+    fadeIn,
+    toolConfigControl,
+    toolConfigInput,
+    toolHeaderIconBtn,
+    toolPanelShell
+} from '@/core/utils/tw';
 import { useToolFocus } from '@/features/dashboard/lib/ui/ToolFocusContext';
-import { readScopedPref, writeScopedPref } from '@/core/session/localPrefs';
+import {
+    readBitsRoulettePrefs,
+    writeBitsRoulettePrefs
+} from '@/features/alerts/lib/bitsRoulettePrefs';
 import { UpdateTwitchPermissionsCallout } from '@/features/dashboard/components/UpdateTwitchPermissions';
 import {
     BITS_ROULETTE_OPTIONS_MIN,
-    BITS_ROULETTE_PREF,
-    DEFAULT_BITS_ROULETTE_URL,
     maxBitsRouletteOptionsForRole,
     normalizePrizeOptions,
     type BitsMatchMode,
@@ -27,23 +36,6 @@ import { useDashboardPanel } from '@/features/dashboard/providers/DashboardPanel
 interface BitsAlertSubscription {
     enabled: boolean;
     eventsubId: string | null;
-}
-
-function readUrlConfig(userId?: string, maxOptions?: number): BitsRouletteUrlConfig {
-    try {
-        const raw = readScopedPref(BITS_ROULETTE_PREF, userId);
-        if (!raw) return { ...DEFAULT_BITS_ROULETTE_URL };
-        const parsed = JSON.parse(raw) as Partial<BitsRouletteUrlConfig>;
-        return {
-            threshold: Number(parsed.threshold) || DEFAULT_BITS_ROULETTE_URL.threshold,
-            matchMode: parsed.matchMode === 'min' ? 'min' : 'exact',
-            options: normalizePrizeOptions(parsed.options, maxOptions),
-            cooldownSec: Number(parsed.cooldownSec) || DEFAULT_BITS_ROULETTE_URL.cooldownSec,
-            announceChat: parsed.announceChat === true
-        };
-    } catch {
-        return { ...DEFAULT_BITS_ROULETTE_URL };
-    }
 }
 
 export function BitsRouletteView({ active = true }: { active?: boolean }) {
@@ -66,7 +58,7 @@ export function BitsRouletteView({ active = true }: { active?: boolean }) {
     const [testing, setTesting] = useState(false);
     const [enabled, setEnabled] = useState(false);
     const initial = useMemo(
-        () => readUrlConfig(session.userId, maxOptions),
+        () => readBitsRoulettePrefs(session.userId, maxOptions),
         [session.userId, maxOptions]
     );
     const [threshold, setThreshold] = useState(initial.threshold);
@@ -74,13 +66,6 @@ export function BitsRouletteView({ active = true }: { active?: boolean }) {
     const [options, setOptions] = useState<string[]>(initial.options);
     const [cooldownSec, setCooldownSec] = useState(initial.cooldownSec);
     const [announceChat, setAnnounceChat] = useState(initial.announceChat);
-
-    const persistUrlConfig = useCallback(
-        (next: BitsRouletteUrlConfig) => {
-            writeScopedPref(BITS_ROULETTE_PREF, session.userId, JSON.stringify(next));
-        },
-        [session.userId]
-    );
 
     useEffect(() => {
         if (!active) return;
@@ -94,7 +79,7 @@ export function BitsRouletteView({ active = true }: { active?: boolean }) {
                 );
                 if (cancelled) return;
                 setEnabled(Boolean(data.subscription?.enabled));
-                const cfg = readUrlConfig(session.userId, maxOptions);
+                const cfg = readBitsRoulettePrefs(session.userId, maxOptions);
                 setThreshold(cfg.threshold);
                 setMatchMode(cfg.matchMode);
                 setOptions(cfg.options);
@@ -109,8 +94,7 @@ export function BitsRouletteView({ active = true }: { active?: boolean }) {
         return () => {
             cancelled = true;
         };
-        // Solo al abrir la pestaña / cambiar de usuario — no en cada re-render.
-        // eslint-disable-next-line react-hooks/exhaustive-deps -- session/showToast identity flapea y vaciaba el panel
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [active, session.userId, maxOptions]);
 
     useEffect(() => {
@@ -126,7 +110,9 @@ export function BitsRouletteView({ active = true }: { active?: boolean }) {
             showToast(aT.optionsMin, 'warning');
             return;
         }
+        const prev = readBitsRoulettePrefs(session.userId, maxOptions);
         const next: BitsRouletteUrlConfig = {
+            ...prev,
             threshold,
             matchMode,
             options: cleaned,
@@ -134,7 +120,7 @@ export function BitsRouletteView({ active = true }: { active?: boolean }) {
             announceChat
         };
         setOptions(cleaned);
-        persistUrlConfig(next);
+        writeBitsRoulettePrefs(session.userId, next);
         showToast(aT.savedLocal, 'success');
     };
 
@@ -189,109 +175,119 @@ export function BitsRouletteView({ active = true }: { active?: boolean }) {
     }
 
     return (
-        <div className={toolPanelShell(focusMode)}>
+        <div className={`${toolPanelShell(focusMode)} ${focusMode ? '' : fadeIn}`}>
             <ToolPanelHeader
                 icon={Gift}
                 title={aT.title}
                 description={aT.desc}
-                primaryAction={<OverlayUrlButton tool="bits-roulette" />}
-            />
-
-            <div className="flex flex-col gap-6 p-5">
-            <div className="grid gap-6 lg:grid-cols-2">
-                <section className="space-y-4 rounded-xl border border-border-subtle bg-bg-secondary/40 p-4">
-                    <h3 className="text-sm font-semibold text-text-main">{aT.triggerTitle}</h3>
+                primaryAction={
                     <label
-                        className={`flex cursor-pointer items-center gap-2 text-sm text-text-main ${
-                            saving ? 'cursor-not-allowed opacity-50' : ''
-                        }`}
+                        className={`inline-flex cursor-pointer items-center gap-2 rounded-lg border px-2.5 py-1.5 text-[0.75rem] font-medium transition ${
+                            enabled
+                                ? 'border-success/30 bg-success/10 text-success'
+                                : 'border-border-subtle text-text-muted hover:bg-white/[0.02] hover:text-text-main'
+                        } ${saving ? 'cursor-not-allowed opacity-50' : ''}`}
                     >
                         <input
                             type="checkbox"
                             checked={enabled}
                             disabled={saving}
                             onChange={(e) => void toggleEnabled(e.target.checked)}
-                            className="size-4 shrink-0 accent-primary"
+                            className="size-3.5 shrink-0 accent-primary"
                         />
                         {aT.enabled}
                     </label>
-
-                    <UpdateTwitchPermissionsCallout
-                        hints={['bits']}
-                        message={aT.permissionsNeeded}
-                    />
-
-                    <div className="flex flex-wrap gap-3">
-                        <label className="block text-xs text-text-muted">
-                            {aT.threshold}
+                }
+                config={
+                    <>
+                        <div className={toolConfigControl}>
+                            <span className="text-text-muted">{aT.threshold}</span>
                             <input
                                 type="number"
                                 min={1}
                                 max={100000}
                                 value={threshold}
                                 onChange={(e) => setThreshold(Number(e.target.value) || 1)}
-                                className={`${toolConfigInput} mt-1 w-28`}
+                                className="h-6 w-16 rounded-md border-0 bg-transparent px-1 text-[0.8125rem] text-text-main outline-none"
+                                aria-label={aT.threshold}
                             />
-                        </label>
-                        <label className="block text-xs text-text-muted">
-                            {aT.matchMode}
-                            <div className="mt-1">
-                                <SelectField
-                                    value={matchMode}
-                                    onChange={(e) =>
-                                        setMatchMode(e.target.value as BitsMatchMode)
-                                    }
-                                    aria-label={aT.matchMode}
-                                    options={[
-                                        { value: 'exact', label: aT.matchExact },
-                                        { value: 'min', label: aT.matchMin }
-                                    ]}
-                                />
-                            </div>
-                        </label>
-                        <label className="block text-xs text-text-muted">
-                            {aT.cooldown}
+                        </div>
+                        <div className={toolConfigControl}>
+                            <span className="text-text-muted">{aT.matchMode}</span>
+                            <SelectField
+                                value={matchMode}
+                                onChange={(e) => setMatchMode(e.target.value as BitsMatchMode)}
+                                aria-label={aT.matchMode}
+                                options={[
+                                    { value: 'exact', label: aT.matchExact },
+                                    { value: 'min', label: aT.matchMin }
+                                ]}
+                            />
+                        </div>
+                        <div className={toolConfigControl}>
+                            <span className="text-text-muted">{aT.cooldown}</span>
                             <input
                                 type="number"
                                 min={5}
                                 max={3600}
                                 value={cooldownSec}
                                 onChange={(e) => setCooldownSec(Number(e.target.value) || 45)}
-                                className={`${toolConfigInput} mt-1 w-24`}
+                                className="h-6 w-14 rounded-md border-0 bg-transparent px-1 text-[0.8125rem] text-text-main outline-none"
+                                aria-label={aT.cooldown}
                             />
-                        </label>
-                    </div>
-                    <label
-                        className={`flex cursor-pointer items-start gap-2 text-sm text-text-main ${
-                            saving ? 'opacity-50' : ''
-                        }`}
-                    >
-                        <input
-                            type="checkbox"
-                            checked={announceChat}
-                            onChange={(e) => setAnnounceChat(e.target.checked)}
-                            className="mt-0.5 size-4 shrink-0 accent-primary"
-                        />
-                        <span>
-                            {aT.announceChat}
-                            <span className="mt-0.5 block text-xs font-normal text-text-muted">
-                                {aT.announceChatHint}
-                            </span>
-                        </span>
-                    </label>
-                    <p className="text-xs text-text-muted">{aT.triggerHint}</p>
-                </section>
-
-                <section className="space-y-3 rounded-xl border border-border-subtle bg-bg-secondary/40 p-4">
-                    <div className="flex items-center justify-between gap-2">
-                        <div className="min-w-0">
-                            <h3 className="text-sm font-semibold text-text-main">{aT.optionsTitle}</h3>
-                            <p className="text-[0.7rem] text-text-muted">
-                                {aT.optionsMaxHint
-                                    .replace('{max}', String(maxOptions))
-                                    .replace('{plan}', profile?.roleLabel || 'Default')}
-                            </p>
                         </div>
+                    </>
+                }
+                trailing={
+                    <>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setAnnounceChat((prev) => {
+                                    const next = !prev;
+                                    const cfg = readBitsRoulettePrefs(session.userId, maxOptions);
+                                    writeBitsRoulettePrefs(session.userId, {
+                                        ...cfg,
+                                        announceChat: next
+                                    });
+                                    showToast(
+                                        next ? aT.announceChatOn : aT.announceChatOff,
+                                        'info'
+                                    );
+                                    return next;
+                                });
+                            }}
+                            title={
+                                announceChat
+                                    ? `${aT.announceChat} · ${aT.announceChatHint}`
+                                    : aT.announceChat
+                            }
+                            aria-pressed={announceChat}
+                            aria-label={aT.announceChat}
+                            className={`${toolHeaderIconBtn} ${
+                                announceChat ? 'bg-primary/10 text-primary' : ''
+                            }`}
+                        >
+                            <MessageSquare className="size-4" />
+                        </button>
+                        <OverlayUrlButton tool="bits-roulette" compact />
+                        <InfoTooltip text={aT.triggerHint} />
+                    </>
+                }
+            />
+
+            <div className="min-h-0 flex-1 overflow-y-auto p-5">
+                <UpdateTwitchPermissionsCallout
+                    hints={['bits']}
+                    message={aT.permissionsNeeded}
+                    className="mb-4"
+                />
+
+                <div className="text-left">
+                    <div className="mb-2 flex items-center justify-between gap-2">
+                        <p className="text-[0.7rem] font-bold uppercase tracking-wide text-text-muted">
+                            {aT.optionsTitle} ({options.length}/{maxOptions})
+                        </p>
                         <button
                             type="button"
                             onClick={() =>
@@ -308,9 +304,17 @@ export function BitsRouletteView({ active = true }: { active?: boolean }) {
                             {aT.addOption}
                         </button>
                     </div>
-                    <ul className="space-y-2">
+                    <p className="mb-2 text-[0.7rem] text-text-muted">
+                        {aT.optionsMaxHint
+                            .replace('{max}', String(maxOptions))
+                            .replace('{plan}', profile?.roleLabel || 'Default')}
+                    </p>
+                    <ul className="space-y-0 overflow-hidden rounded-lg border border-border-strong bg-bg-secondary p-1">
                         {options.map((opt, index) => (
-                            <li key={index} className="flex items-center gap-2">
+                            <li
+                                key={index}
+                                className="flex items-center gap-2 border-b border-border-subtle px-2 py-1.5 last:border-0"
+                            >
                                 <input
                                     type="text"
                                     value={opt}
@@ -322,7 +326,7 @@ export function BitsRouletteView({ active = true }: { active?: boolean }) {
                                             )
                                         )
                                     }
-                                    className={`${toolConfigInput} flex-1`}
+                                    className={`${toolConfigInput} flex-1 border-0 bg-transparent hover:bg-transparent focus:bg-transparent`}
                                     aria-label={`${aT.optionsTitle} ${index + 1}`}
                                 />
                                 <button
@@ -343,26 +347,25 @@ export function BitsRouletteView({ active = true }: { active?: boolean }) {
                             </li>
                         ))}
                     </ul>
-                </section>
-            </div>
+                </div>
 
-            <div className="flex flex-wrap items-center gap-2">
-                <button
-                    type="button"
-                    onClick={saveLocalConfig}
-                    className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-hover"
-                >
-                    {aT.save}
-                </button>
-                <button
-                    type="button"
-                    onClick={() => void testSpin()}
-                    disabled={testing}
-                    className={btnSecondary}
-                >
-                    {testing ? aT.testing : aT.testSpin}
-                </button>
-            </div>
+                <div className="mt-5 flex flex-wrap items-center gap-2">
+                    <button
+                        type="button"
+                        onClick={saveLocalConfig}
+                        className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-hover"
+                    >
+                        {aT.save}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => void testSpin()}
+                        disabled={testing}
+                        className={btnSecondary}
+                    >
+                        {testing ? aT.testing : aT.testSpin}
+                    </button>
+                </div>
             </div>
         </div>
     );

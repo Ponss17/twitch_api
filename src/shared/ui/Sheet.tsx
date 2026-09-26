@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { X } from 'lucide-react';
 import { btnIcon } from '@/core/utils/tw';
@@ -17,6 +17,8 @@ interface SheetProps {
 export function Sheet({ open, onClose, title, titleBadge, description, children, footer }: SheetProps) {
     const dialogRef = useRef<HTMLDialogElement>(null);
     const panelRef = useRef<HTMLDivElement>(null);
+    const titleId = useId();
+    const descriptionId = useId();
     const [closing, setClosing] = useState(false);
     const { t } = useTranslation();
 
@@ -98,6 +100,8 @@ export function Sheet({ open, onClose, title, titleBadge, description, children,
     return (
         <dialog
             ref={dialogRef}
+            aria-labelledby={titleId}
+            aria-describedby={description ? descriptionId : undefined}
             onClick={(e) => {
                 if (e.target === dialogRef.current) handleClose();
             }}
@@ -112,7 +116,7 @@ export function Sheet({ open, onClose, title, titleBadge, description, children,
             >
                 <header className="flex shrink-0 items-center justify-between border-b border-border-subtle px-6 py-4">
                     <div>
-                        <h2 className="flex flex-wrap items-center gap-2 text-[1.15rem] font-bold tracking-tight text-text-main">
+                        <h2 id={titleId} className="flex flex-wrap items-center gap-2 text-[1.15rem] font-bold tracking-tight text-text-main">
                             {title}
                             {titleBadge ? (
                                 <span className="rounded-md border border-primary/35 bg-primary/15 px-1.5 py-0.5 text-[0.625rem] font-bold tracking-wide text-primary">
@@ -121,7 +125,7 @@ export function Sheet({ open, onClose, title, titleBadge, description, children,
                             ) : null}
                         </h2>
                         {description && (
-                            <p className="mt-0.5 text-[0.8rem] leading-relaxed text-text-muted">{description}</p>
+                            <p id={descriptionId} className="mt-0.5 text-[0.8rem] leading-relaxed text-text-muted">{description}</p>
                         )}
                     </div>
                     <button

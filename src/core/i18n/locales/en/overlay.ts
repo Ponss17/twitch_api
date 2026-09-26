@@ -69,7 +69,7 @@ overlay: {
         appearance: {
             title: 'On-stream appearance',
             badge: 'Overlay only',
-            desc: 'Color and size go in the URL. OBS/Streamlabs dimensions below update when you pick Small, Normal, or Large.',
+            desc: 'Color, size, and alert options go in the URL. OBS/Streamlabs dimensions below update when you pick Small, Normal, or Large.',
             colorLabel: 'Color',
             customColor: 'Custom color',
             preset: 'Preset',
