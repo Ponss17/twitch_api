@@ -106,9 +106,14 @@ const envVars = {
     SUPABASE_URL: process.env.SUPABASE_URL || (isTest ? 'https://test.supabase.co' : undefined),
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY || (isTest ? 'test_service_key' : undefined),
     SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY || (isTest ? 'test_anon' : undefined),
-    SUPABASE_JWT_SECRET:
-        process.env.SUPABASE_JWT_SECRET ||
-        (isTest ? 'test_jwt_secret_for_testing_purposes_only' : undefined),
+    SUPABASE_JWT_SECRET: (() => {
+        const fromEnv = process.env.SUPABASE_JWT_SECRET?.trim();
+        if (isTest) {
+            if (fromEnv && fromEnv.length >= 32) return fromEnv;
+            return 'test_jwt_secret_for_testing_purposes_only';
+        }
+        return fromEnv || undefined;
+    })(),
     FRONTEND_URL: resolveProductionUrl(process.env.FRONTEND_URL, 'FRONTEND_URL'),
     KV_REST_API_URL: process.env.KV_REST_API_URL,
     KV_REST_API_TOKEN: process.env.KV_REST_API_TOKEN,

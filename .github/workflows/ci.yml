@@ -18,7 +18,7 @@ env:
     SUPABASE_URL: https://example.supabase.co
     SUPABASE_SERVICE_ROLE_KEY: ci_service_key
     SUPABASE_ANON_KEY: ci_anon_key
-    SUPABASE_JWT_SECRET: ci_jwt_secret_for_testing_only
+    SUPABASE_JWT_SECRET: ci_jwt_secret_for_testing_purposes_only
     NODE_ENV: test
 
 jobs:
@@ -85,7 +85,7 @@ jobs:
             SUPABASE_URL: https://example.supabase.co
             SUPABASE_SERVICE_ROLE_KEY: ci_service_key
             SUPABASE_ANON_KEY: ci_anon_key
-            SUPABASE_JWT_SECRET: ci_jwt_secret_for_testing_only
+            SUPABASE_JWT_SECRET: ci_jwt_secret_for_testing_purposes_only
             NODE_ENV: development
 
         steps:
@@ -117,7 +117,7 @@ jobs:
                   SUPABASE_URL=https://example.supabase.co
                   SUPABASE_SERVICE_ROLE_KEY=ci_service_key
                   SUPABASE_ANON_KEY=ci_anon_key
-                  SUPABASE_JWT_SECRET=ci_jwt_secret_for_testing_only
+                  SUPABASE_JWT_SECRET=ci_jwt_secret_for_testing_purposes_only
                   NODE_ENV=development
                   EOF
 
