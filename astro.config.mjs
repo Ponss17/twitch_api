@@ -45,20 +45,10 @@ function devSpaFallback() {
         /** @param {any} server */
         configureServer(server) {
             server.middlewares.use(
-                /** @param {any} req @param {any} res @param {() => void} next */
-                (req, res, next) => {
+                /** @param {any} req @param {any} _res @param {() => void} next */
+                (req, _res, next) => {
                     const url = req.url ?? '';
                     const pathname = url.split('?')[0];
-                    const search = url.includes('?') ? `?${url.split('?')[1]}` : '';
-                    if (
-                        pathname === '/dashboard/bitsRoulette' ||
-                        pathname === '/dashboard/bitsRoulette/'
-                    ) {
-                        res.statusCode = 308;
-                        res.setHeader('Location', `/dashboard/bits/roulette/${search}`);
-                        res.end();
-                        return;
-                    }
                     if (pathname.startsWith('/dashboard/') && !pathname.includes('.')) {
                         req.url = '/dashboard/' + (url.includes('?') ? '?' + url.split('?')[1] : '');
                     }
@@ -138,8 +128,7 @@ function isFrontendRoute(url) {
 export default defineConfig({
     output: 'static',
     redirects: {
-        '/sobre-la-api': '/about',
-        '/dashboard/bitsRoulette': '/dashboard/bits/roulette'
+        '/sobre-la-api': '/about'
     },
     // Evita que BASE_URL del backend (.env) se use como base de Vite/Astro en el build.
     // base no se debe definir como '/' porque rompe las rutas de Astro (crea //_astro/).
