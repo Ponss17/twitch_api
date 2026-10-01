@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { legalPath, staticPath } from '@/core/config/paths';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { landingBtnSecondary, PRODUCT_TABS } from '../lib/landingContent';
 import { LandingAuthCta } from '../sections/LandingAuthCta';
+
+const NOTCH_RADIUS = 16;
 
 type LandingHeroProps = {
     legacyReloginNotice: boolean;
@@ -18,6 +20,63 @@ export function LandingHero({ legacyReloginNotice, onLoginClick }: LandingHeroPr
     const tabMeta = PRODUCT_TABS[index] ?? PRODUCT_TABS[0];
     const tab = tabMeta ? hT.tabs[tabMeta.id] : hT.tabs.inicio;
 
+    const railRef = useRef<HTMLDivElement>(null);
+    const tabRef = useRef<HTMLDivElement>(null);
+    const tabListRef = useRef<HTMLDivElement>(null);
+    const tabBtnRefs = useRef<Array<HTMLButtonElement | null>>([]);
+    const [notch, setNotch] = useState({ rail: 0, tabW: 0, tabH: 0 });
+    const [activePill, setActivePill] = useState<{
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+    } | null>(null);
+    const [smoothPill, setSmoothPill] = useState(false);
+
+    useLayoutEffect(() => {
+        const rail = railRef.current;
+        const tabEl = tabRef.current;
+        if (!rail || !tabEl) return;
+
+        const measure = () => {
+            setNotch({
+                rail: rail.clientWidth,
+                tabW: tabEl.offsetWidth,
+                tabH: tabEl.offsetHeight
+            });
+        };
+        measure();
+        const ro = new ResizeObserver(measure);
+        ro.observe(rail);
+        ro.observe(tabEl);
+        return () => ro.disconnect();
+    }, []);
+
+    useLayoutEffect(() => {
+        const list = tabListRef.current;
+        if (!list) return;
+
+        const measurePill = () => {
+            const btn = tabBtnRefs.current[index];
+            if (!btn) return;
+            setActivePill({
+                top: btn.offsetTop,
+                left: btn.offsetLeft,
+                width: btn.offsetWidth,
+                height: btn.offsetHeight
+            });
+        };
+
+        measurePill();
+        const id = window.requestAnimationFrame(() => setSmoothPill(true));
+        const ro = new ResizeObserver(measurePill);
+        ro.observe(list);
+        return () => {
+            window.cancelAnimationFrame(id);
+            ro.disconnect();
+        };
+    }, [index]);
+
     useEffect(() => {
         if (paused || total < 2) return;
         const id = window.setInterval(() => {
@@ -26,6 +85,27 @@ export function LandingHero({ legacyReloginNotice, onLoginClick }: LandingHeroPr
         return () => window.clearInterval(id);
     }, [paused, total]);
 
+    const r = NOTCH_RADIUS;
+    const { rail, tabW, tabH } = notch;
+    const left = Math.max(r, (rail - tabW) / 2);
+    const right = Math.min(rail - r, left + tabW);
+    const y = 0.5;
+    const notchPath =
+        rail > 0 && tabW > 0 && tabH > 0
+            ? [
+                  `M 0 ${y}`,
+                  `H ${left - r}`,
+                  `A ${r} ${r} 0 0 1 ${left} ${y + r}`,
+                  `V ${tabH - r}`,
+                  `A ${r} ${r} 0 0 0 ${left + r} ${tabH}`,
+                  `H ${right - r}`,
+                  `A ${r} ${r} 0 0 0 ${right} ${tabH - r}`,
+                  `V ${y + r}`,
+                  `A ${r} ${r} 0 0 1 ${right + r} ${y}`,
+                  `H ${rail}`
+              ].join(' ')
+            : '';
+
     return (
         <section
             id="producto"
@@ -33,7 +113,7 @@ export function LandingHero({ legacyReloginNotice, onLoginClick }: LandingHeroPr
             onMouseEnter={() => setPaused(true)}
             onMouseLeave={() => setPaused(false)}
         >
-            <div className="relative">
+            <div className="relative bg-bg-main">
                 <div
                     className="pointer-events-none absolute inset-x-0 top-14 bottom-0 md:top-16"
                     style={{
@@ -95,76 +175,117 @@ export function LandingHero({ legacyReloginNotice, onLoginClick }: LandingHeroPr
                 </div>
             </div>
 
-            <div className="relative border-t border-border-strong px-5">
-                <div
-                    className="absolute top-0 left-1/2 z-[1] flex w-max max-w-[calc(100%-1.5rem)] -translate-x-1/2 -translate-y-1/2 flex-wrap justify-center gap-0.5 rounded-lg border border-border-subtle bg-bg-secondary p-1"
-                    role="tablist"
-                    aria-label={hT.tablistAria}
-                >
-                    {PRODUCT_TABS.map((item, i) => {
-                        const active = i === index;
-                        const label = hT.tabs[item.id].label;
-                        return (
-                            <button
-                                key={item.id}
-                                type="button"
-                                role="tab"
-                                aria-selected={active}
-                                onClick={() => setIndex(i)}
-                                className={`rounded-md px-2.5 py-1.5 text-[0.78rem] font-medium transition sm:px-3.5 sm:text-sm ${
-                                    active
-                                        ? 'bg-primary/15 text-text-main'
-                                        : 'text-text-muted hover:bg-white/[0.02] hover:text-text-main'
-                                }`}
+            <div className="relative bg-bg-main">
+                <div ref={railRef} className="relative w-full">
+                    {notchPath ? (
+                        <svg
+                            aria-hidden
+                            className="pointer-events-none absolute top-0 left-0"
+                            width={rail}
+                            height={tabH + 1}
+                        >
+                            <path
+                                d={notchPath}
+                                fill="none"
+                                stroke="var(--border-strong)"
+                                strokeWidth="1"
+                            />
+                        </svg>
+                    ) : null}
+                    <div className="relative flex justify-center">
+                        <div ref={tabRef} className="px-1 pb-1.5">
+                            <div
+                                ref={tabListRef}
+                                className="relative flex w-max max-w-full flex-wrap justify-center gap-1"
+                                role="tablist"
+                                aria-label={hT.tablistAria}
                             >
-                                {label}
-                            </button>
-                        );
-                    })}
-                </div>
-            </div>
-
-            {tabMeta ? (
-                <div id="panel" className="relative scroll-mt-24 px-5 pt-12 pb-0 md:px-8 md:pt-14">
-                    <p
-                        key={tabMeta.id}
-                        className="mx-auto mb-8 max-w-xl text-center text-sm leading-relaxed text-text-muted opacity-0 motion-safe:animate-fade-soft md:text-[0.95rem]"
-                    >
-                        {tab.text}
-                    </p>
-                    <div className="mx-auto max-w-[1080px] overflow-hidden rounded-xl border border-border-subtle bg-bg-secondary shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
-                        <div className="flex items-center gap-2 border-b border-border-subtle px-4 py-2.5">
-                            <span className="h-2.5 w-2.5 rounded-full bg-border-strong" />
-                            <span className="h-2.5 w-2.5 rounded-full bg-border-strong" />
-                            <span className="h-2.5 w-2.5 rounded-full bg-border-strong" />
-                            <span
-                                key={tabMeta.id}
-                                className="ml-2 truncate font-mono text-[0.7rem] text-text-muted opacity-0 motion-safe:animate-fade-soft"
-                            >
-                                ttv.losperris.dev · {tab.label}
-                            </span>
-                        </div>
-                        <div className="grid">
-                            {PRODUCT_TABS.map((item, i) => (
-                                <img
-                                    key={item.id}
-                                    src={staticPath(item.src)}
-                                    alt={hT.tabs[item.id].label}
-                                    width={1912}
-                                    height={918}
-                                    fetchPriority={i === 0 ? 'high' : 'low'}
-                                    loading="eager"
-                                    decoding="async"
-                                    aria-hidden={i !== index}
-                                    className={`col-start-1 row-start-1 h-auto w-full motion-reduce:transition-none ${
-                                        i === index ? 'opacity-100' : 'opacity-0'
-                                    } transition-opacity duration-500 ease-in-out`}
-                                />
-                            ))}
+                                {activePill ? (
+                                    <span
+                                        aria-hidden
+                                        className={`pointer-events-none absolute z-0 rounded-full bg-primary/15 motion-reduce:transition-none ${
+                                            smoothPill
+                                                ? 'transition-[top,left,width,height] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]'
+                                                : ''
+                                        }`}
+                                        style={{
+                                            top: activePill.top,
+                                            left: activePill.left,
+                                            width: activePill.width,
+                                            height: activePill.height
+                                        }}
+                                    />
+                                ) : null}
+                                {PRODUCT_TABS.map((item, i) => {
+                                    const active = i === index;
+                                    const label = hT.tabs[item.id].label;
+                                    return (
+                                        <button
+                                            key={item.id}
+                                            type="button"
+                                            role="tab"
+                                            aria-selected={active}
+                                            ref={(el) => {
+                                                tabBtnRefs.current[i] = el;
+                                            }}
+                                            onClick={() => setIndex(i)}
+                                            className={`relative z-[1] rounded-full px-3.5 py-2 text-[0.8125rem] font-medium transition-colors sm:px-4 sm:text-sm ${
+                                                active
+                                                    ? 'text-text-main'
+                                                    : 'text-text-muted hover:text-text-main'
+                                            }`}
+                                        >
+                                            {label}
+                                        </button>
+                                    );
+                                })}
+                            </div>
                         </div>
                     </div>
                 </div>
-            ) : null}
+
+                {tabMeta ? (
+                    <div id="panel" className="relative scroll-mt-24 px-5 pt-10 pb-0 md:px-8 md:pt-12">
+                        <p
+                            key={tabMeta.id}
+                            className="mx-auto mb-8 max-w-xl text-center text-sm leading-relaxed text-text-muted opacity-0 motion-safe:animate-fade-soft md:text-[0.95rem]"
+                        >
+                            {tab.text}
+                        </p>
+                        <div className="mx-auto max-w-[1080px] overflow-hidden rounded-xl border border-border-subtle bg-bg-secondary shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
+                            <div className="flex items-center gap-2 border-b border-border-subtle px-4 py-2.5">
+                                <span className="h-2.5 w-2.5 rounded-full bg-border-strong" />
+                                <span className="h-2.5 w-2.5 rounded-full bg-border-strong" />
+                                <span className="h-2.5 w-2.5 rounded-full bg-border-strong" />
+                                <span
+                                    key={tabMeta.id}
+                                    className="ml-2 truncate font-mono text-[0.7rem] text-text-muted opacity-0 motion-safe:animate-fade-soft"
+                                >
+                                    ttv.losperris.dev · {tab.label}
+                                </span>
+                            </div>
+                            <div className="grid">
+                                {PRODUCT_TABS.map((item, i) => (
+                                    <img
+                                        key={item.id}
+                                        src={staticPath(item.src)}
+                                        alt={hT.tabs[item.id].label}
+                                        width={1912}
+                                        height={918}
+                                        fetchPriority={i === 0 ? 'high' : 'low'}
+                                        loading="eager"
+                                        decoding="async"
+                                        aria-hidden={i !== index}
+                                        className={`col-start-1 row-start-1 h-auto w-full motion-reduce:transition-none ${
+                                            i === index ? 'opacity-100' : 'opacity-0'
+                                        } transition-opacity duration-500 ease-in-out`}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                ) : null}
+            </div>
         </section>
     );
 }

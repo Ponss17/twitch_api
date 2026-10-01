@@ -29,7 +29,7 @@ export function LandingHeader({ scrolled, onLoginClick }: LandingHeaderProps) {
                 <a href={appPath('/')} className="flex min-w-0 shrink-0 items-center gap-2.5 text-inherit no-underline">
                     <AppLogo className="h-7 w-7 shrink-0 text-primary md:h-8 md:w-8" aria-hidden />
                     <span className="truncate text-base font-bold tracking-tight text-text-main md:text-lg">
-                        LosPerris<span className="text-brand-text">API</span>
+                        LosPerrisAPI
                     </span>
                 </a>
 

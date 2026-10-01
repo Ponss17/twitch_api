@@ -25,15 +25,15 @@ export function Footer({ isDashboard = false }: FooterProps) {
                     : 'shrink-0 border-t border-border-subtle py-6'
             }`}
         >
-            <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center gap-2 px-6 text-[0.75rem] text-text-muted md:flex-row md:items-center md:justify-between md:gap-6">
+            <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center gap-2 px-6 text-[0.75rem] md:flex-row md:items-center md:justify-between md:gap-6">
                 <p className="flex min-w-0 flex-1 items-center justify-center gap-1.5 font-medium text-text-main md:justify-start">
                     <span>
                         &copy; {year}{' '}
-                        <span className="font-bold text-[color:var(--brand-text)]">LosPerrisAPI</span>
+                        <span className="font-bold text-text-main">LosPerrisAPI</span>
                     </span>
                 </p>
 
-                <p className="flex min-w-0 flex-1 items-center justify-center md:truncate md:whitespace-nowrap">
+                <p className="flex min-w-0 flex-1 items-center justify-center text-text-muted md:truncate md:whitespace-nowrap">
                     Creado para la comunidad. No afiliado con Twitch o Amazon.
                 </p>
 
@@ -44,13 +44,13 @@ export function Footer({ isDashboard = false }: FooterProps) {
                     {LEGAL_LINKS.map((link, i) => (
                         <Fragment key={link.href}>
                             {i > 0 ? (
-                                <span className="select-none opacity-50" aria-hidden="true">
+                                <span className="select-none text-text-muted opacity-50" aria-hidden="true">
                                     ·
                                 </span>
                             ) : null}
                             <a
                                 href={link.href}
-                                className="font-medium text-text-muted transition-colors hover:text-brand-text"
+                                className="font-medium text-text-muted transition-colors hover:text-text-main"
                             >
                                 {link.label}
                             </a>

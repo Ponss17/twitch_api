@@ -3,7 +3,6 @@ import { TwitchIcon } from '@/shared/ui/icons/BrandIcons';
 import {
     DicesIcon,
     SettingsIcon,
-    SwordIcon,
     TrendingUpIcon,
     UserRoundCheckIcon,
     UsersIcon,
@@ -24,24 +23,24 @@ type Tile = {
 
 const LAYOUTS: Record<'a' | 'b' | 'c' | 'd', Tile[]> = {
     a: [
-        { Icon: TwitchIcon, top: '16%', x: '10%', size: 88, rot: -8, opacity: 0.28 },
-        { Icon: SwordIcon, top: '40%', x: '38%', size: 76, rot: 10, opacity: 0.22 },
-        { Icon: DicesIcon, top: '64%', x: '6%', size: 84, rot: -4, opacity: 0.32 }
+        { Icon: TwitchIcon, top: '16%', x: '14%', size: 88, rot: -8, opacity: 0.28 },
+        { Icon: SettingsIcon, top: '40%', x: '44%', size: 76, rot: 8, opacity: 0.22 },
+        { Icon: DicesIcon, top: '64%', x: '12%', size: 84, rot: -4, opacity: 0.32 }
     ],
     b: [
         { Icon: VideoIcon, top: '12%', x: '18%', size: 82, rot: 7, opacity: 0.26 },
-        { Icon: SettingsIcon, top: '38%', x: '4%', size: 70, rot: -11, opacity: 0.2 },
+        { Icon: SettingsIcon, top: '38%', x: '12%', size: 70, rot: -11, opacity: 0.2 },
         { Icon: UsersIcon, top: '62%', x: '32%', size: 90, rot: 5, opacity: 0.3 }
     ],
     c: [
-        { Icon: TrendingUpIcon, top: '20%', x: '8%', size: 86, rot: -6, opacity: 0.24 },
+        { Icon: TrendingUpIcon, top: '20%', x: '12%', size: 86, rot: -6, opacity: 0.24 },
         { Icon: UserRoundCheckIcon, top: '46%', x: '36%', size: 74, rot: 9, opacity: 0.3 },
-        { Icon: TwitchIcon, top: '68%', x: '10%', size: 80, rot: -3, opacity: 0.22 }
+        { Icon: TwitchIcon, top: '68%', x: '14%', size: 80, rot: -3, opacity: 0.22 }
     ],
     d: [
         { Icon: DicesIcon, top: '26%', x: '20%', size: 84, rot: 12, opacity: 0.28 },
-        { Icon: VideoIcon, top: '52%', x: '4%', size: 72, rot: -7, opacity: 0.2 },
-        { Icon: SwordIcon, top: '70%', x: '34%', size: 88, rot: 4, opacity: 0.26 }
+        { Icon: VideoIcon, top: '52%', x: '12%', size: 72, rot: -7, opacity: 0.2 },
+        { Icon: UsersIcon, top: '70%', x: '36%', size: 88, rot: 4, opacity: 0.26 }
     ]
 };
 
@@ -100,11 +99,12 @@ export function LandingFloatIcons({
         >
             {LAYOUTS[layout].map((tile, i) => {
                 const Icon = tile.Icon;
+                const pad = Math.ceil(tile.size * 0.22);
                 const wrapStyle = {
                     top: tile.top,
                     [side === 'left' ? 'left' : 'right']: tile.x,
-                    width: tile.size,
-                    height: tile.size,
+                    width: tile.size + pad * 2,
+                    height: tile.size + pad * 2,
                     '--lev-dur': `${5.2 + i * 0.9}s`,
                     '--lev-delay': `${i * 0.55}s`
                 } as CSSProperties;
@@ -112,11 +112,11 @@ export function LandingFloatIcons({
                 return (
                     <div
                         key={i}
-                        className={`absolute ${active ? 'landing-levitate' : ''}`}
+                        className={`absolute flex items-center justify-center ${active ? 'landing-levitate' : ''}`}
                         style={wrapStyle}
                     >
                         <Icon
-                            className="h-full w-full"
+                            className="h-[72%] w-[72%] shrink-0"
                             style={{
                                 opacity: tile.opacity,
                                 transform: `rotate(${tile.rot}deg)`
