@@ -21,7 +21,7 @@ function AboutHeader() {
                         draggable={false}
                     />
                     <h1 className="m-0 text-xl font-extrabold tracking-tight text-text-main md:text-[1.4rem]">
-                        LosPerris <span className="text-primary">Twitch Api</span>
+                        LosPerris Twitch Api
                     </h1>
                 </div>
                 <nav className="flex gap-4">

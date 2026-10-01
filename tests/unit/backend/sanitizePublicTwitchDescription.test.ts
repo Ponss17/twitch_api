@@ -20,10 +20,10 @@ describe('sanitizePublicTwitchDescription', () => {
         expect(out).toContain('hola');
     });
 
-    it('usa fallback si queda vacío o muy corto', () => {
-        expect(sanitizePublicTwitchDescription('')).toContain('Pionero');
-        expect(sanitizePublicTwitchDescription('https://only.link')).toContain('Pionero');
-        expect(sanitizePublicTwitchDescription('  hi  ')).toContain('Pionero');
+    it('usa vacío si no hay bio usable (el landing muestra noDescription)', () => {
+        expect(sanitizePublicTwitchDescription('')).toBe('');
+        expect(sanitizePublicTwitchDescription('https://only.link')).toBe('');
+        expect(sanitizePublicTwitchDescription('  hi  ')).toBe('');
     });
 
     it('trunca textos largos', () => {

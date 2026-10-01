@@ -199,8 +199,8 @@
     --bg-panel: rgba(6, 12, 6, 0.7);
     --bg-modal: #050a05;
     --sidebar: #030603;
-    --text-main: #ffffff;
-    --text-muted: #8a998d;
+    --text-main: #f4fff6;
+    --text-muted: #b6cfc0;
     --border-subtle: rgba(0, 255, 102, 0.12);
     --border-strong: rgba(0, 255, 102, 0.28);
     --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.4);

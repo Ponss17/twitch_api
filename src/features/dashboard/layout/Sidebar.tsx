@@ -17,7 +17,8 @@ import {
     sidebarNavScroll,
     sidebarShell,
     SIDEBAR_MOTION,
-    hoverSubtleIconBtn
+    hoverSubtleIconBtn,
+    APP_BOTTOM_BAR_H
 } from '@/core/utils/tw';
 import { AppLogo } from '@/shared/ui/AppLogo';
 import { IconMd } from '@/shared/ui/Icon';
@@ -271,15 +272,14 @@ export function Sidebar({
                     >
                         <AppLogo className="pointer-events-none h-8 w-8 shrink-0 text-primary" />
                         <span
-                            className={`whitespace-nowrap text-[1.05rem] font-bold leading-none text-text-main transition-[max-width,opacity,margin] ${SIDEBAR_MOTION} ${
+                            className={`whitespace-nowrap text-[0.875rem] font-bold leading-none tracking-tight text-text-main transition-[max-width,opacity,margin] ${SIDEBAR_MOTION} ${
                                 railCollapsed
                                     ? 'pointer-events-none m-0 max-w-0 opacity-0'
-                                    : 'max-w-[9.5rem] opacity-100'
+                                    : 'max-w-[10.5rem] opacity-100'
                             }`}
                             aria-hidden={railCollapsed}
                         >
-                            LosPerris
-                            <span className="text-[color:var(--brand-text)]">API</span>
+                            LosPerrisAPI
                         </span>
                     </div>
                     {onCollapsedChange ? (
@@ -468,22 +468,22 @@ export function Sidebar({
                 </nav>
 
                 <div
-                    className={`relative shrink-0 overflow-visible border-t border-border-subtle transition-[padding] ${SIDEBAR_MOTION} ${
+                    className={`relative ${APP_BOTTOM_BAR_H} shrink-0 overflow-visible border-t border-border-subtle transition-[padding] ${SIDEBAR_MOTION} ${
                         railCollapsed ? 'px-1.5' : 'px-0'
                     }`}
                 >
                     <Dropdown
-                        className={`relative overflow-visible transition-[width] ${SIDEBAR_MOTION} ${
+                        className={`relative h-full overflow-visible transition-[width] ${SIDEBAR_MOTION} ${
                             railCollapsed ? 'w-auto' : 'w-full'
                         }`}
                     >
                         <DropdownTrigger
                             aria-label={t.header.accountMenu}
                             title={railCollapsed ? displayName : undefined}
-                            className={`group flex w-full items-center text-left transition-colors ${SIDEBAR_MOTION} hover:bg-white/[0.02] aria-expanded:bg-white/[0.03] ${
+                            className={`group flex h-full w-full items-center text-left transition-colors ${SIDEBAR_MOTION} hover:bg-white/[0.02] aria-expanded:bg-white/[0.03] ${
                                 railCollapsed
-                                    ? 'justify-center gap-0 px-0 py-3'
-                                    : 'gap-2.5 px-3.5 py-3'
+                                    ? 'justify-center gap-0 px-0'
+                                    : 'gap-2.5 px-3.5'
                             }`}
                         >
                             <img

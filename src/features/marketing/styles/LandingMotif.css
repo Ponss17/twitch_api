@@ -12,6 +12,7 @@
     contain: layout paint;
     overflow: clip;
     isolation: isolate;
+    padding-inline: 1.25rem;
 }
 
 .landing-levitate {
