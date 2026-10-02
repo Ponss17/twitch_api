@@ -20,6 +20,8 @@ legal-edit-draft.md
 # Borradores 
 /scripts/supabase/
 /backend/migrations/*.sql
+# Migraciones SQL (solo local; no publicar en GitHub)
+/supabase/migrations/
 # Runtime 
 /supabase/.branches/
 /supabase/.temp/

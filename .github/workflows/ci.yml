@@ -48,9 +48,6 @@ jobs:
             - name: Test
               run: pnpm test
 
-            - name: Verify migrations
-              run: pnpm verify:migrations
-
             - name: Security audit (high+)
               # Registry timeouts on /advisories/bulk must not fail the build;
               # real high+ findings still fail the step.
