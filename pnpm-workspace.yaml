@@ -12,8 +12,11 @@ overrides:
   postcss: "^8.5.25"
   esbuild: "0.28.1"
   "@types/hast": "3.0.4"
-  fast-uri: ">=3.1.6"
-  fast-uri@3: "3.1.6"
+  fast-uri: ">=3.1.8"
+  fast-uri@3: "3.1.8"
+  brace-expansion@1: "1.1.21"
+  brace-expansion@2: "2.1.7"
+  brace-expansion@5: "5.0.12"
   qs: ">=6.16.0"
   smol-toml: ">=1.7.1"
   axios: "^1.16.0"
@@ -28,6 +31,10 @@ auditConfig:
 minimumReleaseAgeExclude:
   - '@astrojs/markdown-satteri@0.4.1'
   - astro@7.3.2
+  - brace-expansion@1.1.21
+  - brace-expansion@2.1.7
+  - brace-expansion@5.0.12
+  - fast-uri@3.1.8
   - js-yaml@3.15.2
   - js-yaml@4.3.2
   - sharp@0.35.4
