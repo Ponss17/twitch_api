@@ -1,5 +1,6 @@
 import { getBcp47 } from '@/core/i18n/I18nContext';
 
+/** Misma forma que `backend/.../maskApiKey.ts` — mantener en sync a propósito. */
 export function maskApiKey(key: string): string {
     if (!key || key.length < 8) return '••••••••••••';
     return `${key.slice(0, 4)}${'•'.repeat(Math.min(key.length - 8, 20))}${key.slice(-4)}`;

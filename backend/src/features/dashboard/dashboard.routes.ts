@@ -2,10 +2,8 @@ import { Router } from 'express';
 import * as analyticsController from './analytics.controller';
 import * as accountController from './account.controller';
 import * as settingsController from './settings.controller';
-import * as overlayController from '../overlay/overlay.controller';
 import * as monthlyReportsController from './monthlyReports.controller';
 import { getViewerLeaderboard } from './viewerLeaderboard.controller';
-import toolsRoutes from '../tools/tools.routes';
 import { csrfProtection } from '../../core/middleware/csrfProtection';
 import { requireCookieSession } from '../../core/middleware/requireCookieSession';
 import { globalRateLimiter, heavyRateLimiter, revealKeyRateLimiter, destructiveAccountRateLimiter } from '../../core/middleware/redisRateLimiter';
@@ -29,12 +27,8 @@ import {
     markAllNotificationsReadSchema
 } from './dashboard.schema';
 import { exportCheckSchema, exportCompleteSchema } from './export.schema';
-import { overlayToolParamSchema, putOverlayStateSchema, overlayLinkSchema } from '../overlay/overlay.schema';
 
 const router = Router();
-
-/** Tools del panel: `/get-clips`, `/chatters`, `/track-usage` (mismas URLs). */
-router.use(toolsRoutes);
 
 router.get(
     '/reveal-api-key',
@@ -151,29 +145,6 @@ router.post(
     validate(exportCompleteSchema),
     // codeql[js/missing-rate-limiting]: globalRateLimiter + app-level limiter (Redis KV).
     settingsController.recordExportComplete
-);
-
-router.get(
-    '/overlay-state/:tool',
-    globalRateLimiter,
-    validate(overlayToolParamSchema),
-    /* codeql[js/missing-rate-limiting] */ overlayController.getOverlayState
-);
-router.put(
-    '/overlay-state/:tool',
-    requireCookieSession,
-    globalRateLimiter,
-    csrfProtection,
-    validate(putOverlayStateSchema),
-    /* codeql[js/missing-rate-limiting] */ overlayController.putOverlayState
-);
-router.post(
-    '/overlay-link',
-    requireCookieSession,
-    globalRateLimiter,
-    csrfProtection,
-    validate(overlayLinkSchema),
-    /* codeql[js/missing-rate-limiting] */ overlayController.createOverlayLink
 );
 
 export default router;

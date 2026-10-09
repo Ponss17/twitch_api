@@ -117,10 +117,10 @@ export function SlotsView() {
                                 key={i}
                                 className={`flex h-16 w-16 items-center justify-center rounded-xl border text-[2rem] leading-none transition-all duration-300 max-[600px]:h-14 max-[600px]:w-14 max-[600px]:text-[1.7rem] ${
                                     locked
-                                        ? 'scale-105 border-primary/40 bg-primary/10'
+                                        ? 'scale-105 border-primary/40 bg-bg-secondary'
                                         : pulsing
-                                          ? 'animate-pulse border-border-strong bg-bg-tertiary text-text-muted'
-                                          : 'border-border-subtle bg-bg-tertiary text-text-muted'
+                                          ? 'animate-pulse border-border-strong bg-bg-secondary text-text-muted'
+                                          : 'border-border-subtle bg-bg-secondary text-text-muted'
                                 }`}
                                 aria-hidden
                             >

@@ -205,7 +205,7 @@ export default defineConfig({
                 Sidebar: './src/components/StarlightSidebar.astro',
             },
             customCss: [
-                './src/core/utils/starlight-theme.css',
+                './src/styles/starlight-theme.css',
             ],
             sidebar: [
                 {

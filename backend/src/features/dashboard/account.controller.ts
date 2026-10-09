@@ -19,7 +19,7 @@ import { trackRequest } from '../../core/utils/tracking';
 import { revokeSessions } from '../../core/utils/sessionState';
 import { overlayRevokeKey } from '../../core/overlay/keys';
 import { invalidateAuthCache } from '../../core/middleware/authMiddleware';
-import * as questionsService from '../../core/database/questionsService';
+import * as questionsService from '../tools/questions.service';
 import type { StoredUser } from '../../types/twitch';
 
 function requestWantsFreshData(req: AuthenticatedRequest): boolean {

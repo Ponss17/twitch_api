@@ -2,7 +2,7 @@ import { memo, useMemo } from 'react';
 import { STATUS_PAGE_URL, type DashboardTab } from '@/core/config/config';
 import { appPath, saveDocsReturnPath, shouldSavePanelReturn } from '@/core/config/paths';
 import { panelCard, fadeIn, hoverSubtleBorderedRow } from '@/core/utils/tw';
-import { subtleIcon } from '@/features/dashboard/lib/ui/subtleAccents';
+import { subtleIcon } from '@/shared/ui/subtleAccents';
 import {
     type DashboardLiveStats,
     type DashboardUsageKey,

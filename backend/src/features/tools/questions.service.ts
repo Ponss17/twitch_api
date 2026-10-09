@@ -1,5 +1,5 @@
-import { supabase } from './supabaseClient';
-import { logger } from '../utils/logger';
+import { supabase } from '../../core/database/supabaseClient';
+import { logger } from '../../core/utils/logger';
 
 export const MAX_STREAMER_QUESTIONS = 100;
 export const STREAMER_QUESTIONS_MAX_AGE_DAYS = 7;

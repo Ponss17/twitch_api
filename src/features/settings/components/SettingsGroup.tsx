@@ -2,7 +2,7 @@ import type { LucideIcon } from 'lucide-react';
 import { forwardRef, type ReactNode } from 'react';
 import { fadeIn } from '@/core/utils/tw';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
-import { subtleIcon, type SubtleAccent } from '@/features/dashboard/lib/ui/subtleAccents';
+import { subtleIcon, type SubtleAccent } from '@/shared/ui/subtleAccents';
 
 type Accent = 'primary' | 'error';
 
@@ -19,10 +19,6 @@ export const SettingsGroup = forwardRef<
         delay?: number;
         action?: ReactNode;
         children: ReactNode;
-        /** @deprecated ya no se muestra; se mantiene por compatibilidad */
-        icon?: LucideIcon;
-        /** @deprecated ya no se muestra; se mantiene por compatibilidad */
-        iconAccent?: SubtleAccent;
     }
 >(function SettingsGroup({ title, description, accent = 'primary', delay = 0, action, children }, ref) {
     const titleColor = accent === 'error' ? 'text-error' : 'text-text-main';

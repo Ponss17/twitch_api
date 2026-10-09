@@ -19,7 +19,7 @@ jest.mock('../../backend/src/core/database/dbService', () => ({
     })
 }));
 
-jest.mock('../../backend/src/core/database/questionsService', () => ({
+jest.mock('../../backend/src/features/tools/questions.service', () => ({
     clearStreamerQuestions: jest.fn().mockResolvedValue([])
 }));
 
@@ -59,7 +59,7 @@ jest.mock('../../backend/src/features/twitch/twitch.service', () => ({
 }));
 
 import * as dbService from '../../backend/src/core/database/dbService';
-import * as questionsService from '../../backend/src/core/database/questionsService';
+import * as questionsService from '../../backend/src/features/tools/questions.service';
 import { invalidateAllUserCaches, invalidateDashboardStatsCaches } from '../../backend/src/core/utils/cacheInvalidation';
 import { getAnalytics, getLogs, clearUserData, deleteAccount, exportCheck, recordExportComplete, revealApiKey, getUserAuditLogs } from '../../backend/src/features/dashboard/dashboard.controller';
 import { AuthenticatedRequest } from '@/types/twitch';

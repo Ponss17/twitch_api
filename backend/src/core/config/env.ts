@@ -38,8 +38,8 @@ const envSchema = z.object({
     /** Upstash Redis — obligatorias en producción, opcionales en dev/test (fail-open). */
     KV_REST_API_URL: z.string().url().optional(),
     KV_REST_API_TOKEN: z.string().optional(),
-    /** Secreto EventSub webhook (opcional; cae a HMAC_SIGNING_SECRET / client secret). */
-    EVENTSUB_SECRET: z.string().min(10).optional()
+    /** Secreto EventSub webhook (obligatorio en prod; 10–100 chars, ≠ HMAC). */
+    EVENTSUB_SECRET: z.string().min(10).max(100).optional()
 });
 
 const isTest = process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID !== undefined;
@@ -161,12 +161,15 @@ if (isProd && !isTest) {
     const eventSub = process.env.EVENTSUB_SECRET?.trim() ?? '';
     if (!eventSub) {
         console.error(
-            '⚠️ EVENTSUB_SECRET no está en producción. La ruleta de bits sigue con el fallback HMAC hasta que lo definas (10–100 caracteres, distinto del HMAC) y reactives la alerta.'
+            '🛑 EVENTSUB_SECRET es obligatorio en producción (10–100 caracteres, distinto de HMAC_SIGNING_SECRET). Tras definirlo, apaga y reactiva la ruleta de bits.'
         );
-    } else if (eventSub.length < 10 || eventSub.length > 100) {
+        process.exit(1);
+    }
+    if (eventSub.length < 10 || eventSub.length > 100) {
         console.error('🛑 EVENTSUB_SECRET debe tener entre 10 y 100 caracteres.');
         process.exit(1);
-    } else if (eventSub === hmac) {
+    }
+    if (eventSub === hmac) {
         console.error('🛑 EVENTSUB_SECRET debe ser distinto de HMAC_SIGNING_SECRET.');
         process.exit(1);
     }

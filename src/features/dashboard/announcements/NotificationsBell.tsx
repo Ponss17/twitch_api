@@ -28,6 +28,7 @@ import {
 } from '@/features/dashboard/reports/reportsApi';
 import { navigateDashboard } from '@/features/dashboard/lib/tabs/dashboardPanelEvents';
 import { useDashboardRealtime } from '@/features/dashboard/hooks/useDashboardRealtime';
+import { formatMonthLabel } from '@/features/dashboard/lib/formatYearMonth';
 
 const ICON_MAP: Partial<Record<AnnouncementIcon, ComponentType<{ className?: string }>>> = {
     sparkles: Sparkles,
@@ -39,14 +40,6 @@ function announcementCopy(
     id: AnnouncementId
 ): { title: string; body: string } | null {
     return items[id] ?? null;
-}
-
-function formatMonthLabel(yearMonth: string, locale: string): string {
-    const [y, m] = yearMonth.split('-').map(Number);
-    const date = new Date(Date.UTC(y, m - 1, 1));
-    return new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(
-        date
-    );
 }
 
 export function NotificationsBell() {

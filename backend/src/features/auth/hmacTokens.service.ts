@@ -10,8 +10,8 @@ const overlayTokenCache = new BoundedMap<string, { payload: OverlayReadPayload; 
 const OVERLAY_TOKEN_CACHE_MS = 5 * 60 * 1000;
 
 const AUTH_EXCHANGE_TTL_MS = 5 * 60 * 1000;
-/** Token de solo lectura para OBS — no expone la API key maestra. */
-const OVERLAY_READ_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+/** Token OBS (URL). 24h: balance entre recargas OBS y superficie si se filtra la URL. */
+const OVERLAY_READ_TTL_MS = 24 * 60 * 60 * 1000;
 
 const authExchangeBurnMemory = new BoundedMap<string, number>(500);
 

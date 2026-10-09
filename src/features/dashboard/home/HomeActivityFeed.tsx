@@ -3,7 +3,7 @@ import { LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion';
 import { Filter, Terminal, LayoutGrid, Bot, Wrench, Sword, Activity } from 'lucide-react';
 
 import { panelCard, fadeIn } from '@/core/utils/tw';
-import { subtleIcon } from '@/features/dashboard/lib/ui/subtleAccents';
+import { subtleIcon } from '@/shared/ui/subtleAccents';
 import {
     activityEntryKey,
     formatActivityDate,

@@ -1,6 +1,6 @@
 import { Response } from 'express';
 
-jest.mock('../../backend/src/core/database/questionsService', () => ({
+jest.mock('../../backend/src/features/tools/questions.service', () => ({
     MAX_STREAMER_QUESTIONS: 100,
     STREAMER_QUESTIONS_MAX_AGE_DAYS: 7,
     listStreamerQuestions: jest.fn(),
@@ -14,7 +14,7 @@ jest.mock('@/core/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() }
 }));
 
-import * as questionsService from '../../backend/src/core/database/questionsService';
+import * as questionsService from '../../backend/src/features/tools/questions.service';
 import {
     addQuestion,
     clearQuestions,

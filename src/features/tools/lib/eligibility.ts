@@ -2,8 +2,6 @@ import type { RouletteUser } from '@/core/types/twitch';
 import type { TmiTags } from '@/features/chat/lib/tmiService';
 
 export type EligibilityRole = 'subs' | 'mods' | 'vips' | 'viewers';
-/** @deprecated Usar EligibilityRole */
-export type RouletteRole = EligibilityRole;
 
 export interface EligibilityFilters {
     subs: boolean;
@@ -11,8 +9,6 @@ export interface EligibilityFilters {
     vips: boolean;
     viewers: boolean;
 }
-/** @deprecated Usar EligibilityFilters */
-export type RouletteEligibilityFilters = EligibilityFilters;
 
 export const DEFAULT_ELIGIBILITY_FILTERS: EligibilityFilters = {
     subs: true,
@@ -28,9 +24,6 @@ export const ROLE_OPTIONS = (rlT: any): { key: EligibilityRole; label: string }[
     { key: 'vips', label: rlT.roles.vips },
     { key: 'viewers', label: rlT.roles.viewers }
 ];
-
-/** @deprecated Usar ROLE_OPTIONS */
-export const ROULETTE_ROLE_OPTIONS = ROLE_OPTIONS;
 
 function isTruthyTag(value: unknown): boolean {
     return value === true || value === 1 || value === '1';

@@ -9,7 +9,7 @@ import { chatLogStore } from '@/features/chat/lib/chatLogStore';
 import type { StalkerUser, TwitchUser } from '@/core/types/twitch';
 import { fadeIn, hoverSubtleBorderedRow, hoverSubtleRowBg, toolPanelShell, toolConfigInput, toolHeaderIconBtn } from '@/core/utils/tw';
 import { useToast } from '@/shared/ui/toast/ToastProvider';
-import { UserInspectModal } from '@/shared/ui/modals/UserInspectModal';
+import { UserInspectModal } from '@/features/tools/stalker/UserInspectModal';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { StalkerRowSkeleton } from '@/shared/ui/Skeleton';
 import { IconSm, InlineIcon } from '@/shared/ui/Icon';

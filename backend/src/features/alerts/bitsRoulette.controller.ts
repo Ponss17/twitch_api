@@ -4,7 +4,7 @@ import type { AuthenticatedRequest } from '../../types/twitch';
 import { jsonError } from '../../core/utils/jsonResponse';
 import { MESSAGES } from '../../core/config/messages';
 import { getUser } from '../../core/database/userService';
-import { getValidTokenForUser } from '../auth/auth.service';
+import { getValidTokenForUser, usableAccessToken } from '../auth/auth.service';
 import {
     announceBitsWinner,
     disableBitsAlert,
@@ -80,15 +80,29 @@ export const announceBitsWinnerHandler = async (req: AuthenticatedRequest, res: 
     const userId = req.userId;
     if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
     const body = req.body as { cheerId: string; prize: string; lang?: 'es' | 'en' | 'pt' };
+    const overlayAuth = Boolean(res.locals.isOverlayReadRequest);
 
     let token = req.twitchToken;
     if (!token) {
         const user = await getUser(userId);
         if (!user) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
-        try {
-            token = (await getValidTokenForUser(user)).accessToken;
-        } catch {
-            return jsonError(res, 502, 'No se pudo usar la sesión de Twitch para escribir en el chat.');
+        if (overlayAuth) {
+            // Overlay no puede refrescar OAuth (token en URL OBS). Solo access token usable.
+            token = usableAccessToken(user);
+            if (!token) {
+                return jsonError(
+                    res,
+                    403,
+                    'El anuncio desde OBS necesita una sesión Twitch activa. Abre el panel un momento y reintenta.',
+                    { code: 'OVERLAY_NO_TWITCH_TOKEN' }
+                );
+            }
+        } else {
+            try {
+                token = (await getValidTokenForUser(user)).accessToken;
+            } catch {
+                return jsonError(res, 502, 'No se pudo usar la sesión de Twitch para escribir en el chat.');
+            }
         }
     }
 

@@ -27,6 +27,7 @@ import {
     buildMonthlyReportHtml,
     downloadTextFile
 } from './reportDownload';
+import { formatMonthLabel as formatMonthLabelBase } from '@/features/dashboard/lib/formatYearMonth';
 
 function readMonthFromUrl(): string | null {
     if (typeof window === 'undefined') return null;
@@ -35,14 +36,7 @@ function readMonthFromUrl(): string | null {
 }
 
 function formatMonthLabel(yearMonth: string, locale: string): string {
-    const [y, m] = yearMonth.split('-').map(Number);
-    const date = new Date(Date.UTC(y, m - 1, 1));
-    const raw = new Intl.DateTimeFormat(locale, {
-        month: 'long',
-        year: 'numeric',
-        timeZone: 'UTC'
-    }).format(date);
-    return raw.charAt(0).toUpperCase() + raw.slice(1);
+    return formatMonthLabelBase(yearMonth, locale, { capitalize: true });
 }
 
 function formatMonthShort(yearMonth: string, locale: string): string {

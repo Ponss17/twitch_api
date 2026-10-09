@@ -26,9 +26,6 @@ interface EligibilityDropdownProps {
     disabled?: boolean;
 }
 
-/** @deprecated Preferir EligibilityDropdown — alias por compatibilidad Ruleta. */
-export type RouletteEligibilityDropdownProps = EligibilityDropdownProps;
-
 export function EligibilityDropdown({
     filters,
     onChange,
@@ -89,5 +86,3 @@ export function EligibilityDropdown({
         </Dropdown>
     );
 }
-
-export const RouletteEligibilityDropdown = EligibilityDropdown;

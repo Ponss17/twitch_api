@@ -2,7 +2,7 @@ import { useRequiredSession } from '@/core/session/useSession';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { AnimatedNumber } from '@/shared/ui/AnimatedNumber';
 import { panelCard } from '@/core/utils/tw';
-import { subtleIcon } from '@/features/dashboard/lib/ui/subtleAccents';
+import { subtleIcon } from '@/shared/ui/subtleAccents';
 import { Heart, Video, Calendar } from 'lucide-react';
 import { TwitchIcon } from '@/shared/ui/icons/BrandIcons';
 

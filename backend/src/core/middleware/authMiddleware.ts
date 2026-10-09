@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest, StoredUser } from '../../types/twitch';
 import * as apiService from '../../features/twitch/twitch.service';
@@ -24,6 +25,12 @@ import {
 
 const CACHE_TTL = 10 * 60 * 1000;
 const TOKEN_VALIDATION_TTL = 10 * 60 * 1000;
+
+/** Fingerprint del bearer — nunca guardar el token en claro en Redis. */
+function tokenValidationCacheKey(token: string): string {
+    const hash = crypto.createHash('sha256').update(token, 'utf8').digest('hex');
+    return `cache:tokenValidation:${hash}`;
+}
 const LAST_ACTIVE_THROTTLE_MS = 30 * 60 * 1000;
 
 const userCache = new BoundedMap<string, { user: StoredUser; expiry: number }>(1000);
@@ -256,7 +263,7 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
         }
 
         if (!req.userId || !req.login) {
-            const cacheKey = `cache:tokenValidation:${token}`;
+            const cacheKey = tokenValidationCacheKey(token);
             const cachedValidation = await cacheService.get<{ user_id: string; login: string }>(
                 cacheKey
             );

@@ -62,15 +62,16 @@ export function eventSubCallbackUrl(): string {
 }
 
 /**
- * Secreto del webhook. Nunca el client secret: filtrarlo permitiría crear tokens de app.
- * Twitch exige 10–100 caracteres.
+ * Secreto del webhook EventSub. En producción debe ser EVENTSUB_SECRET dedicado
+ * (nunca HMAC_SIGNING_SECRET / client secret). Twitch exige 10–100 caracteres.
+ * En dev/test se permite fallback a HMAC solo para no bloquear local.
  */
 export function eventSubSecret(): string {
     const dedicated = (CONFIG.EVENTSUB_SECRET || '').trim();
     if (dedicated.length >= 10 && dedicated.length <= 100) return dedicated;
+    if (CONFIG.NODE_ENV === 'production') return '';
     const hmac = (CONFIG.HMAC_SIGNING_SECRET || '').trim();
     if (hmac.length >= 10 && hmac.length <= 100) return hmac;
-    // Twitch exige ≤100; HMAC largo se recorta de forma estable para create+verify.
     if (hmac.length > 100) return hmac.slice(0, 100);
     return '';
 }

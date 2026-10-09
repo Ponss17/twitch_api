@@ -6,7 +6,7 @@ import { RouletteWheelDisplay } from '@/features/tools/roulette/RouletteWheelDis
 import { OverlayUrlButton } from '@/features/overlay/components/OverlayUrlButton';
 import { useOverlayPublish } from '@/features/overlay/hooks/useOverlayPublish';
 import { fadeIn, hoverSubtleIconBtn, toolPanelShell, toolHeaderIconBtn, toolConfigInput, toolConfigSegment } from '@/core/utils/tw';
-import { RouletteEligibilityDropdown } from '@/features/tools/roulette/RouletteEligibilityDropdown';
+import { EligibilityDropdown } from '@/features/tools/roulette/RouletteEligibilityDropdown';
 import { ToolPanelHeader } from '@/features/tools/components/ToolPanelHeader';
 import { useToast } from '@/shared/ui/toast/ToastProvider';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
@@ -93,7 +93,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                 }
                 config={
                     <>
-                        <RouletteEligibilityDropdown
+                        <EligibilityDropdown
                             filters={filters}
                             disabled={isSpinning}
                             onChange={setFilters}

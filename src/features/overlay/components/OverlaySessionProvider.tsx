@@ -1,14 +1,18 @@
 import type { ReactNode } from 'react';
 import { SessionProvider } from '@/shared/providers/SessionProvider';
 import {
+    getOverlayStoredSession,
     readOverlayOptimisticAuthState,
-    resolveOverlaySessionFromUrl
+    resolveOverlaySessionFromUrl,
+    saveOverlayStoredSession
 } from '@/features/overlay/lib/overlaySession';
 
 const OVERLAY_SESSION_BOOTSTRAP = {
     readOptimisticAuthState: readOverlayOptimisticAuthState,
     resolveSessionFromUrl: resolveOverlaySessionFromUrl,
-    storage: 'overlay' as const
+    storage: 'overlay' as const,
+    getStoredSession: getOverlayStoredSession,
+    persistStoredSession: saveOverlayStoredSession
 };
 
 interface OverlaySessionProviderProps {

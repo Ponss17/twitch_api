@@ -5,7 +5,7 @@ import { QuestionsList } from './components/QuestionsList';
 import { QuestionsHistoryModal } from './components/QuestionsHistoryModal';
 import { ToolPanelHeader } from '@/features/tools/components/ToolPanelHeader';
 import { ToolMoreMenu } from '@/features/tools/components/ToolMoreMenu';
-import { RouletteEligibilityDropdown } from '@/features/tools/roulette/RouletteEligibilityDropdown';
+import { EligibilityDropdown } from '@/features/tools/roulette/RouletteEligibilityDropdown';
 import { OverlayUrlButton } from '@/features/overlay/components/OverlayUrlButton';
 import { useOverlayPublish } from '@/features/overlay/hooks/useOverlayPublish';
 import { toolPanelShell, fadeIn, toolConfigInput, toolHeaderIconBtn } from '@/core/utils/tw';
@@ -146,7 +146,7 @@ export function QuestionsView({ active = true }: { active?: boolean }) {
                 }
                 config={
                     <>
-                        <RouletteEligibilityDropdown filters={filters} onChange={setFilters} />
+                        <EligibilityDropdown filters={filters} onChange={setFilters} />
                         <div className="relative w-[160px] max-md:w-full">
                             <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-[0.8125rem] font-bold leading-none text-text-muted">
                                 !

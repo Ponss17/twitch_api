@@ -14,7 +14,7 @@ import {
     TrendingUp,
     UserRoundCheck
 } from 'lucide-react';
-import { subtleIcon } from '@/features/dashboard/lib/ui/subtleAccents';
+import { subtleIcon } from '@/shared/ui/subtleAccents';
 import type {
     ActivityLogType,
     DashboardActivityLog

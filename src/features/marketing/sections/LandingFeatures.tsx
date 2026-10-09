@@ -1,5 +1,5 @@
 import { card } from '@/core/utils/tw';
-import { subtleIcon } from '@/features/dashboard/lib/ui/subtleAccents';
+import { subtleIcon } from '@/shared/ui/subtleAccents';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { FEATURE_STEPS, PANEL_ITEMS } from '../lib/landingContent';
 import { DicesIcon, TrendingUpIcon, UserRoundCheckIcon } from '../lib/landingIcons';

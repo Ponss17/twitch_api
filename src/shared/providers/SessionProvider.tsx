@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { unstable_batchedUpdates } from 'react-dom';
-import { bindCommandStoreUser } from '@/features/commands/lib/commandStore';
 import {
     initAuthSync,
     validateSession,
@@ -21,7 +20,6 @@ import { appPath } from '@/core/config/paths';
 import { SessionContext } from '@/core/session/context';
 import { useToastOptional } from '@/shared/ui/toast/ToastProvider';
 import { reportSessionLoadProgress } from '@/core/session/loadProgress';
-import { saveOverlayStoredSession, getOverlayStoredSession } from '@/features/overlay/lib/overlaySession';
 import { useProactiveTokenRefresh } from '@/core/session/useProactiveTokenRefresh';
 import { useTranslation } from '@/core/i18n/I18nContext';
 
@@ -36,6 +34,8 @@ export interface SessionBootstrap {
     resolveSessionFromUrl(): Promise<Session>;
     /** overlay: sessionStorage aislado del panel */
     storage?: 'local' | 'overlay';
+    getStoredSession?: () => Session | null;
+    persistStoredSession?: (session: Session) => void;
 }
 
 const DEFAULT_SESSION_BOOTSTRAP: SessionBootstrap = {
@@ -48,12 +48,15 @@ interface SessionProviderProps {
     children: ReactNode;
     requireAuth?: boolean;
     bootstrap?: SessionBootstrap;
+    /** Panel: vincular stores de feature al userId de sesión (evita shared→feature). */
+    onSessionUser?: (userId: string | undefined) => void;
 }
 
 export function SessionProvider({
     children,
     requireAuth = false,
-    bootstrap = DEFAULT_SESSION_BOOTSTRAP
+    bootstrap = DEFAULT_SESSION_BOOTSTRAP,
+    onSessionUser
 }: SessionProviderProps) {
     const showToast = useToastOptional();
     const { t } = useTranslation();
@@ -61,6 +64,8 @@ export function SessionProvider({
     showToastRef.current = showToast;
     const tRef = useRef(t);
     tRef.current = t;
+    const onSessionUserRef = useRef(onSessionUser);
+    onSessionUserRef.current = onSessionUser;
 
     const optimistic = bootstrap.readOptimisticAuthState();
     const hydratedFromStorageRef = useRef(optimistic.authenticated);
@@ -108,7 +113,7 @@ export function SessionProvider({
             !sessionParams.overlayToken &&
             !sessionParams.userId
         ) {
-            bindCommandStoreUser(undefined);
+            onSessionUserRef.current?.(undefined);
             unstable_batchedUpdates(() => {
                 setSession(null);
                 setLoading(false);
@@ -136,7 +141,9 @@ export function SessionProvider({
             result = await validateSession(sessionParams);
         } catch {
             const stored =
-                bootstrap.storage === 'overlay' ? getOverlayStoredSession() : getSession();
+                bootstrap.storage === 'overlay'
+                    ? (bootstrap.getStoredSession?.() ?? null)
+                    : getSession();
             if (stored?.userId || stored?.apiKey || stored?.token || stored?.overlayToken) {
                 result = { valid: true, error: true, networkError: true };
             } else {
@@ -151,17 +158,17 @@ export function SessionProvider({
 
             const baseSession = result.networkError
                 ? bootstrap.storage === 'overlay'
-                    ? { ...(getOverlayStoredSession() ?? {}), ...sessionParams }
+                    ? { ...(bootstrap.getStoredSession?.() ?? {}), ...sessionParams }
                     : resolveDegradedSession(sessionParams)
                 : sessionParams;
             const persistLocal = bootstrap.storage !== 'overlay';
             const enriched = mergeSessionFromValidate(baseSession, result, { persist: persistLocal });
 
             if (bootstrap.storage === 'overlay') {
-                saveOverlayStoredSession(enriched);
+                bootstrap.persistStoredSession?.(enriched);
             }
 
-            bindCommandStoreUser(enriched.userId);
+            onSessionUserRef.current?.(enriched.userId);
 
             if (sessionParams.isNewLogin) {
                 stripSensitiveQueryParams({
@@ -182,7 +189,7 @@ export function SessionProvider({
             return;
         }
 
-        bindCommandStoreUser(undefined);
+        onSessionUserRef.current?.(undefined);
         unstable_batchedUpdates(() => {
             setSession(null);
             setAuthenticated(false);
@@ -236,8 +243,6 @@ export function SessionProvider({
         return () => window.removeEventListener('session:auth-failed', onAuthFailed);
     }, [requireAuth]);
 
-    // Refresh proactivo: renueva el token de Twitch antes de que expire,
-    // sin esperar a que una petición falle con 401.
     useProactiveTokenRefresh(session, refresh, authenticated);
 
     const value = useMemo(

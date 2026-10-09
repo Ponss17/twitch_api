@@ -3,7 +3,7 @@ import { AuthenticatedRequest } from '../../types/twitch';
 import { jsonError } from '../../core/utils/jsonResponse';
 import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
-import * as questionsService from '../../core/database/questionsService';
+import * as questionsService from './questions.service';
 
 function requireUserId(req: AuthenticatedRequest, res: Response): string | null {
     if (!req.userId) {
