@@ -45,7 +45,7 @@
         "@vercel/functions": "^3.7.5",
         "axios": "^1.16.0",
         "axios-retry": "^4.5.0",
-        "compression": "^1.8.1",
+        "compression": "^1.8.2",
         "cors": "^2.8.6",
         "dotenv": "^17.4.2",
         "express": "^5.2.1",
