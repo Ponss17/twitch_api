@@ -1,5 +1,5 @@
 /* LosPerris Starlight — oscuro minimalista, acento morado Twitch (#9146ff) */
-@import '../../styles/fonts.css';
+@import './fonts.css';
 
 :root,
 :root[data-theme='dark'],
