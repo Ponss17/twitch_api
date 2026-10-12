@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import { CONFIG } from '../config/env';
 import * as cacheService from '../database/cacheService';
 import { logger } from '../utils/logger';
-import { getPrimaryHmacSecret } from '../utils/hmacSecrets';
+import { getPrimaryHmacSecret } from '../security/hmacSecrets';
 import { OVERLAY_TOOLS, overlayRevokeKey } from './keys';
 
 /**

@@ -12,12 +12,12 @@ import {
     flattenCachedDashboardProfile,
     isAnalyticsCacheFresh
 } from './dashboardHelpers';
-import { buildDashboardProfile } from '../../core/utils/dashboardProfile';
+import { buildDashboardProfile } from './dashboardProfile';
 import { AuthenticatedRequest } from '../../types/twitch';
 import { TwitchApiError, AppError } from '../../core/errors/AppError';
 import { jsonError } from '../../core/utils/jsonResponse';
-import { withTwitchAuth } from '../../core/utils/twitchAuthHelpers';
-import { invalidateUserPlanCaches } from '../../core/utils/cacheInvalidation';
+import { withTwitchAuth } from '../auth/twitchAuthHelpers';
+import { invalidateUserPlanCaches } from '../../core/database/cacheInvalidation';
 import type { StoredUser } from '../../types/twitch';
 
 function requestWantsFreshData(req: AuthenticatedRequest): boolean {

@@ -1,5 +1,5 @@
 import { API_ENDPOINTS, type Session } from '@/core/config/config';
-import { apiFetch } from '@/core/api/auth';
+import { apiFetch } from '@/core/auth';
 import type { QuestionItem, QuestionStatus } from '@/features/tools/questions/lib/questionTypes';
 
 type QuestionsPayload = {

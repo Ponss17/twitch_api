@@ -1,5 +1,5 @@
-import { buildMonthlyReportCsv } from '@/features/dashboard/reports/reportDownload';
-import type { MonthlyReportSummary } from '@/features/dashboard/reports/reportsApi';
+import { buildMonthlyReportCsv } from '@/features/reports/reportDownload';
+import type { MonthlyReportSummary } from '@/features/reports/reportsApi';
 
 const summary: MonthlyReportSummary = {
     yearMonth: '2026-08',

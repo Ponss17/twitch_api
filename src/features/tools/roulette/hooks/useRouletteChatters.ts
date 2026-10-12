@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { API_ENDPOINTS, IGNORED_BOTS, type Session } from '@/core/config/config';
-import { authHeaders, withApiCredentials } from '@/core/api/auth';
+import { authHeaders, withApiCredentials } from '@/core/auth';
 import { useTmiChat } from '@/features/chat/hooks/useTmiChat';
 import {
     matchesChatKeyword,

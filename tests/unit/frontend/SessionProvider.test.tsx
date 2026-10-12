@@ -2,7 +2,7 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import { SessionProvider } from '@/shared/providers/SessionProvider';
 import { useSession } from '@/core/session/useSession';
 
-jest.mock('@/core/api/auth', () => ({
+jest.mock('@/core/auth', () => ({
     initAuthSync: jest.fn(),
     resolveSessionFromUrl: jest.fn(),
     mergeSessionFromValidate: jest.fn((session, result) => ({
@@ -36,7 +36,7 @@ jest.mock('@/shared/ui/toast/ToastProvider', () => ({
     useToastOptional: () => showToastMock
 }));
 
-import { resolveSessionFromUrl, mergeSessionFromValidate, validateSession, getSession, readOptimisticAuthState } from '@/core/api/auth';
+import { resolveSessionFromUrl, mergeSessionFromValidate, validateSession, getSession, readOptimisticAuthState } from '@/core/auth';
 
 const mockedResolveSessionFromUrl = resolveSessionFromUrl as jest.Mock;
 const mockedValidateSession = validateSession as jest.Mock;

@@ -4,7 +4,7 @@ import * as apiService from '../twitch/twitch.service';
 import { MESSAGES } from '../../core/config/messages';
 import { AuthenticatedRequest } from '../../types/twitch';
 import { safeString } from '../../core/utils/validationHelpers';
-import { withTwitchAuth } from '../../core/utils/twitchAuthHelpers';
+import { withTwitchAuth } from '../auth/twitchAuthHelpers';
 import { trackRequest } from '../../core/utils/tracking';
 import { fillTemplate } from './commandTemplates';
 

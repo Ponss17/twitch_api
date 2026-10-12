@@ -1,8 +1,8 @@
 import type { TwitchUser } from '../../types/twitch';
-import type { ResolvedUserLimits } from '../config/userRoles';
-import type { DashboardProfile } from '../schemas/dashboardContracts';
+import type { ResolvedUserLimits } from '../../core/config/userRoles';
+import type { DashboardProfile } from '../../core/schemas/dashboardContracts';
 
-export type { DashboardProfile } from '../schemas/dashboardContracts';
+export type { DashboardProfile } from '../../core/schemas/dashboardContracts';
 
 export function buildDashboardProfile(
     info: TwitchUser,

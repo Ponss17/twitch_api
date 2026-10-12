@@ -4,7 +4,7 @@ import { COMMAND_CONFIG } from '@/features/commands/lib/config';
 import { useCommandTestField, useCommandTestResult } from '@/features/commands/hooks/useCommandStore';
 import { buildCommandTestUrl, useCommandApiTest } from '@/features/commands/hooks/useCommandApiTest';
 import { useRequiredSession } from '@/core/session/useSession';
-import { ApiTestCard, CommandGeneratorCard, FormField } from '../CommandGeneratorCard';
+import { ApiTestCard, CommandGeneratorCard, FormField } from '../components/CommandGeneratorCard';
 import { fadeIn, btnSecondary } from '@/core/utils/tw';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { Sheet } from '@/shared/ui/Sheet';

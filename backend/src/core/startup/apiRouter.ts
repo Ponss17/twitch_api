@@ -1,13 +1,13 @@
 import express from 'express';
-import minigamesRoutes from '../features/minigames/minigames.routes';
-import dashboardRoutes from '../features/dashboard/dashboard.routes';
-import toolsRoutes from '../features/tools/tools.routes';
-import overlayRoutes from '../features/overlay/overlay.routes';
-import systemRoutes from '../features/system/system.routes';
-import commandsRoutes from '../features/commands/commands.routes';
-import alertsRoutes from '../features/alerts/alerts.routes';
-import { eventSubIpRateLimiter } from '../core/middleware/redisRateLimiter';
-import { twitchEventSubWebhook } from '../features/alerts/eventsub.controller';
+import minigamesRoutes from '../../features/minigames/minigames.routes';
+import dashboardRoutes from '../../features/dashboard/dashboard.routes';
+import toolsRoutes from '../../features/tools/tools.routes';
+import overlayRoutes from '../../features/overlay/overlay.routes';
+import systemRoutes from '../../features/system/system.routes';
+import commandsRoutes from '../../features/commands/commands.routes';
+import alertsRoutes from '../../features/alerts/alerts.routes';
+import { eventSubIpRateLimiter } from '../middleware/redisRateLimiter';
+import { twitchEventSubWebhook } from '../../features/alerts/eventsub.controller';
 
 const router = express.Router();
 

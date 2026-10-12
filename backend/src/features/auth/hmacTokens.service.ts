@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import * as cacheService from '../../core/database/cacheService';
 import { BoundedMap } from '../../core/utils/boundedCache';
 import { overlayRevokeKey, type OverlayReadPayload } from '../../core/overlay/keys';
-import { getHmacSecrets, getPrimaryHmacSecret } from '../../core/utils/hmacSecrets';
+import { getHmacSecrets, getPrimaryHmacSecret } from '../../core/security/hmacSecrets';
 
 export type { OverlayReadPayload } from '../../core/overlay/keys';
 

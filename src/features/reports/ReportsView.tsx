@@ -27,7 +27,7 @@ import {
     buildMonthlyReportHtml,
     downloadTextFile
 } from './reportDownload';
-import { formatMonthLabel as formatMonthLabelBase } from '@/features/dashboard/lib/formatYearMonth';
+import { formatMonthLabel as formatMonthLabelBase } from '@/core/utils/formatYearMonth';
 
 function readMonthFromUrl(): string | null {
     if (typeof window === 'undefined') return null;

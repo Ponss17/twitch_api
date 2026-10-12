@@ -5,7 +5,7 @@ import { QuestionsList } from './components/QuestionsList';
 import { QuestionsHistoryModal } from './components/QuestionsHistoryModal';
 import { ToolPanelHeader } from '@/features/tools/components/ToolPanelHeader';
 import { ToolMoreMenu } from '@/features/tools/components/ToolMoreMenu';
-import { EligibilityDropdown } from '@/features/tools/roulette/RouletteEligibilityDropdown';
+import { EligibilityDropdown } from '@/features/tools/components/EligibilityDropdown';
 import { OverlayUrlButton } from '@/features/overlay/components/OverlayUrlButton';
 import { useOverlayPublish } from '@/features/overlay/hooks/useOverlayPublish';
 import { toolPanelShell, fadeIn, toolConfigInput, toolHeaderIconBtn } from '@/core/utils/tw';

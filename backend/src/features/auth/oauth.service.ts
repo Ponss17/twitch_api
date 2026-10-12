@@ -10,7 +10,7 @@ import { AppError } from '../../core/errors/AppError';
 import { MESSAGES } from '../../core/config/messages';
 import { overlayRevokeKey } from '../../core/overlay/keys';
 import { broadcastOverlayReset } from '../../core/overlay/overlayRealtime';
-import { getHmacSecrets, getPrimaryHmacSecret } from '../../core/utils/hmacSecrets';
+import { getHmacSecrets, getPrimaryHmacSecret } from '../../core/security/hmacSecrets';
 import { DEFAULT_USER_ROLE } from '../../core/config/userRoles';
 import { rememberTwitchScopes } from './twitchScopes.service';
 

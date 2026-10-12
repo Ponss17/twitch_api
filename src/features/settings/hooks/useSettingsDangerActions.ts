@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { API_ENDPOINTS } from '@/core/config/config';
 import type { Session } from '@/core/config/config';
-import { authHeaders, withApiCredentials } from '@/core/api/auth';
+import { authHeaders, withApiCredentials } from '@/core/auth';
 import { fetchWithRetry } from '@/core/api/fetchWithRetry';
 import {
     broadcastHomeDataReset,

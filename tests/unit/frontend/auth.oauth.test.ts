@@ -7,7 +7,7 @@ jest.mock('@/core/config/config', () => ({
     }
 }));
 
-import { getSession, resolveSessionFromUrl, saveSession, stripSensitiveQueryParams, validateSession } from '@/core/api/auth';
+import { getSession, resolveSessionFromUrl, saveSession, stripSensitiveQueryParams, validateSession } from '@/core/auth';
 import { sessionFingerprint } from '@/core/session/localPrefs';
 
 describe('resolveSessionFromUrl', () => {

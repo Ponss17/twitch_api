@@ -1,5 +1,5 @@
 import { API_ENDPOINTS, type Session } from '@/core/config/config';
-import { authHeaders } from '@/core/api/auth';
+import { authHeaders } from '@/core/auth';
 import type { OverlayTool } from '@/features/overlay/lib/types';
 
 export function overlayAuthHeaders(session: Session | null): Record<string, string> {

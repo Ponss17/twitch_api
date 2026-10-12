@@ -8,7 +8,7 @@ import { logger } from '../../core/utils/logger';
 import { AuthenticatedRequest } from '../../types/twitch';
 import { jsonError } from '../../core/utils/jsonResponse';
 import { trackRequest } from '../../core/utils/tracking';
-import { withTwitchAuth } from '../../core/utils/twitchAuthHelpers';
+import { withTwitchAuth } from '../auth/twitchAuthHelpers';
 import { AppError } from '../../core/errors/AppError';
 
 export const getClips = async (req: AuthenticatedRequest, res: Response) => {

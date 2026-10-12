@@ -1,10 +1,10 @@
 import { Response } from 'express';
-import * as authService from '../auth/auth.service';
+import * as authService from './auth.service';
 import * as dbService from '../../core/database/dbService';
 import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
 import { jsonError } from '../../core/utils/jsonResponse';
-import { invalidateAllUserCaches } from '../../core/utils/cacheInvalidation';
+import { invalidateAllUserCaches } from '../../core/database/cacheInvalidation';
 import { invalidateAuthCache } from '../../core/middleware/authMiddleware';
 
 import { AuthenticatedRequest } from '../../types/twitch';

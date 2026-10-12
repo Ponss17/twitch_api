@@ -1,7 +1,7 @@
 import type { Session } from '@/core/config/config';
 import type { ActivityLogItem } from '../logs/activityLogDisplay';
 import type { RealtimeStatsUpdate } from '../data/dashboardStats';
-import type { ServerNotification } from '@/features/dashboard/reports/reportsApi';
+import type { ServerNotification } from '@/features/reports/reportsApi';
 
 export interface RawActivityLog {
     activity_type?: string;

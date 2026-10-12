@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { API_ENDPOINTS } from '@/core/config/config';
 import type { Session } from '@/core/config/config';
-import { withApiCredentials } from '@/core/api/auth';
+import { withApiCredentials } from '@/core/auth';
 import { fetchWithRetry } from '@/core/api/fetchWithRetry';
 import { writePanelSyncPref } from '@/features/dashboard/lib/data/dashboardSync';
 import type { Translations } from '@/core/i18n/locales/es';

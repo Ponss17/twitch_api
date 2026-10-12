@@ -1,4 +1,5 @@
-import { DangerConfirmModal, RegenKeyModal } from '@/shared/ui/modals/Modal';
+import { DangerConfirmModal } from '@/shared/ui/modals/Modal';
+import { RegenKeyModal } from '@/features/settings/components/RegenKeyModal';
 import {
     DiscordLinkConfirmModal,
     DiscordUnlinkConfirmModal,

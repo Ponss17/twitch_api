@@ -1,5 +1,5 @@
 import { API_ENDPOINTS } from '@/core/config/config';
-import { apiFetch } from '@/core/api/auth';
+import { apiFetch } from '@/core/auth';
 import { fetchDashboardSummary } from '@/features/dashboard/lib/data/dashboardSummary';
 import {
     EMPTY_DASHBOARD_LIVE_STATS,

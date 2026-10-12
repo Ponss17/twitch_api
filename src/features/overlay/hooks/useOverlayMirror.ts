@@ -6,7 +6,7 @@ import {
 } from '@/features/overlay/lib/credentials';
 import { overlayAuthHeaders, overlayStatePollUrl } from '@/features/overlay/lib/overlayApi';
 import { debugWarn } from '@/core/logging/debugLog';
-import { getSharedSupabaseClient } from '@/features/dashboard/lib/realtime/client';
+import { getSharedSupabaseClient } from '@/core/realtime/client';
 import type {
     OverlayStateForTool,
     OverlayTool,

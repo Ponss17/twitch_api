@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { ZodSchema } from 'zod';
 import { logger } from '../utils/logger';
 import { jsonError } from '../utils/jsonResponse';
-import { redactSensitiveUrl } from '../utils/redactSensitiveUrl';
+import { redactSensitiveUrl } from '../security/redactSensitiveUrl';
 
 export const validate =
     (schema: ZodSchema) => async (req: Request, res: Response, next: NextFunction) => {

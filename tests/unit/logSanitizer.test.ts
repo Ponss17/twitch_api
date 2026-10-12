@@ -1,4 +1,4 @@
-import { sanitizeLogValue } from '../../backend/src/core/utils/logSanitizer';
+import { sanitizeLogValue } from '../../backend/src/core/security/logSanitizer';
 
 describe('logSanitizer', () => {
     it('redacts nested headers, secrets and URL credentials', () => {

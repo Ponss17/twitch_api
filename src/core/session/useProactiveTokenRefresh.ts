@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { Session } from '@/core/config/config';
-import { clearValidateCache } from '@/core/api/auth';
+import { clearValidateCache } from '@/core/auth';
 
 /**
  * El token de Twitch dura ~4h. Disparamos validate ~40 min antes

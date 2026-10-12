@@ -2,7 +2,7 @@ import { kv } from './redisClient';
 import { StoredUser } from '../../types/twitch';
 import { CACHE_TTL_MATRIX, ownerScopedCacheKey } from '../config/cacheTtl';
 import { BoundedMap } from '../utils/boundedCache';
-import { apiKeyLookupHash } from '../utils/apiKeySecurity';
+import { apiKeyLookupHash } from '../security/apiKeySecurity';
 
 /** Metadatos cacheables sin tokens OAuth (resolver con getUser en apiKeyValidator). */
 export type CachedApiUserMeta = Pick<

@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { decrypt, encrypt, isCbcFormat, isGcmFormat } from '../database/cryptoService';
+import { decrypt, encrypt, isCbcFormat, isGcmFormat } from './cryptoService';
 import { getHmacSecrets, getPrimaryHmacSecret } from './hmacSecrets';
 
 export function normalizeApiKey(apiKey: string): string {

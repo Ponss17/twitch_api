@@ -1,9 +1,9 @@
-jest.mock('@/core/api/auth', () => ({
+jest.mock('@/core/auth', () => ({
     clearValidateCache: jest.fn()
 }));
 
 import { act, renderHook } from '@testing-library/react';
-import { clearValidateCache } from '@/core/api/auth';
+import { clearValidateCache } from '@/core/auth';
 import { useProactiveTokenRefresh } from '@/core/session/useProactiveTokenRefresh';
 
 const MINUTE = 60_000;

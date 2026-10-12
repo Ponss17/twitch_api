@@ -13,7 +13,7 @@ import {
     takeLegacyReloginRedirect,
     isIntentionalLogout,
     consumeIntentionalLogout
-} from '@/core/api/auth';
+} from '@/core/auth';
 import { isWithinSessionAuthGrace } from '@/core/auth/sessionAuthGrace';
 import type { Session } from '@/core/config/config';
 import { appPath } from '@/core/config/paths';

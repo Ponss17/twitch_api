@@ -82,7 +82,7 @@ jest.mock('@/core/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() }
 }));
 
-jest.mock('../../backend/src/core/utils/cacheInvalidation', () => ({
+jest.mock('../../backend/src/core/database/cacheInvalidation', () => ({
     invalidateAllUserCaches: jest.fn().mockResolvedValue(undefined)
 }));
 

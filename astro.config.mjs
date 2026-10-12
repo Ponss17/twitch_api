@@ -197,12 +197,12 @@ export default defineConfig({
                 }
             },
             components: {
-                Head: './src/components/StarlightHead.astro',
-                Header: './src/components/StarlightHeader.astro',
-                SiteTitle: './src/components/StarlightSiteTitle.astro',
-                ThemeSelect: './src/components/StarlightThemeSelect.astro',
-                ThemeProvider: './src/components/StarlightThemeProvider.astro',
-                Sidebar: './src/components/StarlightSidebar.astro',
+                Head: './src/components/starlight/StarlightHead.astro',
+                Header: './src/components/starlight/StarlightHeader.astro',
+                SiteTitle: './src/components/starlight/StarlightSiteTitle.astro',
+                ThemeSelect: './src/components/starlight/StarlightThemeSelect.astro',
+                ThemeProvider: './src/components/starlight/StarlightThemeProvider.astro',
+                Sidebar: './src/components/starlight/StarlightSidebar.astro',
             },
             customCss: [
                 './src/styles/starlight-theme.css',

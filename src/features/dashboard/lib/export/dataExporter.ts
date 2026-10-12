@@ -1,6 +1,6 @@
 import { API_ENDPOINTS, STATUS_PAGE_URL } from '@/core/config/config';
 import type { Session } from '@/core/config/config';
-import { withApiCredentials, fetchRevealApiKey } from '@/core/api/auth';
+import { withApiCredentials, fetchRevealApiKey } from '@/core/auth';
 import { absoluteAssetUrl, appPath, legalPath } from '@/core/config/paths';
 import { buildReportHtml } from './exporterTemplate';
 import type { Translations } from '@/core/i18n/locales/es';

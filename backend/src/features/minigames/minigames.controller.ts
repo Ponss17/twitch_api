@@ -10,7 +10,7 @@ import * as authService from '../auth/auth.service';
 import { MESSAGES } from '../../core/config/messages';
 import { AuthenticatedRequest } from '../../types/twitch';
 import { ANONYMOUS_USER_ID } from '../../types/constants';
-import { withTwitchAuth } from '../../core/utils/twitchAuthHelpers';
+import { withTwitchAuth } from '../auth/twitchAuthHelpers';
 import { trackRequest } from '../../core/utils/tracking';
 
 /**

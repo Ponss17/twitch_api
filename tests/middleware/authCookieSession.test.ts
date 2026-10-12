@@ -52,7 +52,7 @@ jest.mock('@/core/utils/routeHelpers', () => ({
 }));
 
 import checkToken from '../../backend/src/core/middleware/authMiddleware';
-import { createSessionCookieValue, SESSION_COOKIE_NAME } from '../../backend/src/core/utils/sessionCookie';
+import { createSessionCookieValue, SESSION_COOKIE_NAME } from '../../backend/src/core/session/sessionCookie';
 import { mockRes, mockReq } from '../helpers/mockExpress';
 
 describe('authMiddleware — cookie session', () => {

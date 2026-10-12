@@ -2,7 +2,7 @@ import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { modalBtnPrimary, modalBtnSecondary } from '@/core/utils/tw';
 import { useTranslation } from '@/core/i18n/I18nContext';
-import { Modal, ModalCloseButton, useModalClose } from './ModalShell';
+import { Modal, ModalCloseButton, useModalClose } from '../../../shared/ui/modals/ModalShell';
 
 interface RegenKeyModalProps {
     open: boolean;

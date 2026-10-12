@@ -24,7 +24,7 @@ import {
     Server,
     LayoutGrid
 } from 'lucide-react';
-import { DUEL_ICON } from '@/features/minigames/icons';
+import { DUEL_ICON } from '@/features/minigames/lib/icons';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import type { Translations } from '@/core/i18n/locales/es';
 import type { LucideIcon } from 'lucide-react';

@@ -1,7 +1,7 @@
 import { CommandGenerator } from './commandGenerator';
 import { UserRoundCheck, Clock, Video, Megaphone, Theater, Flame } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { MAGIC8_ICON, RUSSIAN_ICON, SLOTS_ICON, DUEL_ICON } from '@/features/minigames/icons';
+import { MAGIC8_ICON, RUSSIAN_ICON, SLOTS_ICON, DUEL_ICON } from '@/features/minigames/lib/icons';
 
 export interface ExtraSelector {
     id: string;

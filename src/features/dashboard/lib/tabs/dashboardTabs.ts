@@ -15,7 +15,7 @@ import {
     FileBarChart,
     Gift
 } from 'lucide-react';
-import { MAGIC8_ICON, RUSSIAN_ICON, SLOTS_ICON, DUEL_ICON } from '@/features/minigames/icons';
+import { MAGIC8_ICON, RUSSIAN_ICON, SLOTS_ICON, DUEL_ICON } from '@/features/minigames/lib/icons';
 
 export interface NavItem {
     id: DashboardTab;

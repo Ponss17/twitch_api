@@ -32,8 +32,8 @@ jest.mock('@/core/utils/logger', () => ({
 }));
 
 import * as userService from '../../backend/src/core/database/userService';
-import { encrypt } from '../../backend/src/core/database/cryptoService';
-import { apiKeyLookupHash } from '../../backend/src/core/utils/apiKeySecurity';
+import { encrypt } from '../../backend/src/core/security/cryptoService';
+import { apiKeyLookupHash } from '../../backend/src/core/security/apiKeySecurity';
 
 describe('userService', () => {
     beforeEach(() => {

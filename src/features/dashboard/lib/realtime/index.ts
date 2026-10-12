@@ -1,13 +1,13 @@
 import type { Session } from '@/core/config/config';
 import type { ActivityLogItem } from '../logs/activityLogDisplay';
 import type { RealtimeStatsUpdate } from '../data/dashboardStats';
-import type { ServerNotification } from '@/features/dashboard/reports/reportsApi';
+import type { ServerNotification } from '@/features/reports/reportsApi';
 import { RealtimeService } from './RealtimeService';
 import type { RealtimeCallbacks, RealtimeSubscribeOptions, SubscriberEntry } from './types';
-import { isRealtimeInCooldown, markRealtimeCooldown } from './cooldown';
-import { waitForStablePage, isPageUnloading } from './errors';
+import { isRealtimeInCooldown, markRealtimeCooldown } from '../../../../core/realtime/cooldown';
+import { waitForStablePage, isPageUnloading } from '../../../../core/realtime/errors';
 
-export { isRealtimeInCooldown } from './cooldown';
+export { isRealtimeInCooldown } from '../../../../core/realtime/cooldown';
 export type { RealtimeCallbacks } from './types';
 export { RealtimeService }; // For any other imports
 

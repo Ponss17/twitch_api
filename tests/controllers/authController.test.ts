@@ -11,13 +11,13 @@ jest.mock('../../backend/src/features/auth/auth.service', () => ({
     consumeAuthExchangeToken: jest.fn().mockResolvedValue('ok')
 }));
 
-jest.mock('../../backend/src/core/utils/oauthStateCookie', () => ({
+jest.mock('../../backend/src/core/session/oauthStateCookie', () => ({
     setOAuthStateCookie: jest.fn(),
     clearOAuthStateCookie: jest.fn(),
     readOAuthStateCookie: jest.fn().mockReturnValue('signed-browser-state')
 }));
 
-jest.mock('../../backend/src/core/utils/sessionState', () => ({
+jest.mock('../../backend/src/core/session/sessionState', () => ({
     establishSession: jest.fn().mockResolvedValue(undefined),
     revokeSessions: jest.fn().mockResolvedValue(undefined)
 }));
@@ -47,7 +47,7 @@ import { login, callback, exchange, logout } from '../../backend/src/features/au
 import {
     readOAuthStateCookie,
     setOAuthStateCookie
-} from '../../backend/src/core/utils/oauthStateCookie';
+} from '../../backend/src/core/session/oauthStateCookie';
 
 const mockReq = (overrides = {}) =>
     ({

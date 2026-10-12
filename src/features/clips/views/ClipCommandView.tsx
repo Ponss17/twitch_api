@@ -1,5 +1,5 @@
 import { COMMAND_CONFIG } from '@/features/commands/lib/config';
-import { CommandGeneratorCard } from '@/features/commands/CommandGeneratorCard';
+import { CommandGeneratorCard } from '@/features/commands/components/CommandGeneratorCard';
 import { fadeIn } from '@/core/utils/tw';
 
 export function ClipCommandView() {

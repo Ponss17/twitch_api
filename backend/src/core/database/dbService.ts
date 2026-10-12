@@ -7,7 +7,7 @@
  * partes del sistema que importan directamente de `dbService.ts`.
  */
 
-export * from './cryptoService';
+export * from '../security/cryptoService';
 export * from './auditService';
 export * from './activityService';
 export * from './statsService';

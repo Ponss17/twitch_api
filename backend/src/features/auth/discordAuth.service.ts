@@ -3,7 +3,7 @@ import { CONFIG } from '../../core/config/env';
 import * as dbService from '../../core/database/dbService';
 import { logger } from '../../core/utils/logger';
 import { verifyState } from './auth.service';
-import { getPrimaryHmacSecret } from '../../core/utils/hmacSecrets';
+import { getPrimaryHmacSecret } from '../../core/security/hmacSecrets';
 import crypto from 'crypto';
 
 const DISCORD_AUTHORIZE = 'https://discord.com/api/oauth2/authorize';

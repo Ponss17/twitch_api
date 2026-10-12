@@ -3,7 +3,7 @@ import { Loader2 } from 'lucide-react';
 import { useSession } from '@/core/session/useSession';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { API_ENDPOINTS } from '@/core/config/config';
-import { authHeaders, withApiCredentials } from '@/core/api/auth';
+import { authHeaders, withApiCredentials } from '@/core/auth';
 import { inputLabel, modalBtnPrimary, modalBtnSecondary, textInput } from '@/core/utils/tw';
 import { Modal, ModalCloseButton } from '@/shared/ui/modals/Modal';
 import { SelectField } from '@/shared/ui/SelectField';

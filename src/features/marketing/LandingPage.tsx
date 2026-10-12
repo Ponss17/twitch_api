@@ -12,7 +12,7 @@ import { LandingFaq } from './sections/LandingFaq';
 import { LandingResources } from './sections/LandingResources';
 
 const LoginDisclaimerModal = lazy(() =>
-    import('@/shared/ui/modals/LoginDisclaimerModal').then((m) => ({ default: m.LoginDisclaimerModal }))
+    import('@/features/marketing/components/LoginDisclaimerModal').then((m) => ({ default: m.LoginDisclaimerModal }))
 );
 const VerifyingSessionModal = lazy(() =>
     import('@/shared/ui/modals/VerifyingSessionModal').then((m) => ({ default: m.VerifyingSessionModal }))
@@ -38,7 +38,7 @@ function LandingPageInner() {
     useEffect(() => {
         syncSessionHint(!!getSession());
 
-        void import('@/core/api/auth').then(
+        void import('@/core/auth').then(
             ({
                 clearDashboardSplashFlags,
                 runLegacyPanelSessionMigration,

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { RefreshCw, WifiOff, X } from 'lucide-react';
 import { useTranslation } from '@/core/i18n/I18nContext';
-import { useApiHealth } from '@/features/dashboard/lib/health/useApiHealth';
+import { useApiHealth } from '@/features/dashboard/hooks/useApiHealth';
 
 export function ApiHealthBanner() {
     const { t } = useTranslation();

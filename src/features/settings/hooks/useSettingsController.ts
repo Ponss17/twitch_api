@@ -6,7 +6,7 @@ import {
     fetchRevealApiKey,
     clearRevealedApiKeyCache,
     cacheRevealedApiKey
-} from '@/core/api/auth';
+} from '@/core/auth';
 import { fetchWithRetry } from '@/core/api/fetchWithRetry';
 import { writePanelSyncPref } from '@/features/dashboard/lib/data/dashboardSync';
 import { extractApiErrorMessage } from '@/core/api/apiError';

@@ -1,6 +1,6 @@
 import { Response } from 'express';
 
-jest.mock('../../backend/src/core/utils/sessionState', () => ({
+jest.mock('../../backend/src/core/session/sessionState', () => ({
     establishSession: jest.fn().mockResolvedValue(undefined)
 }));
 import axios from 'axios';
@@ -55,13 +55,13 @@ jest.mock('@/core/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() }
 }));
 
-jest.mock('../../backend/src/core/utils/cacheInvalidation', () => ({
+jest.mock('../../backend/src/core/database/cacheInvalidation', () => ({
     invalidateAllUserCaches: jest.fn().mockResolvedValue(undefined)
 }));
 
 import * as dbService from '../../backend/src/core/database/dbService';
 import * as authService from '../../backend/src/features/auth/auth.service';
-import { invalidateAllUserCaches } from '../../backend/src/core/utils/cacheInvalidation';
+import { invalidateAllUserCaches } from '../../backend/src/core/database/cacheInvalidation';
 import * as apiService from '../../backend/src/features/twitch/twitch.service';
 import { kv } from '../../backend/src/core/database/redisClient';
 import {

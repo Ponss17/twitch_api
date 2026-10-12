@@ -1,6 +1,6 @@
 import { API_ENDPOINTS } from '@/core/config/config';
 import type { Session } from '@/core/config/config';
-import { apiFetch } from '@/core/api/auth';
+import { apiFetch } from '@/core/auth';
 
 export interface MonthlyReportSummary {
     yearMonth: string;

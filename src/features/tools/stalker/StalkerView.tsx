@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Play, Pause, Users, Radio, Search, RotateCw, User, Eye } from 'lucide-react';
 import { API_ENDPOINTS, IGNORED_BOTS } from '@/core/config/config';
-import { authHeaders, apiFetch, withApiCredentials } from '@/core/api/auth';
+import { authHeaders, apiFetch, withApiCredentials } from '@/core/auth';
 import { useRequiredSession } from '@/core/session/useSession';
 import { useTmiChat } from '@/features/chat/hooks/useTmiChat';
 import { cache, CACHE_TTL } from '@/core/cache/cacheService';

@@ -6,7 +6,7 @@ import { logger } from '../../core/utils/logger';
 import { ALLOWED_ORIGINS } from '../../core/config/origins';
 import { frontendPagePath } from '../../core/utils/frontendPaths';
 import { jsonError } from '../../core/utils/jsonResponse';
-import { clearSessionCookie, readSessionUserId } from '../../core/utils/sessionCookie';
+import { clearSessionCookie, readSessionUserId } from '../../core/session/sessionCookie';
 import { AuthenticatedRequest } from '../../types/twitch';
 import * as discordAuthService from './discordAuth.service';
 import { notifyPanelSession } from '../../core/database/userDiscordService';
@@ -15,9 +15,9 @@ import {
     clearOAuthStateCookie,
     readOAuthStateCookie,
     setOAuthStateCookie
-} from '../../core/utils/oauthStateCookie';
-import { establishSession, revokeSessions } from '../../core/utils/sessionState';
-import { invalidateUserPlanCaches } from '../../core/utils/cacheInvalidation';
+} from '../../core/session/oauthStateCookie';
+import { establishSession, revokeSessions } from '../../core/session/sessionState';
+import { invalidateUserPlanCaches } from '../../core/database/cacheInvalidation';
 import crypto from 'crypto';
 
 const getValidOrigin = (origin: string, req: Request): string | null => {

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { Session } from '@/core/config/config';
 import type { RealtimeStatsUpdate } from '@/features/dashboard/lib/data/dashboardStats';
 import type { ActivityLogItem } from '@/features/dashboard/lib/logs/activityLogDisplay';
-import type { ServerNotification } from '@/features/dashboard/reports/reportsApi';
+import type { ServerNotification } from '@/features/reports/reportsApi';
 
 const loadRealtimeModule = () => import('@/features/dashboard/lib/realtime');
 

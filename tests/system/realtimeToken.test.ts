@@ -16,7 +16,7 @@ jest.mock('jsonwebtoken', () => ({
     sign: jest.fn().mockReturnValue('mock.jwt.token')
 }));
 
-jest.mock('../../backend/src/core/utils/cacheInvalidation', () => ({
+jest.mock('../../backend/src/core/database/cacheInvalidation', () => ({
     invalidateAllUserCaches: jest.fn().mockResolvedValue(undefined)
 }));
 

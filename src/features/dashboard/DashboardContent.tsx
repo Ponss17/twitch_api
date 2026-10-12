@@ -23,7 +23,7 @@ const AnalyticsView = lazy(() =>
     import('@/features/analytics/AnalyticsView').then((m) => ({ default: m.AnalyticsView }))
 );
 const ReportsView = lazy(() =>
-    import('@/features/dashboard/reports/ReportsView').then((m) => ({ default: m.ReportsView }))
+    import('@/features/reports/ReportsView').then((m) => ({ default: m.ReportsView }))
 );
 const SettingsView = lazy(() =>
     import('@/features/settings/SettingsView').then((m) => ({ default: m.SettingsView }))

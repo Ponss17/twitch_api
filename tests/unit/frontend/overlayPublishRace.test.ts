@@ -1,4 +1,4 @@
-jest.mock('@/core/api/auth', () => ({
+jest.mock('@/core/auth', () => ({
     authHeaders: () => ({}),
     withApiCredentials: (init: RequestInit) => init
 }));

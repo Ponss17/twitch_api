@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import * as authService from '../auth/auth.service';
+import * as authService from './auth.service';
 import * as dbService from '../../core/database/dbService';
 import * as apiService from '../twitch/twitch.service';
 import { MESSAGES } from '../../core/config/messages';
@@ -8,7 +8,7 @@ import { jsonError } from '../../core/utils/jsonResponse';
 import { isAuthenticationError } from '../../core/errors/AppError';
 
 import { AuthenticatedRequest } from '../../types/twitch';
-import { resolveTwitchScopes } from '../auth/twitchScopes.service';
+import { resolveTwitchScopes } from './twitchScopes.service';
 
 /** Respuesta de validate al panel: sin secretos; renovación usa tokenExpiresAt + cookie. */
 function panelValidatePayload(params: {

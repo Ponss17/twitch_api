@@ -1,7 +1,7 @@
-import * as cacheService from '../database/cacheService';
-import { invalidateUserMemoryCache } from '../database/userService';
-import { invalidateStatsCache } from '../database/statsService';
-import { logger } from './logger';
+import * as cacheService from './cacheService';
+import { invalidateUserMemoryCache } from './userService';
+import { invalidateStatsCache } from './statsService';
+import { logger } from '../utils/logger';
 import { OVERLAY_TOOLS, overlayStateKey, overlayRevokeKey } from '../overlay/keys';
 import { broadcastOverlayReset } from '../overlay/overlayRealtime';
 import { invalidateUserInfoCache } from '../../features/twitch/twitchUserService';

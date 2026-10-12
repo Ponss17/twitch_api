@@ -6,14 +6,14 @@ jest.mock('@/features/dashboard/lib/data/dashboardSummary', () => ({
     fetchDashboardSummary: jest.fn()
 }));
 
-jest.mock('@/core/api/auth', () => ({
+jest.mock('@/core/auth', () => ({
     apiFetch: jest.fn()
 }));
 
 import { EMPTY_DASHBOARD_LIVE_STATS } from '@/features/dashboard/lib/data/dashboardStats';
 import { loadDashboardPanelData } from '@/features/dashboard/lib/data/loadDashboardPanelData';
 import { fetchDashboardSummary } from '@/features/dashboard/lib/data/dashboardSummary';
-import { apiFetch } from '@/core/api/auth';
+import { apiFetch } from '@/core/auth';
 
 const session = { userId: 'u1', login: 'tester', token: 'tok' };
 

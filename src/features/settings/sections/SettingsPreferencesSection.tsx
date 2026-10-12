@@ -3,7 +3,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { btnSecondary } from '@/core/utils/tw';
 import { Dropdown, DropdownTrigger, DropdownPanel, DropdownItem } from '@/shared/ui/dropdown/Dropdown';
 import { API_ENDPOINTS } from '@/core/config/config';
-import { authHeaders, withApiCredentials } from '@/core/api/auth';
+import { authHeaders, withApiCredentials } from '@/core/auth';
 import { fetchWithRetry } from '@/core/api/fetchWithRetry';
 import { useRequiredSession } from '@/core/session/useSession';
 import { useToast } from '@/shared/ui/toast/ToastProvider';

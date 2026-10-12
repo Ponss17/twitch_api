@@ -6,8 +6,8 @@ import {
     ENCRYPTION_KEY,
     LEGACY_ENCRYPTION_KEY,
     isCbcFormat
-} from './cryptoService';
-import { invalidateAllUserCaches } from '../utils/cacheInvalidation';
+} from '../security/cryptoService';
+import { invalidateAllUserCaches } from './cacheInvalidation';
 import * as cacheService from './cacheService';
 import { CACHE_TTL_MATRIX } from '../config/cacheTtl';
 import { logger } from '../utils/logger';
@@ -18,7 +18,7 @@ import {
     decryptStoredApiKey,
     encryptApiKey,
     normalizeApiKey
-} from '../utils/apiKeySecurity';
+} from '../security/apiKeySecurity';
 import {
     fromRow,
     resolveTokenExpiresAtIso,

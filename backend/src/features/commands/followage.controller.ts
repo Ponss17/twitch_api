@@ -7,7 +7,7 @@ import { ownerScopedCacheKey, resolveCache } from '../../core/config/cacheTtl';
 import { logger } from '../../core/utils/logger';
 import { AuthenticatedRequest } from '../../types/twitch';
 import { safeString, sanitizeHtml } from '../../core/utils/validationHelpers';
-import { withTwitchAuth } from '../../core/utils/twitchAuthHelpers';
+import { withTwitchAuth } from '../auth/twitchAuthHelpers';
 import { trackRequest } from '../../core/utils/tracking';
 import { normalizeLanguage, getTimePhraseBetween } from '../../core/utils/time';
 import { getFollowageTexts } from '../twitch/twitchUserService';

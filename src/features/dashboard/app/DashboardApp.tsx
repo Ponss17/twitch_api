@@ -9,7 +9,7 @@ import { VerifyingSessionModal } from '@/shared/ui/modals/VerifyingSessionModal'
 import { SessionProvider } from '@/shared/providers/SessionProvider';
 import { useSession, useRequiredSession } from '@/core/session/useSession';
 import { DashboardSessionSkeleton } from '@/shared/ui/Skeleton';
-import { logout, shouldShowDashboardSplash, clearDashboardSplashFlags } from '@/core/api/auth';
+import { logout, shouldShowDashboardSplash, clearDashboardSplashFlags } from '@/core/auth';
 import { bindCommandStoreUser } from '@/features/commands/lib/commandStore';
 import { DASHBOARD_DATA_READY_EVENT, DASHBOARD_NAVIGATE_EVENT, type DashboardNavigateDetail } from '@/features/dashboard/lib/tabs/dashboardPanelEvents';
 import { initGlobalErrorLogging } from '@/core/logging/logError';

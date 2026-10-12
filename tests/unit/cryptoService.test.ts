@@ -13,7 +13,7 @@ import {
     ENCRYPTION_KEY,
     LEGACY_ENCRYPTION_KEY,
     isCbcFormat
-} from '../../backend/src/core/database/cryptoService';
+} from '../../backend/src/core/security/cryptoService';
 
 describe('cryptoService', () => {
     it('encrypts and decrypts with AES-256-GCM format', () => {

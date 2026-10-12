@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type TransitionEvent } from 'react';
 import { API_ENDPOINTS, type Session } from '@/core/config/config';
-import { authHeaders, withApiCredentials } from '@/core/api/auth';
+import { authHeaders, withApiCredentials } from '@/core/auth';
 import { tmiService } from '@/features/chat/lib/tmiService';
 import type { RouletteUser } from '@/core/types/twitch';
 import { hasAnyFilter } from '@/features/tools/lib/eligibility';

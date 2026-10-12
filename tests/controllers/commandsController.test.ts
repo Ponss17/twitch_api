@@ -21,7 +21,7 @@ jest.mock('@/core/database/cacheService', () => ({
     setCachedUserId: jest.fn()
 }));
 
-jest.mock('@/core/utils/twitchAuthHelpers', () => ({
+jest.mock('@/features/auth/twitchAuthHelpers', () => ({
     withTwitchAuth: jest.fn((_req, _res, action, _ctx) => action('mock_token'))
 }));
 

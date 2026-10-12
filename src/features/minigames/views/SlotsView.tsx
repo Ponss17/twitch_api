@@ -1,15 +1,15 @@
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { API_ENDPOINTS } from '@/core/config/config';
-import { authHeaders, withApiCredentials } from '@/core/api/auth';
+import { authHeaders, withApiCredentials } from '@/core/auth';
 import { fetchWithRetry } from '@/core/api/fetchWithRetry';
 import { useRequiredSession } from '@/core/session/useSession';
 import { COMMAND_CONFIG } from '@/features/commands/lib/config';
 import { fadeIn } from '@/core/utils/tw';
-import { CommandGeneratorCard } from '@/features/commands/CommandGeneratorCard';
-import { SLOTS_ICON } from '@/features/minigames/icons';
+import { CommandGeneratorCard } from '@/features/commands/components/CommandGeneratorCard';
+import { SLOTS_ICON } from '@/features/minigames/lib/icons';
 import { useTranslation } from '@/core/i18n/I18nContext';
-import { MinigameCard } from '../MinigameCard';
+import { MinigameCard } from '../components/MinigameCard';
 import {
     createMinigameParams,
     GameResponse,

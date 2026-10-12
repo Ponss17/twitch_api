@@ -1,4 +1,4 @@
-import { redactSensitiveUrl } from '../../backend/src/core/utils/redactSensitiveUrl';
+import { redactSensitiveUrl } from '../../backend/src/core/security/redactSensitiveUrl';
 
 describe('redactSensitiveUrl', () => {
     it('redacts apiKey, auth, overlayToken and code', () => {

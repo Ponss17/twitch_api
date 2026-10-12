@@ -5,7 +5,7 @@ import { apiKeyValidator } from '../middleware/apiKeyValidator';
 import checkToken from '../middleware/authMiddleware';
 import { isApiRoute, isJsonApiRoute } from '../utils/routeHelpers';
 import authRoutes from '../../features/auth/auth.routes';
-import apiRouter from '../../routes/index';
+import apiRouter from './apiRouter';
 import { getRobotsTxt, getSitemapXml } from '../../features/system/seo.controller';
 import { getPublicUsers } from '../../features/system/systemPublicUsers.controller';
 import { errorHandler } from '../middleware/errorMiddleware';
@@ -22,7 +22,7 @@ import { rejectApiKeyOnPanelRoutes } from '../middleware/apiKeyScope';
  * - Auth: `/api/auth/*` (preferido) y `/auth/*` (legacy / consola Twitch) → features/auth
  * - Health: `/health` y `/api/health`
  * - SEO: `/robots.txt` + `/sitemap.xml` (+ `/api/...`) → features/system/seo.controller
- * - Features API: `routes/index.ts` → minigames, dashboard, tools, overlay, system, alerts, commands, EventSub
+ * - Features API: `apiRouter.ts` → minigames, dashboard, tools, overlay, system, alerts, commands, EventSub
  */
 export const configureRoutes = (app: Application) => {
     app.use(stripTwitchPrefix);

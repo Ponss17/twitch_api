@@ -4,7 +4,7 @@ import { waitUntil } from '@vercel/functions';
 import { addSystemLog } from '../database/systemLogService';
 import { randomUUID } from 'crypto';
 import { AsyncLocalStorage } from 'async_hooks';
-import { sanitizeLogValue } from './logSanitizer';
+import { sanitizeLogValue } from '../security/logSanitizer';
 
 const { combine, timestamp, printf, colorize, errors, json } = winston.format;
 

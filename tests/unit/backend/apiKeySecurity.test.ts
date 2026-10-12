@@ -9,7 +9,7 @@ describe('apiKeySecurity', () => {
 
     it('normalizes compact 32-hex keys to UUID form', async () => {
         const { normalizeApiKey } = await import(
-            '../../../backend/src/core/utils/apiKeySecurity'
+            '../../../backend/src/core/security/apiKeySecurity'
         );
         expect(normalizeApiKey('AAAAAAAAAAAA4AAA8AAAAAAAAAAAAAAA')).toBe(
             'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'
@@ -20,9 +20,9 @@ describe('apiKeySecurity', () => {
         process.env.PREVIOUS_HMAC_SIGNING_SECRET = 'b'.repeat(64);
         jest.resetModules();
         const { apiKeyLookupHash, apiKeyLookupHashes } = await import(
-            '../../../backend/src/core/utils/apiKeySecurity'
+            '../../../backend/src/core/security/apiKeySecurity'
         );
-        const { getHmacSecrets } = await import('../../../backend/src/core/utils/hmacSecrets');
+        const { getHmacSecrets } = await import('../../../backend/src/core/security/hmacSecrets');
 
         const key = '44444444-4444-4444-8444-444444444444';
         const hashes = apiKeyLookupHashes(key);
@@ -37,7 +37,7 @@ describe('apiKeySecurity', () => {
 
     it('marks plaintext stored keys as legacy', async () => {
         const { decryptStoredApiKey, encryptApiKey } = await import(
-            '../../../backend/src/core/utils/apiKeySecurity'
+            '../../../backend/src/core/security/apiKeySecurity'
         );
         const raw = '55555555-5555-4555-8555-555555555555';
         expect(decryptStoredApiKey(raw).legacy).toBe(true);

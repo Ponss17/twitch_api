@@ -16,7 +16,7 @@ import { BoundedMap, NegativeCache } from '../utils/boundedCache';
 import { isBotCommand, isApiRoute } from '../utils/routeHelpers';
 import { blockIfUnauthorizedScanExceeded } from './redisRateLimiter';
 import { isAuthenticationError } from '../errors/AppError';
-import { apiKeyLookupHash } from '../utils/apiKeySecurity';
+import { apiKeyLookupHash } from '../security/apiKeySecurity';
 
 interface CachedApiKey {
     user: StoredUser;

@@ -1,5 +1,5 @@
 import { API_ENDPOINTS, type Session } from '@/core/config/config';
-import { authHeaders, withApiCredentials } from '@/core/api/auth';
+import { authHeaders, withApiCredentials } from '@/core/auth';
 import { debugWarn } from '@/core/logging/debugLog';
 import type { OverlayTool, AnyOverlayState } from '@/features/overlay/lib/types';
 import { overlayStateFingerprint } from '@/features/overlay/lib/overlayStateUtils';

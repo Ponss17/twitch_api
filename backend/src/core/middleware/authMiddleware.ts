@@ -10,8 +10,8 @@ import { isPublicRoute, isApiRoute, isJsonApiRoute, isOAuthCallbackRoute } from 
 import { safeString } from '../utils/validationHelpers';
 import { BoundedMap, NegativeCache } from '../utils/boundedCache';
 import { jsonError } from '../utils/jsonResponse';
-import { readSessionClaims, clearSessionCookie } from '../utils/sessionCookie';
-import { validateSessionState } from '../utils/sessionState';
+import { readSessionClaims, clearSessionCookie } from '../session/sessionCookie';
+import { validateSessionState } from '../session/sessionState';
 import { getValidTokenForUser, usableAccessToken } from '../../features/auth/auth.service';
 import {
     type CookieResolveResult,

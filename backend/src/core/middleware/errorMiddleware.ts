@@ -4,7 +4,7 @@ import { logger, clearRequestId, getRequestId, asyncContext } from '../utils/log
 import { isBotCommand, isApiRoute, isJsonApiRoute } from '../utils/routeHelpers';
 import { frontendPagePath, rateLimitPagePath } from '../utils/frontendPaths';
 import { jsonError } from '../utils/jsonResponse';
-import { redactSensitiveUrl } from '../utils/redactSensitiveUrl';
+import { redactSensitiveUrl } from '../security/redactSensitiveUrl';
 
 function acceptedRequestId(value: string | undefined): string | undefined {
     return value && value.length <= 128 && /^[A-Za-z0-9._:-]+$/.test(value) ? value : undefined;

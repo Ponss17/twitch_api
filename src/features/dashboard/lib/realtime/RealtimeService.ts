@@ -1,6 +1,6 @@
 import type { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js';
 import { API_ENDPOINTS, type Session } from '@/core/config/config';
-import { authHeaders, withApiCredentials } from '@/core/api/auth';
+import { authHeaders, withApiCredentials } from '@/core/auth';
 import { logError } from '@/core/logging/logError';
 import { debugWarn } from '@/core/logging/debugLog';
 
@@ -12,12 +12,12 @@ import {
     type DailyStatsRealtimePatch,
     type RealtimeStatsUpdate
 } from '../data/dashboardStats';
-import type { ServerNotification } from '@/features/dashboard/reports/reportsApi';
+import type { ServerNotification } from '@/features/reports/reportsApi';
 
 import type { RawActivityLog } from './types';
-import { isTransportFailure, isBenignRealtimeClose, installUnloadGuard } from './errors';
-import { isRealtimeInCooldown } from './cooldown';
-import { getSharedSupabaseClient } from './client';
+import { isTransportFailure, isBenignRealtimeClose, installUnloadGuard } from '../../../../core/realtime/errors';
+import { isRealtimeInCooldown } from '../../../../core/realtime/cooldown';
+import { getSharedSupabaseClient } from '../../../../core/realtime/client';
 import { formatActivityLog } from './formatters';
 
 type ReconnectReason = 'benign' | 'error' | 'failed';

@@ -4,7 +4,7 @@ import {
     setSessionCookie,
     clearSessionCookie,
     SESSION_COOKIE_NAME
-} from '../../../backend/src/core/utils/sessionCookie';
+} from '../../../backend/src/core/session/sessionCookie';
 
 describe('sessionCookie', () => {
     it('creates and verifies a signed session cookie', () => {

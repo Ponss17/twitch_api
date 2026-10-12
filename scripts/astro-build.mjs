@@ -28,7 +28,8 @@ const astroBin = path.join(root, 'node_modules', '.bin', process.platform === 'w
 const result = spawnSync(astroBin, ['build'], {
     stdio: 'inherit',
     env,
-    shell: false
+    // Node ≥18.20 rechaza lanzar .cmd sin shell en Windows (EINVAL).
+    shell: process.platform === 'win32'
 });
 
 process.exit(result.status ?? 1);

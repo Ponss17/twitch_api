@@ -12,7 +12,7 @@ import {
 import { SelectFieldRow } from '@/shared/ui/SelectField';
 import { API_ENDPOINTS } from '@/core/config/config';
 import { buildAuthQueryParam, buildAuthQueryParamForDisplay } from '@/core/api/authQuery';
-import { fetchRevealApiKey } from '@/core/api/auth';
+import { fetchRevealApiKey } from '@/core/auth';
 import { BOT_OPTIONS } from '@/features/commands/lib/commandGenerator';
 import type { CommandConfigItem } from '@/features/commands/lib/config';
 import { useRequiredSession } from '@/core/session/useSession';

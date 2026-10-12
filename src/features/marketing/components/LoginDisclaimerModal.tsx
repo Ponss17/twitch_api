@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { startTwitchLogin } from '@/core/api/auth';
+import { startTwitchLogin } from '@/core/auth';
 import { legalPath } from '@/core/config/paths';
 import { modalBtnSecondary, modalBtnPrimary } from '@/core/utils/tw';
 import { Modal, ModalCloseButton } from '@/shared/ui/modals/Modal';

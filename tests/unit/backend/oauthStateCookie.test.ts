@@ -3,7 +3,7 @@ import {
     readOAuthStateCookie,
     clearOAuthStateCookie,
     OAUTH_STATE_COOKIE_NAME
-} from '../../../backend/src/core/utils/oauthStateCookie';
+} from '../../../backend/src/core/session/oauthStateCookie';
 
 describe('oauthStateCookie', () => {
     it('stores encrypted state and reads it back', () => {

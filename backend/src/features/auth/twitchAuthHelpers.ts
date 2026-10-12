@@ -1,9 +1,9 @@
-import { safeString } from './validationHelpers';
+import { safeString } from '../../core/utils/validationHelpers';
 import { Request, Response } from 'express';
 import axios from 'axios';
-import { logger } from '../utils/logger';
-import * as authService from '../../features/auth/auth.service';
-import { AppError } from '../errors/AppError';
+import { logger } from '../../core/utils/logger';
+import * as authService from './auth.service';
+import { AppError } from '../../core/errors/AppError';
 import type { AuthenticatedRequest } from '../../types/twitch';
 
 /** Serializa un error Axios de forma legible para el logger (evita el {} vacío). */

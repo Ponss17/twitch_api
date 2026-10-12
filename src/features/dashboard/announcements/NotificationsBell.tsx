@@ -25,10 +25,10 @@ import {
     markAllServerNotificationsRead,
     markServerNotificationRead,
     type ServerNotification
-} from '@/features/dashboard/reports/reportsApi';
+} from '@/features/reports/reportsApi';
 import { navigateDashboard } from '@/features/dashboard/lib/tabs/dashboardPanelEvents';
 import { useDashboardRealtime } from '@/features/dashboard/hooks/useDashboardRealtime';
-import { formatMonthLabel } from '@/features/dashboard/lib/formatYearMonth';
+import { formatMonthLabel } from '@/core/utils/formatYearMonth';
 
 const ICON_MAP: Partial<Record<AnnouncementIcon, ComponentType<{ className?: string }>>> = {
     sparkles: Sparkles,

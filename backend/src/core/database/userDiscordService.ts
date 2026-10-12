@@ -1,6 +1,6 @@
 import { supabase } from './supabaseClient';
 import { StoredUser } from '../../types/twitch';
-import { invalidateDiscordLinkCaches } from '../utils/cacheInvalidation';
+import { invalidateDiscordLinkCaches } from './cacheInvalidation';
 import { logger } from '../utils/logger';
 import { getUser } from './userService';
 

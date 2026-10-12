@@ -10,12 +10,12 @@
  * No regenera claves: Nightbot/SE siguen con el mismo UUID.
  */
 import { supabase } from '../backend/src/core/database/supabaseClient';
-import { isCbcFormat, isGcmFormat } from '../backend/src/core/database/cryptoService';
+import { isCbcFormat, isGcmFormat } from '../backend/src/core/security/cryptoService';
 import {
     apiKeyLookupHash,
     decryptStoredApiKey,
     encryptApiKey
-} from '../backend/src/core/utils/apiKeySecurity';
+} from '../backend/src/core/security/apiKeySecurity';
 
 async function main() {
     const apply = process.env.APPLY === '1' || process.env.APPLY === 'true';

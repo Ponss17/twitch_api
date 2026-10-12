@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Gift, MessageSquare, Plus, Trash2 } from 'lucide-react';
 import { API_ENDPOINTS } from '@/core/config/config';
-import { apiFetch } from '@/core/api/auth';
+import { apiFetch } from '@/core/auth';
 import { useRequiredSession } from '@/core/session/useSession';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { useToast } from '@/shared/ui/toast/ToastProvider';

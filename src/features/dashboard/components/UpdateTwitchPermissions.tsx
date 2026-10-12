@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { reauthorizeTwitchPermissions } from '@/core/api/auth';
+import { reauthorizeTwitchPermissions } from '@/core/auth';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { useRequiredSession } from '@/core/session/useSession';
 import { Modal } from '@/shared/ui/modals/Modal';

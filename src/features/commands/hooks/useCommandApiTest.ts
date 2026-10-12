@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { useTranslation } from '@/core/i18n/I18nContext';
-import { fetchRevealApiKey } from '@/core/api/auth';
+import { fetchRevealApiKey } from '@/core/auth';
 import { buildAuthQueryParam } from '@/core/api/authQuery';
 import { fetchWithRetry } from '@/core/api/fetchWithRetry';
 import type { CommandTestResult } from '@/features/commands/lib/commandStore';
