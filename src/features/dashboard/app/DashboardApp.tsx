@@ -134,7 +134,6 @@ function DashboardMain({
     return (
         <DashboardPanelProvider
             active={panelLive}
-            prioritySync={prioritySync}
             session={session}
             showToast={showToast}
         >
@@ -280,17 +279,6 @@ function DashboardAppShell() {
 
     useEffect(() => {
         initGlobalErrorLogging();
-        void (async () => {
-            try {
-                await fetch('/api/health/', {
-                    method: 'GET',
-                    cache: 'no-store',
-                    headers: { Accept: 'application/json' }
-                });
-            } catch {
-                /* silencioso — ApiHealthBanner hace el seguimiento en UI */
-            }
-        })();
     }, []);
 
     useEffect(() => {

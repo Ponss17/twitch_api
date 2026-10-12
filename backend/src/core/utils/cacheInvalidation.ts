@@ -3,6 +3,7 @@ import { invalidateUserMemoryCache } from '../database/userService';
 import { invalidateStatsCache } from '../database/statsService';
 import { logger } from './logger';
 import { OVERLAY_TOOLS, overlayStateKey, overlayRevokeKey } from '../overlay/keys';
+import { broadcastOverlayReset } from '../overlay/overlayRealtime';
 import { invalidateUserInfoCache } from '../../features/twitch/twitchUserService';
 import { ownerScopedCacheKey } from '../config/cacheTtl';
 
@@ -111,6 +112,7 @@ export async function invalidateAllUserCaches(
     invalidateUserMemoryCache(userId);
     invalidateAuthCache(userId, { revokeSession: false });
     invalidateStatsCache(userId);
+    await broadcastOverlayReset(userId);
 
     const { invalidatePublicUsersCache } = await import(
         '../../features/system/systemPublicUsers.controller'

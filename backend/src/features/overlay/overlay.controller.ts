@@ -10,6 +10,11 @@ import { frontendPagePath } from '../../core/utils/frontendPaths';
 import { signOverlayReadToken } from '../auth/auth.service';
 import { resolveMaxBitsRouletteOptions } from '../../core/config/userRoles';
 import { overlayPagePath, overlayStateKey } from '../../core/overlay/keys';
+import {
+    OVERLAY_REALTIME_EVENT,
+    broadcastOverlayState,
+    overlayRealtimeTopic
+} from '../../core/overlay/overlayRealtime';
 
 function overlayToolMismatch(res: Response, requestedTool: string): boolean {
     const tokenTool = res.locals?.overlayTool as string | undefined;
@@ -29,13 +34,15 @@ export const getOverlayState = async (req: AuthenticatedRequest, res: Response) 
     if (overlayToolMismatch(res, tool)) return;
 
     try {
-        const cached = await cacheService.get<Record<string, unknown>>(overlayStateKey(userId, tool));
-        if (!cached) {
-            res.setHeader('Cache-Control', 'no-store');
-            return res.json({ state: null });
-        }
+        const [cached, topic] = await Promise.all([
+            cacheService.get<Record<string, unknown>>(overlayStateKey(userId, tool)),
+            overlayRealtimeTopic(userId, tool).catch(() => null)
+        ]);
         res.setHeader('Cache-Control', 'no-store');
-        return res.json({ state: cached });
+        return res.json({
+            state: cached ?? null,
+            ...(topic ? { realtime: { topic, event: OVERLAY_REALTIME_EVENT } } : {})
+        });
     } catch (e) {
         logger.error('Error getting overlay state:', e);
         return jsonError(res, 500, 'Error al leer el estado del overlay.');
@@ -73,6 +80,7 @@ export const putOverlayState = async (req: AuthenticatedRequest, res: Response) 
         const payload = { ...state, updatedAt: Date.now() };
         const key = overlayStateKey(userId, tool);
         await cacheService.set(key, payload, CACHE_TTL_MATRIX.OVERLAY_STATE.default);
+        await broadcastOverlayState(userId, tool, payload);
         return res.json({ success: true });
     } catch (e) {
         logger.error('Error saving overlay state:', e);

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-const POLL_MS = 90_000;
-const RETRY_MS = 12_000;
+const POLL_MS = 5 * 60_000;
+const RETRY_MS = 20_000;
 /** Evita falsos positivos (proxy/dev, cold start, abort de Strict Mode). */
 const FAILURES_BEFORE_BANNER = 2;
 
@@ -61,8 +61,10 @@ export function useApiHealth(enabled = true): {
     const [status, setStatus] = useState<ApiHealthStatus>('ok');
     const acRef = useRef<AbortController | null>(null);
     const failuresRef = useRef(0);
+    const lastCheckRef = useRef(0);
 
     const check = useCallback(async () => {
+        lastCheckRef.current = Date.now();
         acRef.current?.abort();
         const ac = new AbortController();
         acRef.current = ac;
@@ -91,12 +93,22 @@ export function useApiHealth(enabled = true): {
             void check();
         }, 2_500);
         const id = window.setInterval(() => {
-            void check();
+            if (document.visibilityState === 'visible') void check();
         }, POLL_MS);
+        const onVisibility = () => {
+            if (
+                document.visibilityState === 'visible' &&
+                Date.now() - lastCheckRef.current >= POLL_MS
+            ) {
+                void check();
+            }
+        };
+        document.addEventListener('visibilitychange', onVisibility);
 
         return () => {
             clearTimeout(boot);
             clearInterval(id);
+            document.removeEventListener('visibilitychange', onVisibility);
             acRef.current?.abort();
         };
     }, [enabled, check]);
@@ -104,7 +116,7 @@ export function useApiHealth(enabled = true): {
     useEffect(() => {
         if (!enabled || status !== 'down') return;
         const id = window.setInterval(() => {
-            void check();
+            if (document.visibilityState === 'visible') void check();
         }, RETRY_MS);
         return () => clearInterval(id);
     }, [enabled, status, check]);

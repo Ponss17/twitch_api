@@ -49,7 +49,10 @@ describe('overlay state controller', () => {
         await getOverlayState(req, res);
 
         expect(cacheService.get).toHaveBeenCalledWith('overlay:state:user-123:roulette');
-        expect(res.json).toHaveBeenCalledWith({ state: null });
+        expect(res.json).toHaveBeenCalledWith({
+            state: null,
+            realtime: { topic: expect.stringMatching(/^overlay:[\w-]{32}$/), event: 'state' }
+        });
     });
 
     it('getOverlayState returns cached state', async () => {
@@ -61,7 +64,10 @@ describe('overlay state controller', () => {
 
         await getOverlayState(req, res);
 
-        expect(res.json).toHaveBeenCalledWith({ state });
+        expect(res.json).toHaveBeenCalledWith({
+            state,
+            realtime: { topic: expect.stringMatching(/^overlay:[\w-]{32}$/), event: 'state' }
+        });
     });
 
     it('getOverlayState rejects overlay token for a different tool', async () => {

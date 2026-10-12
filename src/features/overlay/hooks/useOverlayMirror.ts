@@ -6,6 +6,7 @@ import {
 } from '@/features/overlay/lib/credentials';
 import { overlayAuthHeaders, overlayStatePollUrl } from '@/features/overlay/lib/overlayApi';
 import { debugWarn } from '@/core/logging/debugLog';
+import { getSharedSupabaseClient } from '@/features/dashboard/lib/realtime/client';
 import type {
     OverlayStateForTool,
     OverlayTool,
@@ -22,6 +23,13 @@ import {
 
 /** Umbral mínimo de "stale"; con poll idle (60s) se usa 1.5× el intervalo. */
 const STALE_MS_MIN = 8000;
+/** TTL de `overlay:state:*` en KV (2h) + margen: el broadcast no avisa cuando caduca. */
+const OVERLAY_STATE_EXPIRY_CHECK_MS = 2 * 60 * 60_000 + 15_000;
+
+interface OverlayRealtimeChannel {
+    topic: string;
+    event: string;
+}
 
 function isAbortError(err: unknown): boolean {
     return (
@@ -69,6 +77,10 @@ export function useOverlayMirror<T extends OverlayTool>(
         wasTracking: false
     });
     const mirroredStateRef = useRef<State | null>(null);
+    const [realtimeChannel, setRealtimeChannel] = useState<OverlayRealtimeChannel | null>(null);
+    const [realtimeLive, setRealtimeLive] = useState(false);
+    const realtimeLiveRef = useRef(false);
+    realtimeLiveRef.current = realtimeLive;
     const sessionKey = overlaySessionKey(session);
 
     const applyRouletteSpin = useCallback((next: RouletteOverlayState) => {
@@ -133,6 +145,45 @@ export function useOverlayMirror<T extends OverlayTool>(
         [tool]
     );
 
+    const applyIncomingState = useCallback(
+        (incoming: State | null) => {
+            setConnected(true);
+            setUnauthorized(false);
+            lastPollAtRef.current = Date.now();
+            setStale(false);
+
+            if (!incoming) {
+                pollAnchorsRef.current = {
+                    winnerShownAt: null,
+                    trendsEndedAt: null,
+                    lastSpinSeq: -1,
+                    wasTracking: false
+                };
+                setState(emptyStateRef.current);
+                lastReceivedFingerprintRef.current = '';
+                // bits-roulette: sin estado en KV es idle normal (config va en la URL).
+                setStale(tool !== 'bits-roulette' && !realtimeLiveRef.current);
+                syncPollInterval(null);
+                return;
+            }
+
+            const fingerprint = overlayStateFingerprint(tool, incoming);
+            if (fingerprint === lastReceivedFingerprintRef.current) {
+                syncPollInterval(incoming);
+                return;
+            }
+            lastReceivedFingerprintRef.current = fingerprint;
+
+            let nextState = incoming;
+            if (tool === 'roulette') {
+                nextState = applyRouletteSpin(incoming as RouletteOverlayState) as State;
+            }
+            setState(nextState);
+            syncPollInterval(nextState);
+        },
+        [tool, applyRouletteSpin, syncPollInterval]
+    );
+
     const poll = useCallback(
         async (signal?: AbortSignal, opts?: { manual?: boolean }) => {
             if (!hasOverlayPollCredentials(session)) return;
@@ -154,42 +205,19 @@ export function useOverlayMirror<T extends OverlayTool>(
                     return;
                 }
 
-                const data = (await res.json()) as { state: State | null };
+                const data = (await res.json()) as {
+                    state: State | null;
+                    realtime?: OverlayRealtimeChannel;
+                };
                 if (signal?.aborted) return;
 
-                setConnected(true);
-                setUnauthorized(false);
-                lastPollAtRef.current = Date.now();
-                setStale(false);
-
-                if (!data.state) {
-                    pollAnchorsRef.current = {
-                        winnerShownAt: null,
-                        trendsEndedAt: null,
-                        lastSpinSeq: -1,
-                        wasTracking: false
-                    };
-                    setState(emptyStateRef.current);
-                    lastReceivedFingerprintRef.current = '';
-                    // bits-roulette: sin estado en KV es idle normal (config va en la URL).
-                    setStale(tool !== 'bits-roulette');
-                    syncPollInterval(null);
-                    return;
+                if (data.realtime?.topic) {
+                    const next = data.realtime;
+                    setRealtimeChannel((prev) =>
+                        prev?.topic === next.topic && prev.event === next.event ? prev : next
+                    );
                 }
-
-                const fingerprint = overlayStateFingerprint(tool, data.state);
-                if (fingerprint === lastReceivedFingerprintRef.current) {
-                    syncPollInterval(data.state);
-                    return;
-                }
-                lastReceivedFingerprintRef.current = fingerprint;
-
-                let nextState = data.state;
-                if (tool === 'roulette') {
-                    nextState = applyRouletteSpin(data.state as RouletteOverlayState) as State;
-                }
-                setState(nextState);
-                syncPollInterval(nextState);
+                applyIncomingState(data.state ?? null);
             } catch (err) {
                 if (signal?.aborted || isAbortError(err)) return;
                 setConnected(false);
@@ -199,8 +227,12 @@ export function useOverlayMirror<T extends OverlayTool>(
                 if (opts?.manual) setRetrying(false);
             }
         },
-        [session, tool, applyRouletteSpin, syncPollInterval]
+        [session, tool, applyIncomingState, syncPollInterval]
     );
+    const pollRef = useRef(poll);
+    pollRef.current = poll;
+    const applyIncomingStateRef = useRef(applyIncomingState);
+    applyIncomingStateRef.current = applyIncomingState;
 
     const retry = useCallback(() => {
         void poll(undefined, { manual: true });
@@ -221,6 +253,7 @@ export function useOverlayMirror<T extends OverlayTool>(
         let resumeAc: AbortController | null = null;
         const resume = () => {
             if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
+            if (realtimeLiveRef.current) return;
             resumeAc?.abort();
             resumeAc = new AbortController();
             void poll(resumeAc.signal);
@@ -237,10 +270,66 @@ export function useOverlayMirror<T extends OverlayTool>(
         };
     }, [sessionKey, poll, session]);
 
-    // Intervalo adaptativo: reinicia el timer sin GET extra.
+    useEffect(() => {
+        if (!realtimeChannel) return;
+
+        let cancelled = false;
+        let syncAc: AbortController | null = null;
+        let cleanup: (() => void) | null = null;
+
+        void (async () => {
+            const client = await getSharedSupabaseClient();
+            if (!client || cancelled) return;
+
+            const channel = client
+                .channel(realtimeChannel.topic, { config: { broadcast: { self: false } } })
+                .on('broadcast', { event: realtimeChannel.event }, (message) => {
+                    const payload = message.payload as { state?: State | null } | undefined;
+                    applyIncomingStateRef.current(payload?.state ?? null);
+                })
+                .subscribe((status) => {
+                    if (cancelled) return;
+                    if (status === 'SUBSCRIBED') {
+                        setRealtimeLive(true);
+                        syncAc?.abort();
+                        syncAc = new AbortController();
+                        void pollRef.current(syncAc.signal);
+                    } else {
+                        setRealtimeLive(false);
+                    }
+                });
+
+            cleanup = () => {
+                void client.removeChannel(channel);
+            };
+            if (cancelled) cleanup();
+        })();
+
+        return () => {
+            cancelled = true;
+            syncAc?.abort();
+            cleanup?.();
+            setRealtimeLive(false);
+        };
+    }, [realtimeChannel]);
+
+    // Con realtime no hay GET en reposo; solo uno al caducar el estado en KV.
+    useEffect(() => {
+        if (!realtimeLive || !hasOverlayPollCredentials(session)) return;
+        const ac = new AbortController();
+        const id = window.setTimeout(() => {
+            void pollRef.current(ac.signal);
+        }, OVERLAY_STATE_EXPIRY_CHECK_MS);
+        return () => {
+            clearTimeout(id);
+            ac.abort();
+        };
+    }, [realtimeLive, state, session]);
+
+    // Intervalo adaptativo (respaldo sin realtime): reinicia el timer sin GET extra.
     useEffect(() => {
         if (!hasOverlayPollCredentials(session)) return;
-        if (pollIntervalMs === null) return;
+        if (pollIntervalMs === null || realtimeLive) return;
 
         let tickAc: AbortController | null = null;
         const id = window.setInterval(() => {
@@ -254,10 +343,14 @@ export function useOverlayMirror<T extends OverlayTool>(
             clearInterval(id);
             tickAc?.abort();
         };
-    }, [sessionKey, poll, pollIntervalMs, session]);
+    }, [sessionKey, poll, pollIntervalMs, session, realtimeLive]);
 
     useEffect(() => {
         const id = window.setInterval(() => {
+            if (realtimeLiveRef.current) {
+                setStale(false);
+                return;
+            }
             if (!lastPollAtRef.current) {
                 setStale(true);
                 return;

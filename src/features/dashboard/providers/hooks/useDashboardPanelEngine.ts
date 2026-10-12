@@ -22,8 +22,14 @@ import type { useDashboardPanelState } from './useDashboardPanelState';
 const PANEL_SYNC_CHANNEL = 'dashboard_panel_data_sync';
 const POLL_MS = DASHBOARD_POLL_MS;
 const FALLBACK_POLL_MS = DASHBOARD_FALLBACK_POLL_MS;
-const REALTIME_SAFETY_POLL_MS = 75_000;
-const REALTIME_SAFETY_POLL_IDLE_MS = 120_000;
+/** Con realtime no hay poll: resync al (re)conectar, al volver a la pestaña o al recuperar red. */
+const REALTIME_RESYNC_MIN_GAP_MS = 10_000;
+const REALTIME_RESYNC_ON_RETURN_MS = 60_000;
+
+function msSincePanelSync(userId: string | undefined): number {
+    const raw = readPanelSyncPref(userId);
+    return raw ? Date.now() - parseInt(raw, 10) : Number.POSITIVE_INFINITY;
+}
 
 async function waitForPanelFetchIdle(
     isInFlight: () => boolean,
@@ -37,7 +43,6 @@ async function waitForPanelFetchIdle(
 
 interface UseDashboardPanelEngineOptions {
     active: boolean;
-    prioritySync?: boolean;
     session: Session;
     showToast: (message: string, type: 'success' | 'error' | 'warning') => void;
     state: ReturnType<typeof useDashboardPanelState>['state'];
@@ -55,7 +60,6 @@ interface UseDashboardPanelEngineOptions {
 
 export function useDashboardPanelEngine({
     active,
-    prioritySync = true,
     session,
     showToast,
     state,
@@ -71,8 +75,6 @@ export function useDashboardPanelEngine({
     const syncingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const activeRef = useRef(active);
     activeRef.current = active;
-    const prioritySyncRef = useRef(prioritySync);
-    prioritySyncRef.current = prioritySync;
     const sessionRef = useRef(session);
     sessionRef.current = session;
     const showToastRef = useRef(showToast);
@@ -311,17 +313,14 @@ export function useDashboardPanelEngine({
         if (isRealtimeLive) {
             actionsRef.current.setSyncLabel('Realtime');
             if (pollRef.current) clearInterval(pollRef.current);
-            pollRef.current = setInterval(() => {
-                if (
-                    document.visibilityState === 'hidden' ||
-                    !refsBag.current.isRealtimeLiveRef.current ||
-                    !activeRef.current ||
-                    !syncRef.current?.getIsLeader()
-                ) {
-                    return;
-                }
+            pollRef.current = null;
+            if (
+                active &&
+                panelBootstrappedRef.current &&
+                msSincePanelSync(sessionRef.current.userId) > REALTIME_RESYNC_MIN_GAP_MS
+            ) {
                 void performSyncRef.current();
-            }, prioritySyncRef.current ? REALTIME_SAFETY_POLL_MS : REALTIME_SAFETY_POLL_IDLE_MS);
+            }
         } else if (active && state.isTabLeader) {
             startSmartPollingRef.current();
         } else if (pollRef.current) {
@@ -335,7 +334,7 @@ export function useDashboardPanelEngine({
                 pollRef.current = null;
             }
         };
-    }, [active, isRealtimeLive, state.isTabLeader, prioritySync]);
+    }, [active, isRealtimeLive, state.isTabLeader]);
 
     useEffect(() => {
         if (!state.isTabLeader) return;
@@ -414,16 +413,21 @@ export function useDashboardPanelEngine({
         });
 
         const onVisible = () => {
+            if (document.visibilityState !== 'visible' || !sync.isActive() || !sync.getIsLeader()) {
+                return;
+            }
             if (
-                document.visibilityState === 'visible' &&
-                sync.isActive() &&
-                sync.getIsLeader() &&
-                !refsBag.current.isRealtimeLiveRef.current
+                !refsBag.current.isRealtimeLiveRef.current ||
+                msSincePanelSync(userId) > REALTIME_RESYNC_ON_RETURN_MS
             ) {
                 void performSyncRef.current();
             }
         };
+        const onOnline = () => {
+            if (sync.isActive() && sync.getIsLeader()) void performSyncRef.current();
+        };
         document.addEventListener('visibilitychange', onVisible);
+        window.addEventListener('online', onOnline);
 
         actionsRef.current.setIsTabLeader(sync.getIsLeader());
         if (!refsBag.current.isRealtimeLiveRef.current) {
@@ -432,6 +436,7 @@ export function useDashboardPanelEngine({
 
         return () => {
             document.removeEventListener('visibilitychange', onVisible);
+            window.removeEventListener('online', onOnline);
             if (pollRef.current) clearInterval(pollRef.current);
             pollRef.current = null;
             if (syncingTimerRef.current) clearTimeout(syncingTimerRef.current);

@@ -11,6 +11,7 @@ import { CONFIG } from '../../core/config/env';
 import { CACHE_TTL_MATRIX } from '../../core/config/cacheTtl';
 import { logger } from '../../core/utils/logger';
 import { overlayStateKey } from '../../core/overlay/keys';
+import { broadcastOverlayState } from '../../core/overlay/overlayRealtime';
 import { apiClient, getHeaders } from '../twitch/twitchClient';
 import { sendChatMessage } from '../twitch/twitch.service';
 import { bitsWinnerChatMessage } from './bitsRoulette.logic';
@@ -180,15 +181,13 @@ export async function publishCheerEvent(
         },
         PRIVATE_CHEER_TTL_SEC
     );
-    await setStrict(
-        key,
-        {
-            ...prev,
-            lastCheer: publicCheer,
-            updatedAt: Date.now()
-        },
-        CACHE_TTL_MATRIX.OVERLAY_STATE.default
-    );
+    const nextState = {
+        ...prev,
+        lastCheer: publicCheer,
+        updatedAt: Date.now()
+    };
+    await setStrict(key, nextState, CACHE_TTL_MATRIX.OVERLAY_STATE.default);
+    await broadcastOverlayState(userId, BITS_TOOL, nextState);
 }
 
 export async function handleCheerNotification(payload: {

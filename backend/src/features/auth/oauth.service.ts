@@ -9,6 +9,7 @@ import { logger } from '../../core/utils/logger';
 import { AppError } from '../../core/errors/AppError';
 import { MESSAGES } from '../../core/config/messages';
 import { overlayRevokeKey } from '../../core/overlay/keys';
+import { broadcastOverlayReset } from '../../core/overlay/overlayRealtime';
 import { getHmacSecrets, getPrimaryHmacSecret } from '../../core/utils/hmacSecrets';
 import { DEFAULT_USER_ROLE } from '../../core/config/userRoles';
 import { rememberTwitchScopes } from './twitchScopes.service';
@@ -267,6 +268,7 @@ export const regenerateApiKey = async (userId: string): Promise<string> => {
         await cacheService.revokeApiKeyGlobally(oldApiKey);
         await cacheService.invalidateApiKeyCache(oldApiKey);
     }
+    await broadcastOverlayReset(userId);
     await cacheService.setSensitive(
         overlayRevokeKey(userId),
         Date.now(),

@@ -18,6 +18,7 @@ import { withTwitchAuth } from '../../core/utils/twitchAuthHelpers';
 import { trackRequest } from '../../core/utils/tracking';
 import { revokeSessions } from '../../core/utils/sessionState';
 import { overlayRevokeKey } from '../../core/overlay/keys';
+import { broadcastOverlayReset } from '../../core/overlay/overlayRealtime';
 import { invalidateAuthCache } from '../../core/middleware/authMiddleware';
 import * as questionsService from '../tools/questions.service';
 import type { StoredUser } from '../../types/twitch';
@@ -240,6 +241,7 @@ export const deleteAccount = async (req: AuthenticatedRequest, res: Response) =>
         const storedUser = apiUser?.apiKey ? null : await dbService.getUser(userId);
         const apiKey = apiUser?.apiKey ?? storedUser?.apiKey;
         await revokeSessions(userId);
+        await broadcastOverlayReset(userId);
         await cacheService.setSensitive(
             overlayRevokeKey(userId),
             Date.now(),
