@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { logger } from '../../core/utils/logger';
+import { timedCall } from '../../core/utils/timing';
 
 export interface WatchtimeResponse {
     minutes: number;
@@ -16,10 +17,12 @@ export async function getStreamElementsWatchtime(channel: string, username: stri
         const safeUsername = encodeURIComponent(username);
 
         // 1. Obtener el ID de cuenta de StreamElements a partir del nombre del canal
-        const channelRes = await axios.get(`https://api.streamelements.com/kappa/v2/channels/${safeChannel}`, {
-            timeout: 5000,
-            validateStatus: () => true
-        });
+        const [channelRes] = await timedCall('watchtime:seChannel', () =>
+            axios.get(`https://api.streamelements.com/kappa/v2/channels/${safeChannel}`, {
+                timeout: 5000,
+                validateStatus: () => true
+            })
+        );
 
         if (channelRes.status === 404) {
             return { minutes: 0, error: 'not_found' };
@@ -33,10 +36,12 @@ export async function getStreamElementsWatchtime(channel: string, username: stri
         const safeAccountId = encodeURIComponent(String(accountId));
 
         // 2. Obtener los puntos/watchtime del usuario en ese canal
-        const pointsRes = await axios.get(`https://api.streamelements.com/kappa/v2/points/${safeAccountId}/${safeUsername}`, {
-            timeout: 5000,
-            validateStatus: () => true
-        });
+        const [pointsRes] = await timedCall('watchtime:sePoints', () =>
+            axios.get(`https://api.streamelements.com/kappa/v2/points/${safeAccountId}/${safeUsername}`, {
+                timeout: 5000,
+                validateStatus: () => true
+            })
+        );
 
         if (pointsRes.status === 404) {
             return { minutes: 0, error: 'not_watching' };

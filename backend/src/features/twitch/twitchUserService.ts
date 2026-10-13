@@ -12,6 +12,7 @@ import {
     getHeaders
 } from './twitchClient';
 import axios from 'axios';
+import { timedCall } from '../../core/utils/timing';
 
 const userInfoCache = new Map<string, { data: TwitchUser; expiry: number }>();
 const MAX_USER_INFO_CACHE = 200;
@@ -210,10 +211,14 @@ export const getFollowAge = async (
     const texts = getFollowageTexts(lang);
 
     try {
-        const channelId = await resolveFollowageLoginId(channel, token, 'canal');
+        const [channelId] = await timedCall('followage:resolveChannelId', () =>
+            resolveFollowageLoginId(channel, token, 'canal')
+        );
         if (typeof channelId !== 'string') return channelId;
 
-        const userId = await resolveFollowageLoginId(user, token, 'usuario');
+        const [userId] = await timedCall('followage:resolveUserId', () =>
+            resolveFollowageLoginId(user, token, 'usuario')
+        );
         if (typeof userId !== 'string') return userId;
 
         if (channelId === userId) {
@@ -224,13 +229,15 @@ export const getFollowAge = async (
         }
 
         const headers = getHeaders(token);
-        const followRes = await apiClient.get('https://api.twitch.tv/helix/channels/followers', {
-            headers,
-            params: {
-                broadcaster_id: channelId,
-                user_id: userId
-            }
-        });
+        const [followRes] = await timedCall('followage:helixFollowers', () =>
+            apiClient.get('https://api.twitch.tv/helix/channels/followers', {
+                headers,
+                params: {
+                    broadcaster_id: channelId,
+                    user_id: userId
+                }
+            })
+        );
 
         const follows = Array.isArray(followRes.data?.data) ? followRes.data.data : [];
         if (follows.length === 0) {

@@ -17,6 +17,7 @@ import { isBotCommand, isApiRoute } from '../utils/routeHelpers';
 import { blockIfUnauthorizedScanExceeded } from './redisRateLimiter';
 import { isAuthenticationError } from '../errors/AppError';
 import { apiKeyLookupHash } from '../security/apiKeySecurity';
+import { timedCall } from '../utils/timing';
 
 interface CachedApiKey {
     user: StoredUser;
@@ -135,12 +136,16 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
         return rejectInvalidApiKey(req, res, 'Clave API bloqueada temporalmente.');
     }
 
-    if (apiKey && (await cacheService.isApiKeyRevoked(apiKey))) {
-        const dbUser = await dbService.getUserByApiKey(apiKey);
+    const [isRevoked] = apiKey
+        ? await timedCall('apiKey:isApiKeyRevoked', () => cacheService.isApiKeyRevoked(apiKey))
+        : [false];
+
+    if (apiKey && isRevoked) {
+        const [dbUser] = await timedCall('apiKey:getUserByApiKey', () => dbService.getUserByApiKey(apiKey));
         if (dbUser?.isActive) {
             await cacheService.clearApiKeyRevocation(apiKey);
             try {
-                await getValidTokenForUser(dbUser);
+                await timedCall('apiKey:getValidTokenForUser', () => getValidTokenForUser(dbUser));
                 validKeysCache.set(apiKeyHash, { user: dbUser, expiry: Date.now() + CACHE_TTL_MS });
                 res.locals.apiUser = dbUser;
                 res.locals.isApiKeyRequest = true;
@@ -180,7 +185,9 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
             }
             if (isOAuthTokenNearExpiry(cached.user)) {
                 try {
-                    const { accessToken } = await getValidTokenForUser(cached.user);
+                    const [{ accessToken }] = await timedCall('apiKey:getValidTokenForUser', () =>
+                        getValidTokenForUser(cached.user)
+                    );
                     cached.user.accessToken = accessToken;
                     validKeysCache.set(apiKeyHash, {
                         user: cached.user,
@@ -204,13 +211,17 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
         }
         if (cached) validKeysCache.delete(apiKeyHash);
 
-        const kvCachedMeta = await cacheService.getCachedApiUserMeta(apiKey);
+        const [kvCachedMeta] = await timedCall('apiKey:getCachedApiUserMeta', () =>
+            cacheService.getCachedApiUserMeta(apiKey)
+        );
         if (kvCachedMeta) {
             if (kvCachedMeta.isActive === false) {
                 return res.status(403).json({ error: 'Cuenta suspendida.' });
             }
 
-            const user = await dbService.getUser(kvCachedMeta.userId);
+            const [user] = await timedCall('apiKey:getUserById', () =>
+                dbService.getUser(kvCachedMeta.userId)
+            );
             if (user && user.isActive) {
                 res.locals.apiUser = user;
                 res.locals.isApiKeyRequest = true;
@@ -222,10 +233,14 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
             }
         }
 
-        const user = await dbService.getUserByApiKey(apiKey);
+        const [user] = await timedCall('apiKey:getUserByApiKey', () =>
+            dbService.getUserByApiKey(apiKey)
+        );
 
         if (user && user.isActive) {
-            const { accessToken } = await getValidTokenForUser(user);
+            const [{ accessToken }] = await timedCall('apiKey:getValidTokenForUser', () =>
+                getValidTokenForUser(user)
+            );
             user.accessToken = accessToken;
             validKeysCache.set(apiKeyHash, { user, expiry: Date.now() + CACHE_TTL_MS });
             cacheService
