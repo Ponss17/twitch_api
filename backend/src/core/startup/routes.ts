@@ -1,4 +1,5 @@
 import { Application, Request, Response } from 'express';
+import { timed, logColdStart } from '../utils/timing';
 import { CONFIG } from '../config/env';
 import { preAuthRateLimiter } from '../middleware/redisRateLimiter';
 import { apiKeyValidator } from '../middleware/apiKeyValidator';
@@ -52,11 +53,11 @@ export const configureRoutes = (app: Application) => {
     app.get(['/sitemap.xml', '/api/sitemap.xml'], preAuthRateLimiter, /* codeql[js/missing-rate-limiting] */ getSitemapXml);
     app.get(['/api/system/public-users', '/system/public-users'], preAuthRateLimiter, /* codeql[js/missing-rate-limiting] */ getPublicUsers);
 
-    app.use(preAuthRateLimiter);
+    app.use(timed('preAuthRateLimiter', preAuthRateLimiter));
     // codeql[js/missing-rate-limiting] Redis pre-auth limiter is applied above
-    app.use(apiKeyValidator);
+    app.use(timed('apiKeyValidator', apiKeyValidator));
     // codeql[js/missing-rate-limiting] Redis pre-auth limiter is applied above
-    app.use(checkToken);
+    app.use(timed('checkToken', checkToken));
     // codeql[js/missing-rate-limiting] Feature routes apply post-auth Redis quotas
     app.use(rejectApiKeyOnPanelRoutes);
     app.use(overlayScopeGuard);
@@ -87,4 +88,6 @@ export const configureRoutes = (app: Application) => {
     });
 
     app.use(errorHandler);
+
+    logColdStart();
 };

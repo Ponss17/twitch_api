@@ -12,6 +12,9 @@ import {
 
 import { csrfProtection } from '../../core/middleware/csrfProtection';
 import { globalRateLimiter } from '../../core/middleware/redisRateLimiter';
+import { timed } from '../../core/utils/timing';
+
+const timedGlobalRL = timed('globalRateLimiter', globalRateLimiter);
 
 const router = Router();
 
@@ -21,11 +24,11 @@ export const rejectCookieClipGet = (_req: Request, res: Response, next: NextFunc
     return res.status(405).send('Usa POST para crear clips desde el panel.');
 };
 
-router.get('/create-clip', globalRateLimiter, rejectCookieClipGet, validate(createClipSchema), /* codeql[js/missing-rate-limiting] */ createClip);
-router.post('/create-clip', globalRateLimiter, csrfProtection, validate(createClipPostSchema), /* codeql[js/missing-rate-limiting] */ createClip);
-router.get('/followage', globalRateLimiter, validate(followageSchema), /* codeql[js/missing-rate-limiting] */ followage);
-router.get('/shoutout', globalRateLimiter, validate(shoutoutSchema), /* codeql[js/missing-rate-limiting] */ getShoutout);
-router.post('/send-message', globalRateLimiter, csrfProtection, validate(sendMessageSchema), /* codeql[js/missing-rate-limiting] */ sendMessage);
-router.get('/watchtime', globalRateLimiter, validate(watchtimeSchema), /* codeql[js/missing-rate-limiting] */ watchtime);
+router.get('/create-clip', timedGlobalRL, rejectCookieClipGet, validate(createClipSchema), /* codeql[js/missing-rate-limiting] */ createClip);
+router.post('/create-clip', timedGlobalRL, csrfProtection, validate(createClipPostSchema), /* codeql[js/missing-rate-limiting] */ createClip);
+router.get('/followage', timedGlobalRL, validate(followageSchema), /* codeql[js/missing-rate-limiting] */ followage);
+router.get('/shoutout', timedGlobalRL, validate(shoutoutSchema), /* codeql[js/missing-rate-limiting] */ getShoutout);
+router.post('/send-message', timedGlobalRL, csrfProtection, validate(sendMessageSchema), /* codeql[js/missing-rate-limiting] */ sendMessage);
+router.get('/watchtime', timedGlobalRL, validate(watchtimeSchema), /* codeql[js/missing-rate-limiting] */ watchtime);
 
 export default router;
