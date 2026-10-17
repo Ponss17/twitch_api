@@ -23,6 +23,10 @@ jest.mock('../../backend/src/features/minigames/slots.service', () => ({
     playSlots: jest.fn()
 }));
 
+jest.mock('../../backend/src/features/auth/auth.service', () => ({
+    getValidTokenByLogin: jest.fn()
+}));
+
 jest.mock('../../backend/src/features/integrations/nightbotResponse', () => ({
     getNightbotResponseUrl: jest.fn().mockReturnValue(null),
     scheduleNightbotFollowUps: jest.fn().mockResolvedValue(undefined),
@@ -47,6 +51,7 @@ import {
     scheduleNightbotFollowUps,
     keepAliveAfterResponse
 } from '../../backend/src/features/integrations/nightbotResponse';
+import { getValidTokenByLogin } from '../../backend/src/features/auth/auth.service';
 import { askMagic8, playRussian, startDuel, playSlots } from '../../backend/src/features/minigames/minigames.controller';
 import { AuthenticatedRequest } from '@/types/twitch';
 
@@ -149,6 +154,45 @@ describe('minigamesController', () => {
             await playRussian(req, res);
 
             expect(res.status).toHaveBeenCalledWith(401);
+            expect(getValidTokenByLogin).not.toHaveBeenCalled();
+        });
+
+        it('does not load another channel token when the session has no twitch token', async () => {
+            const req = mockReq({
+                twitchToken: undefined,
+                login: 'attacker',
+                query: { user: 'viewer', channel: 'victim', hardcore: 'true' }
+            });
+            const res = mockRes();
+
+            await playRussian(req, res);
+
+            expect(getValidTokenByLogin).not.toHaveBeenCalled();
+            expect(playRussianRoulette).not.toHaveBeenCalled();
+            expect(res.status).toHaveBeenCalledWith(401);
+        });
+
+        it('falls back only to the authenticated channel', async () => {
+            (getValidTokenByLogin as jest.Mock).mockResolvedValue({
+                accessToken: 'owner-token',
+                userId: 'owner-id'
+            });
+            const req = mockReq({
+                twitchToken: undefined,
+                login: 'Victim',
+                query: { user: 'viewer', channel: 'victim' }
+            });
+            const res = mockRes();
+            (playRussianRoulette as jest.Mock).mockResolvedValue({
+                message: 'click',
+                status: 'alive'
+            });
+
+            await playRussian(req, res);
+
+            expect(getValidTokenByLogin).toHaveBeenCalledWith('victim');
+            expect(playRussianRoulette).toHaveBeenCalled();
+            expect(res.send).toHaveBeenCalledWith('click');
         });
     });
 

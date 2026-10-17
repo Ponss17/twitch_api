@@ -210,15 +210,40 @@ export const getFollowAge = async (
 
     const texts = getFollowageTexts(lang);
 
+    if (channel.trim().toLowerCase() === user.trim().toLowerCase()) {
+        return {
+            text: texts.owner(user),
+            timePhrase: texts.ownerTime
+        };
+    }
+
     try {
-        const [channelId] = await timedCall('followage:resolveChannelId', () =>
+        const channelLookup = timedCall('followage:resolveChannelId', () =>
             resolveFollowageLoginId(channel, token, 'canal')
         );
-        if (typeof channelId !== 'string') return channelId;
-
-        const [userId] = await timedCall('followage:resolveUserId', () =>
+        // Siempre se observa: si el canal no existe no queremos un rechazo suelto del lookup paralelo.
+        const userSettled = timedCall('followage:resolveUserId', () =>
             resolveFollowageLoginId(user, token, 'usuario')
+        ).then(
+            (value) => ({ ok: true as const, value }),
+            (error: unknown) => ({ ok: false as const, error })
         );
+
+        let channelId: string | FollowAgeResult;
+        try {
+            [channelId] = await channelLookup;
+        } catch (error) {
+            void userSettled;
+            throw error;
+        }
+        if (typeof channelId !== 'string') {
+            void userSettled;
+            return channelId;
+        }
+
+        const userResult = await userSettled;
+        if (!userResult.ok) throw userResult.error;
+        const [userId] = userResult.value;
         if (typeof userId !== 'string') return userId;
 
         if (channelId === userId) {

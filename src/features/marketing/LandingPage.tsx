@@ -69,8 +69,10 @@ function LandingPageInner() {
                             cached: false
                         });
                         markDashboardSplashForFreshLogin();
-                        window.location.href =
-                            appPath('/dashboard/') + `?auth=${encodeURIComponent(authParam)}`;
+                        // replace: no dejar ?auth= en el historial de la home.
+                        window.location.replace(
+                            appPath('/dashboard/') + `?auth=${encodeURIComponent(authParam)}`
+                        );
                         return;
                     }
 

@@ -64,14 +64,19 @@ export async function resolveSessionFromUrl(): Promise<Session> {
     const authToken = params.get('auth');
 
     if (authToken) {
+        // Quitar el token de la barra de direcciones antes del fetch: historial, extensiones y capturas.
+        stripSensitiveQueryParams();
         try {
             const response = await fetch(
-                `${API_ENDPOINTS.AUTH_EXCHANGE}?auth=${encodeURIComponent(authToken)}`,
-                withApiCredentials()
+                API_ENDPOINTS.AUTH_EXCHANGE,
+                withApiCredentials({
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                    body: JSON.stringify({ auth: authToken })
+                })
             );
             if (response.ok) {
                 const data = (await response.json()) as Session;
-                stripSensitiveQueryParams();
                 return {
                     login: data.login || '',
                     displayName: data.displayName || '',

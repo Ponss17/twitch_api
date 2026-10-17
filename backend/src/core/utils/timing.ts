@@ -66,7 +66,7 @@ let coldStartLogged = false;
  * Mide desde la carga del módulo hasta que Express queda listo.
  */
 export const logColdStart = (): void => {
-    if (coldStartLogged) return;
+    if (!ENABLED() || coldStartLogged) return;
     coldStartLogged = true;
     const ms = (performance.now() - MODULE_LOAD_TIME).toFixed(0);
     console.log(`[timing] COLD START: ${ms}ms (module load → Express ready)`);

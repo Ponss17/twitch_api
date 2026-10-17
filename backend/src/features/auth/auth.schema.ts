@@ -32,10 +32,18 @@ export const callbackSchema = z.object({
     })
 });
 
+const authExchangeToken = z.string().min(20).max(4096).optional();
+
 export const exchangeSchema = z.object({
     query: z.object({
-        auth: z.string().min(20).max(4096).optional()
-    })
+        auth: authExchangeToken
+    }),
+    /** POST: el token no viaja en la query (logs de acceso). GET sigue aceptando ?auth= */
+    body: z
+        .object({
+            auth: authExchangeToken
+        })
+        .optional()
 });
 
 export const overlayExchangeSchema = z.object({

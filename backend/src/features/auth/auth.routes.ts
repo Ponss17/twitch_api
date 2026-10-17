@@ -12,6 +12,13 @@ const router = express.Router();
 router.get('/twitch', authRateLimiter, validate(loginSchema), /* codeql[js/missing-rate-limiting] */ authController.login);
 router.get('/twitch/callback', authRateLimiter, validate(callbackSchema), /* codeql[js/missing-rate-limiting] */ authController.callback);
 router.get('/exchange', authRateLimiter, validate(exchangeSchema), /* codeql[js/missing-rate-limiting] */ authController.exchange);
+router.post(
+    '/exchange',
+    authRateLimiter,
+    csrfProtection,
+    validate(exchangeSchema),
+    /* codeql[js/missing-rate-limiting] */ authController.exchange
+);
 router.post('/logout', authRateLimiter, csrfProtection, /* codeql[js/missing-rate-limiting] */ authController.logout);
 router.get('/overlay-exchange', authRateLimiter, validate(overlayExchangeSchema), /* codeql[js/missing-rate-limiting] */ authController.overlayExchange);
 

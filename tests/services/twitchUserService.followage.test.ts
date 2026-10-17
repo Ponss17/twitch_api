@@ -36,6 +36,14 @@ describe('getFollowAge', () => {
         (cacheService.getCachedUserId as jest.Mock).mockResolvedValue(null);
     });
 
+    it('responde dueño sin Helix cuando el login coincide', async () => {
+        const result = await getFollowAge('Ponss17', 'ponss17', 'token');
+
+        expect(result.timePhrase).toBe('toda la vida');
+        expect(result.text).toContain('ponss17');
+        expect(mockedApiClient.get).not.toHaveBeenCalled();
+    });
+
     it('devuelve mensaje claro si el canal no existe', async () => {
         mockedApiClient.get.mockResolvedValueOnce({ data: { data: [] } });
 
