@@ -13,16 +13,31 @@ import { ANONYMOUS_USER_ID } from '../../types/constants';
 import { withTwitchAuth } from '../auth/twitchAuthHelpers';
 import { trackRequest } from '../../core/utils/tracking';
 
+const normalizeLogin = (value: string | undefined): string =>
+    (value || '').trim().replace(/^@+/, '').toLowerCase();
+
 /**
- * Helper para obtener credenciales de respaldo si no hay sesión activa (para comandos de chat)
+ * Token del propio canal cuando la cookie del panel sigue viva pero el access token
+ * de Twitch no está en la request. Nunca el de otro streamer: eso permitiría
+ * timeout/chat con la cuenta de la víctima.
  */
 const getFallbackAuth = async (req: AuthenticatedRequest) => {
     const channel = safeString(req.query.channel) || safeString(req.query.user);
-    if (!channel) return null;
+    const channelLogin = normalizeLogin(channel);
+    const ownerLogin = normalizeLogin(req.login);
+    if (!channelLogin || !ownerLogin || channelLogin !== ownerLogin) {
+        if (channelLogin && ownerLogin && channelLogin !== ownerLogin) {
+            logger.warn('[Security] Fallback auth rechazado: canal distinto del usuario autenticado', {
+                channel: channelLogin,
+                login: ownerLogin
+            });
+        }
+        return null;
+    }
     try {
-        return await authService.getValidTokenByLogin(channel);
+        return await authService.getValidTokenByLogin(channelLogin);
     } catch (error) {
-        logger.warn(`No se pudo obtener fallback auth para canal ${channel}:`, error);
+        logger.warn(`No se pudo obtener fallback auth para canal ${channelLogin}:`, error);
         return null;
     }
 };

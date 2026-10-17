@@ -48,6 +48,14 @@ describe('resolveSessionFromUrl', () => {
 
         const session = await resolveSessionFromUrl();
 
+        expect(global.fetch).toHaveBeenCalledWith(
+            '/api/twitch/auth/exchange',
+            expect.objectContaining({
+                method: 'POST',
+                credentials: 'include',
+                body: JSON.stringify({ auth: 'signed' })
+            })
+        );
         expect(session.isNewLogin).toBe(true);
         expect(session.userId).toBe('42');
         expect(session.apiKey).toBeUndefined();

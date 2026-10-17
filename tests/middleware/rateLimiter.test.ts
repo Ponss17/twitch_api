@@ -4,7 +4,8 @@ import request from 'supertest';
 import { kv } from '@/core/database/redisClient';
 import {
     globalRateLimiter,
-    preAuthRateLimiter
+    preAuthRateLimiter,
+    russianHardcoreRateLimiter
 } from '../../backend/src/core/middleware/redisRateLimiter';
 
 jest.mock('@/core/database/cacheService', () => ({
@@ -131,5 +132,44 @@ describe('globalRateLimiter', () => {
         expect(keys.some((key) => key.includes('rl:api:user-a'))).toBe(true);
         expect(keys.some((key) => key.includes('rl:api:user-b'))).toBe(true);
         expect([...counters.values()].reduce((sum, count) => sum + count, 0)).toBe(4);
+    });
+});
+
+describe('russianHardcoreRateLimiter', () => {
+    let req: Request;
+    let res: Response;
+    let next: jest.Mock;
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+        req = {
+            originalUrl: '/api/minigames/russian',
+            ip: '1.2.3.4',
+            headers: {},
+            query: { hardcore: 'true' },
+            userId: 'user-1'
+        } as unknown as Request;
+        res = {
+            locals: { apiUser: { userId: 'user-1' } },
+            setHeader: jest.fn(),
+            status: jest.fn().mockReturnThis(),
+            send: jest.fn(),
+            json: jest.fn()
+        } as unknown as Response;
+        next = jest.fn();
+    });
+
+    it('no cuenta las partidas que no son hardcore', async () => {
+        req.query = {};
+        await russianHardcoreRateLimiter(req, res, next);
+        expect(next).toHaveBeenCalled();
+        expect(kv.eval).not.toHaveBeenCalled();
+    });
+
+    it('bloquea cuando se supera el tope de timeouts', async () => {
+        (kv.eval as jest.Mock).mockResolvedValue(9);
+        await russianHardcoreRateLimiter(req, res, next);
+        expect(res.status).toHaveBeenCalledWith(429);
+        expect(next).not.toHaveBeenCalled();
     });
 });

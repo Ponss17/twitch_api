@@ -84,6 +84,19 @@ async function fetchTwitchProfiles(
     return twitchMap;
 }
 
+/** Lista pública ya cacheada 24h en KV. El CDN puede servirla sin despertar la función. */
+function setPublicUsersCacheHeaders(res: Response): void {
+    res.setHeader(
+        'Cache-Control',
+        'public, max-age=60, s-maxage=3600, stale-while-revalidate=86400'
+    );
+    res.setHeader('CDN-Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
+    res.setHeader('Vary', 'Origin');
+    res.removeHeader('Pragma');
+    res.removeHeader('Expires');
+    res.removeHeader('Surrogate-Control');
+}
+
 export const getPublicUsers = async (_req: Request, res: Response) => {
     try {
         if (isKvWriteAvailable()) {
@@ -97,6 +110,7 @@ export const getPublicUsers = async (_req: Request, res: Response) => {
                 }>
             >(PUBLIC_USERS_CACHE_KEY);
             if (cachedUsers && Array.isArray(cachedUsers)) {
+                setPublicUsersCacheHeaders(res);
                 return res.status(200).json({ ok: true, users: cachedUsers });
             }
         }
@@ -143,6 +157,7 @@ export const getPublicUsers = async (_req: Request, res: Response) => {
             await kv.set(PUBLIC_USERS_CACHE_KEY, formattedUsers, { ex: CACHE_TTL_SECONDS });
         }
 
+        setPublicUsersCacheHeaders(res);
         return res.status(200).json({ ok: true, users: formattedUsers });
     } catch (error) {
         logger.error('Unexpected error in getPublicUsers', error);

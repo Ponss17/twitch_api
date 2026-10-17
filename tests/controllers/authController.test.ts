@@ -275,6 +275,26 @@ describe('authController', () => {
             });
         });
 
+        it('accepts the exchange token from the JSON body', async () => {
+            const req = mockReq({ query: {}, body: { auth: 'valid-token' } });
+            const res = mockRes();
+
+            (authService.verifyAuthExchange as jest.Mock).mockReturnValue({
+                userId: '999',
+                login: 'testuser',
+                displayName: 'TestUser',
+                profile_image_url: 'https://img.test/avatar.png'
+            });
+            (authService.consumeAuthExchangeToken as jest.Mock).mockResolvedValue('ok');
+
+            await exchange(req, res);
+
+            expect(authService.verifyAuthExchange).toHaveBeenCalledWith('valid-token');
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({ userId: '999', login: 'testuser' })
+            );
+        });
+
         it('should return session payload for valid auth token', async () => {
             const req = mockReq({ query: { auth: 'valid-token' } });
             const res = mockRes();

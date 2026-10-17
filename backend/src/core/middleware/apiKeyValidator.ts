@@ -15,7 +15,7 @@ import { StoredUser } from '../../types/twitch';
 import { BoundedMap, NegativeCache } from '../utils/boundedCache';
 import { isBotCommand, isApiRoute } from '../utils/routeHelpers';
 import { blockIfUnauthorizedScanExceeded } from './redisRateLimiter';
-import { isAuthenticationError } from '../errors/AppError';
+import { AppError, isAuthenticationError } from '../errors/AppError';
 import { apiKeyLookupHash } from '../security/apiKeySecurity';
 import { timedCall } from '../utils/timing';
 
@@ -72,6 +72,25 @@ async function rejectApiKeyUnauthorized(
         return res;
     }
     return respond();
+}
+
+const GENERIC_AUTH_MSG =
+    'Error de autenticación. Clave API inválida o expirada. Regenerala o pide ayuda a Ponss 🦆';
+const GENERIC_UNAVAILABLE_MSG = 'Servicio no disponible temporalmente.';
+
+/** Solo mensajes de AppError operativos. Nunca el .message crudo de Axios/Supabase. */
+function clientSafeErrorMessage(error: unknown, isAuthError: boolean): string {
+    if (error instanceof AppError && error.isOperational && error.statusCode < 500) {
+        const msg = error.message.trim();
+        if (
+            msg.length > 0 &&
+            msg.length <= 200 &&
+            !/postgres|supabase|stack|syntax error|econn|enotfound|axios|sql|secret|bearer /i.test(msg)
+        ) {
+            return msg;
+        }
+    }
+    return isAuthError ? GENERIC_AUTH_MSG : GENERIC_UNAVAILABLE_MSG;
 }
 
 /** Nightbot/SE: HTTP 200 + texto plano aunque la key falle (no tumba el comando del bot). */
@@ -151,11 +170,11 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
                 res.locals.isApiKeyRequest = true;
                 return next();
             } catch (e) {
-                const errorMsg = (e as Error).message;
                 const isAuthError = isAuthenticationError(e);
                 if (req.headers.authorization?.startsWith('Bearer ')) {
                     return next();
                 }
+                const errorMsg = clientSafeErrorMessage(e, isAuthError);
                 if (isAuthError) {
                     return rejectApiKeyUnauthorized(req, res, () =>
                         res.status(401).json({ error: errorMsg })
@@ -199,7 +218,7 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
                     if (isAuthError) {
                         invalidKeysCache.set(apiKeyHash);
                         return rejectApiKeyUnauthorized(req, res, () =>
-                            res.status(401).json({ error: error.message })
+                            res.status(401).json({ error: clientSafeErrorMessage(error, true) })
                         );
                     }
                     return res.status(503).json({ error: 'Servicio no disponible temporalmente.' });

@@ -236,6 +236,52 @@ export const heavyRateLimiter = async (req: Request, res: Response, next: NextFu
 };
 
 /**
+ * Tope aparte para ruleta rusa en hardcore (timeouts de Helix).
+ * No comparte la cuota "heavy" de clips/chatters: un chat activo no debe
+ * gastar el presupuesto de clips, pero un script no puede silenciar a medio chat.
+ */
+const RUSSIAN_HARDCORE_PER_MINUTE = 8;
+
+export const russianHardcoreRateLimiter = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    if (req.query.hardcore !== 'true') return next();
+
+    const apiUser = res.locals?.apiUser as { userId?: string } | undefined;
+    const userId = apiUser?.userId || (req as AuthenticatedRequest).userId;
+    if (!userId) return next();
+
+    if (!isKvWriteAvailable()) {
+        if (process.env.NODE_ENV !== 'production') return next();
+        res.setHeader('Content-Type', 'text/plain');
+        return res.status(503).send('Service Unavailable');
+    }
+
+    try {
+        const count = await kvIncrWithWindow(`rl:russian-hardcore:${userId}`, 60);
+        if (count > RUSSIAN_HARDCORE_PER_MINUTE) {
+            res.setHeader('Content-Type', 'text/plain');
+            return res
+                .status(429)
+                .send(
+                    `Límite de ruleta hardcore excedido (max ${RUSSIAN_HARDCORE_PER_MINUTE}/min). Espera un momento.`
+                );
+        }
+        next();
+    } catch (error) {
+        if (process.env.NODE_ENV !== 'production') {
+            logger.debug('KV russian hardcore rate limit omitido en desarrollo', { error });
+            return next();
+        }
+        logger.error('Error in Russian Hardcore Rate Limiter:', error);
+        res.setHeader('Content-Type', 'text/plain');
+        return res.status(503).send('Service Unavailable');
+    }
+};
+
+/**
  * Cuota por usuario (sesión cookie o API key) para Get Clips Download.
  * Helix limita ~100 req/min por app; no se puede dejar el panel sin tope.
  */

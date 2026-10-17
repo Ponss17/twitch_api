@@ -70,42 +70,29 @@ export const configureMiddleware = (app: Application) => {
                     useDefaults: false,
                     directives: {
                         defaultSrc: ["'self'"],
+                        baseUri: ["'self'"],
+                        formAction: ["'self'"],
+                        frameAncestors: ["'none'"],
                         scriptSrc: [
                             "'self'",
                             // Deferred: Astro islands still need unsafe-inline in hybrid mode.
                             // Revisit when Astro/build can emit nonces for island scripts without breaking panel/docs.
                             "'unsafe-inline'",
-                            'https://cdnjs.cloudflare.com',
-                            'https://unpkg.com',
-                            'https://cdn.jsdelivr.net',
                             'https://*.twitch.tv',
-                            'https://*.jtvnw.net',
                             'https://va.vercel-scripts.com',
-                            'https://*.google-analytics.com',
-                            'https://www.google-analytics.com',
                             'blob:'
                         ],
                         scriptSrcAttr: ["'none'"],
-                        styleSrc: [
-                            "'self'",
-                            "'unsafe-inline'",
-                            'https://fonts.googleapis.com',
-                            'https://cdnjs.cloudflare.com'
-                        ],
-                        fontSrc: [
-                            "'self'",
-                            'https://fonts.gstatic.com',
-                            'https://cdnjs.cloudflare.com'
-                        ],
+                        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+                        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
                         imgSrc: [
                             "'self'",
                             'data:',
+                            'blob:',
                             'https://*.jtvnw.net',
                             'https://*.twitch.tv',
-                            'https://flagcdn.com',
-                            'https://*.flagcdn.com',
-                            'https://*.google-analytics.com',
-                            'blob:'
+                            'https://cdn.discordapp.com',
+                            'https://media.discordapp.net'
                         ],
                         connectSrc: [
                             "'self'",
@@ -113,21 +100,15 @@ export const configureMiddleware = (app: Application) => {
                             'https://api.twitch.tv',
                             'https://*.twitch.tv',
                             'wss://*.twitch.tv',
+                            'wss://irc-ws.chat.twitch.tv',
                             'https://*.supabase.co',
                             'wss://*.supabase.co',
                             'https://va.vercel-scripts.com',
                             'https://vitals.vercel-insights.com',
-                            'https://*.google-analytics.com',
-                            'https://www.google-analytics.com',
                             'blob:'
                         ],
                         objectSrc: ["'none'"],
-                        frameSrc: [
-                            "'self'",
-                            'https://id.twitch.tv',
-                            'https://*.twitch.tv',
-                            'blob:'
-                        ],
+                        frameSrc: ["'self'", 'https://id.twitch.tv', 'https://*.twitch.tv'],
                         workerSrc: ["'self'", 'blob:'],
                         childSrc: ["'self'", 'blob:']
                     }
@@ -186,11 +167,14 @@ export const configureMiddleware = (app: Application) => {
             })
         )
     );
-    app.use(
-        skipForAssets(
-            compression({
-                threshold: 1024 // Solo comprimir respuestas mayores a 1KB
-            })
-        )
-    );
+    // Vercel ya comprime en el edge. compression() aquí solo gasta CPU en el cold start del handler.
+    if (process.env.VERCEL !== '1') {
+        app.use(
+            skipForAssets(
+                compression({
+                    threshold: 1024
+                })
+            )
+        );
+    }
 };
