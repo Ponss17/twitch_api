@@ -58,26 +58,23 @@ function LandingPageInner() {
                 syncSessionHint(!!getAuthSession());
 
                 void (async () => {
-                    const params = new URLSearchParams(window.location.search);
-                    const authParam = params.get('auth');
-
-                    if (authParam) {
+                    const hasAuthHandoff = new URLSearchParams(window.location.search).has('auth');
+                    if (hasAuthHandoff) {
                         setIsVerifying(true);
                         reportSessionLoadProgress({
                             progress: 12,
                             label: preparingLabel,
                             cached: false
                         });
-                        markDashboardSplashForFreshLogin();
-                        // replace: no dejar ?auth= en el historial de la home.
-                        window.location.replace(
-                            appPath('/dashboard/') + `?auth=${encodeURIComponent(authParam)}`
-                        );
-                        return;
                     }
 
+                    // Intercambia aquí y entra al panel sin ?auth= en la URL.
+                    // El callback sigue pudiendo entregar ?auth=<token> a otro origen (dashboard hermano).
                     const sessionParams = await resolveSessionFromUrl();
-                    if (sessionParams.isNewLogin !== true) return;
+                    if (sessionParams.isNewLogin !== true) {
+                        if (hasAuthHandoff) setIsVerifying(false);
+                        return;
+                    }
 
                     setIsVerifying(true);
                     reportSessionLoadProgress({
@@ -86,7 +83,7 @@ function LandingPageInner() {
                         cached: false
                     });
                     markDashboardSplashForFreshLogin();
-                    window.location.href = appPath('/dashboard/');
+                    window.location.replace(appPath('/dashboard/'));
                 })();
             }
         );
