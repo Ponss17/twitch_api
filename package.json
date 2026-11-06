@@ -52,7 +52,7 @@
         "jsonwebtoken": "^9.0.3",
         "winston": "^3.19.0",
         "winston-transport": "^4.9.0",
-        "zod": "^4.4.3"
+        "zod": "^4.6.6"
     },
     "devDependencies": {
         "@astrojs/check": "^0.9.9",
@@ -80,7 +80,7 @@
         "@types/supertest": "^7.2.1",
         "@vercel/analytics": "^2.0.1",
         "@vercel/speed-insights": "^2.0.0",
-        "astro": "^7.3.2",
+        "astro": "7.3.3",
         "canvas-confetti": "^1.9.4",
         "eslint": "^9.39.5",
         "eslint-plugin-astro": "^1.7.0",
