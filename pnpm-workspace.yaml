@@ -25,7 +25,7 @@ overrides:
   http-cache-semantics: ">=4.3.0"
   source-map-js: ">=1.2.2"
   compression: ">=1.8.2"
-  qs: ">=6.16.0"
+  qs: ">=6.16.1"
   smol-toml: ">=1.9.1"
   postcss-selector-parser: "7.1.6"
   axios: "^1.16.0"
@@ -34,6 +34,8 @@ overrides:
   undici: ">=8.12.2"
   vite: ">=8.1.6"
   zod: ">=4.6.6"
+  minimatch@9: "11.0.5"
+  minimatch@10: "11.0.5"
   devalue: "^5.9.1"
   nanoid: "^3.3.18"
   # astro-eslint-parser 1.x usa fast-glob → micromatch → braces (GHSA-vfj7-8cjw-p6xm, sin release).
@@ -47,14 +49,13 @@ auditConfig:
     # sprintf-js: sin release parchado; solo via jest → js-yaml@3 → argparse (dev)
     - GHSA-hp3w-g68c-fv3c
     - GHSA-mh99-v99m-4gvg
+    # deepmerge: sin release parchado; solo jest-config (dev). CVE disputado/rechazado.
+    - GHSA-gcqx-w48m-w2h4
 
 minimumReleaseAgeExclude:
   - '@astrojs/markdown-satteri@0.4.1'
-  - astro@7.3.3
-  - astro@7.3.2
-  - brace-expansion@1.1.21
-  - brace-expansion@2.1.7
-  - brace-expansion@5.0.12
+  - astro@7.3.2 || 7.3.3
+  - brace-expansion@1.1.21 || 2.1.7 || 5.0.12
   - body-parser@2.4.0
   - compression@1.8.2
   - fast-uri@3.1.9
@@ -62,8 +63,10 @@ minimumReleaseAgeExclude:
   - handlebars@4.7.10
   - http-cache-semantics@4.3.0
   - js-yaml@4.3.2
+  - minimatch@11.0.5
   - postcss-selector-parser@7.1.6
   - proxy-addr@2.0.8
+  - qs@6.16.1
   - sharp@0.35.5
   - shell-quote@1.12.0
   - smol-toml@1.9.1
@@ -72,3 +75,4 @@ minimumReleaseAgeExclude:
   - undici@8.12.2
   - vite@8.1.6
   - zod@4.6.6
+  - '@isaacs/nonrecursive-glob-match@1.1.0'
