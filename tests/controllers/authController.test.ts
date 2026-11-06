@@ -151,6 +151,30 @@ describe('authController', () => {
             );
         });
 
+        it('should redirect allowed redirect_origin to /dashboard/?auth= (not site root)', async () => {
+            const req = mockReq({
+                query: { code: 'abc123', state: 'signed-browser-state' },
+                get: (h: string) => (h === 'host' ? 'ttv.losperris.dev' : undefined)
+            });
+            const res = mockRes();
+
+            (authService.verifyState as jest.Mock).mockReturnValue({});
+            (authService.handleCallback as jest.Mock).mockResolvedValue({
+                user: { id: '999', login: 'testuser', display_name: 'TestUser' },
+                redirectOrigin: 'https://ttv.losperris.dev/',
+                apiKey: 'key_abc'
+            });
+
+            await callback(req, res);
+
+            expect(res.redirect).toHaveBeenCalledWith(
+                expect.stringMatching(/^https:\/\/ttv\.losperris\.dev\/dashboard\/\?auth=/)
+            );
+            expect(res.redirect).not.toHaveBeenCalledWith(
+                expect.stringMatching(/^https:\/\/ttv\.losperris\.dev\?auth=/)
+            );
+        });
+
         it('should redirect to error on auth failure', async () => {
             const req = mockReq({ query: { code: 'bad', state: 'signed-browser-state' } });
             const res = mockRes();

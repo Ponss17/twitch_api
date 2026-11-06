@@ -102,15 +102,16 @@ export const callback = async (req: Request, res: Response) => {
 
         const query = `auth=${encodeURIComponent(authToken)}`;
 
-        let redirectUrl: string;
         const validOrigin = redirectOrigin ? getValidOrigin(redirectOrigin, req) : null;
-        
-        if (validOrigin) {
-            redirectUrl = `${validOrigin}?${query}`;
-        } else {
-            redirectUrl = frontendPagePath('/dashboard/', query);
-        }
+        const redirectUrl = validOrigin
+            ? `${validOrigin}/dashboard/?${query}`
+            : frontendPagePath('/dashboard/', query);
 
+        logger.info('OAuth callback OK → panel', {
+            login: user.login,
+            userId: user.id,
+            redirectHost: validOrigin ? new URL(validOrigin).host : 'frontend_default'
+        });
         res.redirect(redirectUrl);
     } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : MESSAGES.AUTH.UNKNOWN_ERROR;
